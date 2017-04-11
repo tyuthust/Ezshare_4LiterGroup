@@ -93,7 +93,18 @@ public class ClientOptionInterpretor implements OptionInterpretor {
 						2==DomainAndPort.length
 						){
 					if(isStringIPAddr(DomainAndPort[0])){
-						DomainAndPort[0] = DomainAndPort[0].replaceAll("0+(?!$)", "");
+						//remove all heading zero of each number
+						String[] tempNums = (DomainAndPort[0]).split("\\.");
+						String refinedIP = "";
+						for (int i = 0; i < tempNums.length; i++) {
+							refinedIP += Integer.parseInt(tempNums[i]);
+							if(i<tempNums.length-1){
+								//add "." unless last part of the number
+								refinedIP +=".";
+							}
+							
+						}
+						DomainAndPort[0] = refinedIP;
 						DomainAndPort[1] = DomainAndPort[1].replaceFirst("0+(?!$)", "");
 					}
 					validServerArray.add(DomainAndPort[0]+":"+DomainAndPort[1]);
