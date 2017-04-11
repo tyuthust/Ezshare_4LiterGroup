@@ -16,13 +16,15 @@ public class Main {
 		if(args[0].equals("EZShare.Client")){
 			interpretor = new ClientOptionInterpretor();
 			ClientCmds cmds = (ClientCmds) interpretor.interpret(args);
-			if(null!= cmds.channel){
-				System.out.println("Channel is "+ cmds.channel);
-			}
+			Client client = new Client(cmds);
+			client.run();
+
 		}
 		else if(args[0].equals("EZShare.Server")){
 			interpretor = new ServerOptionInterpretor();
 			ServerCmds cmds = (ServerCmds) interpretor.interpret(args);
+			Server server = new Server(cmds);
+			server.run();
 		}
 		else {
 			throw new Exception();
