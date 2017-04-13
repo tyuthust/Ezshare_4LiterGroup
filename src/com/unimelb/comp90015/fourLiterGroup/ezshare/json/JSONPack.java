@@ -1,6 +1,6 @@
 package com.unimelb.comp90015.fourLiterGroup.ezshare.json;
 
-import org.json.simple.JSONObject;
+import org.json.simple.*;
 
 import com.unimelb.comp90015.fourLiterGroup.ezshare.optionsInterpret.Cmds;
 

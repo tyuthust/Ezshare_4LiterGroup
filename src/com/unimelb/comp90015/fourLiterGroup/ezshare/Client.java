@@ -19,11 +19,11 @@ public class Client {
 	}
 
 	public void run() {
-		/*for (String string : cmds.servers) {
+		for (String string : cmds.servers) {
 			System.out.println("server: " + string);
-		}*/
-		System.out.println(cmds.host);
-		System.out.println(cmds.port);
+		}
+		// System.out.println(cmds.host);
+		// System.out.println(cmds.port);
 	}
 
 	public void connect() throws IOException {

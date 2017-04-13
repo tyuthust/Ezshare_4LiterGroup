@@ -1,12 +1,15 @@
 package com.unimelb.comp90015.fourLiterGroup.ezshare.json;
 
-import org.json.simple.JSONObject;
+import org.json.simple.*;
+import org.json.JSONArray;
 
 import com.unimelb.comp90015.fourLiterGroup.ezshare.optionsInterpret.ClientCmds;
 import com.unimelb.comp90015.fourLiterGroup.ezshare.optionsInterpret.Cmds;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.List;
 
 public class ClientPack implements JSONPack {
 
@@ -83,10 +86,18 @@ public class ClientPack implements JSONPack {
 			jsonObject.put("resource", jsonObject1);
 			jsonObject.put("command", "FETCH");
 		} else if (clientcmds.exchange) {// pack exchange command in json
-			Map map = new HashMap();
-			
-			
+			List<JSONObject> jsonobjectList = new ArrayList<JSONObject>();
+			for (String string : clientcmds.servers) {
+				String[] DomainAndPort = string.split(":");
+				JSONObject jsonObject2 = new JSONObject();
+				jsonObject2.put("hostname", DomainAndPort[0]);
+				jsonObject2.put("port", DomainAndPort[1]);
+				jsonobjectList.add(jsonObject2);
+				//jsonObject1.put("serverList", jsonObject2);
+			}
+			JSONArray jsonMap = new JSONArray(jsonobjectList);
 			jsonObject.put("command", "Exchange");
+			jsonObject.put("serverList",jsonMap);
 		}
 		return jsonObject;
 	}
