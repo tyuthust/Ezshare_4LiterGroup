@@ -96,8 +96,8 @@ public class ClientPack implements JSONPack {
 				//jsonObject1.put("serverList", jsonObject2);
 			}
 			JSONArray jsonMap = new JSONArray(jsonobjectList);
-			jsonObject.put("command", "Exchange");
 			jsonObject.put("serverList",jsonMap);
+			jsonObject.put("command", "Exchange");
 		}
 		return jsonObject;
 	}
