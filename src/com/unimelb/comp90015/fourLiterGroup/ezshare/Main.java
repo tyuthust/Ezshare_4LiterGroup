@@ -18,13 +18,14 @@ public class Main {
 			ClientCmds cmds = (ClientCmds) interpretor.interpret(args);
 			Client client = new Client(cmds);
 			client.run();
-
+			client.connect();
 		}
 		else if(args[0].equals("EZShare.Server")){
 			interpretor = new ServerOptionInterpretor();
 			ServerCmds cmds = (ServerCmds) interpretor.interpret(args);
 			Server server = new Server(cmds);
 			server.run();
+			server.setup();
 		}
 		else {
 			throw new Exception();
