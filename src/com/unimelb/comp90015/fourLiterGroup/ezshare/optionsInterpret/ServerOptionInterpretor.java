@@ -45,7 +45,7 @@ public class ServerOptionInterpretor implements OptionInterpretor {
         	serverCmds.debug = true;
 		
 		
-		return new ServerCmds();
+		return serverCmds;
 	}
 
 }
