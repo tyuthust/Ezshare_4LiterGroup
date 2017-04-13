@@ -118,7 +118,7 @@ public class ClientOptionInterpretor implements OptionInterpretor {
         if(cmd.hasOption("share"))
         	clientCmds.share = true;
         if(cmd.hasOption("tags")){
-        	clientCmds.tags = cmd.getOptionValue("secret").split(",");
+        	clientCmds.tags = cmd.getOptionValue("tags").split(",");
         	
         }
         if(cmd.hasOption("uri"))
