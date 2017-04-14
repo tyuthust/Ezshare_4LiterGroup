@@ -5,6 +5,11 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Map.Entry;
+
 import javax.net.ServerSocketFactory;
 
 import org.json.simple.JSONArray;
@@ -98,11 +103,34 @@ public class Server {
 	private static JSONObject publish(JSONObject jsonObject) {// publish
 																// function:
 																// need to be
-		// achieved
+																// achieved
 		JSONObject result = new JSONObject();
 		System.out.println("Publish function");
-		//Resource resource = new Resource();
-		//resource.jsonObject.get("name").toString()
+
+		// create a jsonobject to save the map in resource
+		JSONObject jsonObject1 = new JSONObject();
+		jsonObject1.putAll((Map) jsonObject.get("resource"));
+		System.out.println(jsonObject1);
+
+		// create a new resource and set its value
+		Resource resource = new Resource();
+		resource.setName(jsonObject1.get("name").toString());
+		System.out.println("The resource name:" + resource.getName());
+		Map map = new HashMap();
+		map = (Map) jsonObject1.clone();
+		if (map.containsKey("channel")) {// otherwise, there is an exception
+											// when channel is null
+			resource.setChannel(null);
+		} else {
+			resource.setChannel(jsonObject1.get("channel").toString());
+		}
+		System.out.println("The resource channel:" + resource.getChannel());
+
+		resource.setDescription(jsonObject1.get("description").toString());
+		resource.setOwner(jsonObject1.get("owner").toString());
+		resource.setURI(jsonObject1.get("uri").toString());
+		resource.setEZServer(jsonObject1.get("ezserver").toString());
+
 		if (true) {
 			result.put("response", "successful");
 		}
@@ -155,10 +183,10 @@ public class Server {
 
 	private static JSONObject exchange(JSONObject jsonObject) {// share
 																// function:
-		// need to be
-		// achieved
+																// need to be
+																// achieved
 		JSONObject result = new JSONObject();
-		System.out.println("Fetch function");
+		System.out.println("Exchange function");
 		if (true) {
 			result.put("response", "successful");
 		}
