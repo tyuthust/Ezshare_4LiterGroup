@@ -34,7 +34,7 @@ public class ClientPack implements JSONPack {
 			jsonObject1.put("uri", clientcmds.uri);
 			jsonObject1.put("channel", clientcmds.channel);
 			jsonObject1.put("owner", clientcmds.owner);
-			jsonObject1.put("ezserver", clientcmds.host);
+			jsonObject1.put("ezserver", clientcmds.servers);
 
 			jsonObject.put("resource", jsonObject1);
 			jsonObject.put("command", "PUBLISH");
@@ -52,7 +52,7 @@ public class ClientPack implements JSONPack {
 			jsonObject1.put("uri", clientcmds.uri);
 			jsonObject1.put("channel", clientcmds.channel);
 			jsonObject1.put("owner", clientcmds.owner);
-			jsonObject1.put("ezserver", clientcmds.host);
+			jsonObject1.put("ezserver", clientcmds.servers);
 
 			jsonObject.put("resource", jsonObject1);
 			jsonObject.put("relay", "true");
@@ -71,7 +71,7 @@ public class ClientPack implements JSONPack {
 			jsonObject1.put("uri", clientcmds.uri);
 			jsonObject1.put("channel", clientcmds.channel);
 			jsonObject1.put("owner", clientcmds.owner);
-			jsonObject1.put("ezserver", clientcmds.host);
+			jsonObject1.put("ezserver", clientcmds.servers);
 
 			jsonObject.put("resource", jsonObject1);
 			jsonObject.put("command", "REMOVE");
@@ -89,7 +89,7 @@ public class ClientPack implements JSONPack {
 			jsonObject1.put("uri", clientcmds.uri);
 			jsonObject1.put("channel", clientcmds.channel);
 			jsonObject1.put("owner", clientcmds.owner);
-			jsonObject1.put("ezserver", clientcmds.host);
+			jsonObject1.put("ezserver", clientcmds.servers);
 
 			jsonObject.put("resource", jsonObject1);
 			jsonObject.put("secret", clientcmds.secret);
@@ -108,7 +108,7 @@ public class ClientPack implements JSONPack {
 			jsonObject1.put("uri", clientcmds.uri);
 			jsonObject1.put("channel", clientcmds.channel);
 			jsonObject1.put("owner", clientcmds.owner);
-			jsonObject1.put("ezserver", clientcmds.host);
+			jsonObject1.put("ezserver", clientcmds.servers);
 
 			jsonObject.put("resource", jsonObject1);
 			jsonObject.put("command", "FETCH");
