@@ -116,24 +116,43 @@ public class Server {
 		Resource resource = new Resource();
 		resource.setName(jsonObject1.get("name").toString());
 		System.out.println("The resource name:" + resource.getName());
+		
+		//clone the jsonobject to a hashmap
 		Map map = new HashMap();
 		map = (Map) jsonObject1.clone();
-		if (map.containsKey("channel")) {// otherwise, there is an exception
+		
+		if (map.get("channel")==null) {// otherwise, there is an exception
 											// when channel is null
 			resource.setChannel(null);
 		} else {
 			resource.setChannel(jsonObject1.get("channel").toString());
 		}
 		System.out.println("The resource channel:" + resource.getChannel());
-
+		
 		resource.setDescription(jsonObject1.get("description").toString());
-		resource.setOwner(jsonObject1.get("owner").toString());
+		System.out.println("The resource description:" + resource.getDescription());
+		
+		if(map.get("owner")==null){
+			resource.setOwner(null);
+		}else{
+			resource.setOwner(jsonObject1.get("owner").toString());
+		}
+		System.out.println("The resource owner:" + resource.getOwner());
+		
 		resource.setURI(jsonObject1.get("uri").toString());
-		resource.setEZServer(jsonObject1.get("ezserver").toString());
-
+		System.out.println("The resource uri:" + resource.getURI());
+		
+		if(map.get("ezserver")==null){
+			resource.setEZServer(null);
+		}else{
+			resource.setEZServer(jsonObject1.get("ezserver").toString());
+		}
+		System.out.println("The resource ezserver:" + resource.getEZShare());
+		
 		if (true) {
 			result.put("response", "successful");
 		}
+		
 		return result;
 	}
 
