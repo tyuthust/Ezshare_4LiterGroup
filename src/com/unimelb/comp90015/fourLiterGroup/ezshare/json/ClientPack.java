@@ -22,7 +22,12 @@ public class ClientPack implements JSONPack {
 			JSONObject jsonObject1 = new JSONObject();
 
 			jsonObject1.put("name", clientcmds.name);
-			jsonObject1.put("tags", clientcmds.tags);
+			List<String> tagList = new ArrayList<String>();
+			for(String string: clientcmds.tags){
+				tagList.add(string);
+			}
+			jsonObject1.put("tags",tagList);
+			
 			jsonObject1.put("description", clientcmds.description);
 			jsonObject1.put("uri", clientcmds.uri);
 			jsonObject1.put("channel", clientcmds.channel);
@@ -35,7 +40,12 @@ public class ClientPack implements JSONPack {
 			JSONObject jsonObject1 = new JSONObject();
 
 			jsonObject1.put("name", clientcmds.name);
-			jsonObject1.put("tags", clientcmds.tags);
+			List<String> tagList = new ArrayList<String>();
+			for(String string: clientcmds.tags){
+				tagList.add(string);
+			}
+			jsonObject1.put("tags",tagList);
+			
 			jsonObject1.put("description", clientcmds.description);
 			jsonObject1.put("uri", clientcmds.uri);
 			jsonObject1.put("channel", clientcmds.channel);
@@ -49,7 +59,12 @@ public class ClientPack implements JSONPack {
 			JSONObject jsonObject1 = new JSONObject();
 
 			jsonObject1.put("name", clientcmds.name);
-			jsonObject1.put("tags", clientcmds.tags);
+			List<String> tagList = new ArrayList<String>();
+			for(String string: clientcmds.tags){
+				tagList.add(string);
+			}
+			jsonObject1.put("tags",tagList);
+			
 			jsonObject1.put("description", clientcmds.description);
 			jsonObject1.put("uri", clientcmds.uri);
 			jsonObject1.put("channel", clientcmds.channel);
@@ -62,7 +77,12 @@ public class ClientPack implements JSONPack {
 			JSONObject jsonObject1 = new JSONObject();
 
 			jsonObject1.put("name", clientcmds.name);
-			jsonObject1.put("tags", clientcmds.tags);
+			List<String> tagList = new ArrayList<String>();
+			for(String string: clientcmds.tags){
+				tagList.add(string);
+			}
+			jsonObject1.put("tags",tagList);
+			
 			jsonObject1.put("description", clientcmds.description);
 			jsonObject1.put("uri", clientcmds.uri);
 			jsonObject1.put("channel", clientcmds.channel);
@@ -76,7 +96,12 @@ public class ClientPack implements JSONPack {
 			JSONObject jsonObject1 = new JSONObject();
 
 			jsonObject1.put("name", clientcmds.name);
-			jsonObject1.put("tags", clientcmds.tags);
+			List<String> tagList = new ArrayList<String>();
+			for(String string: clientcmds.tags){
+				tagList.add(string);
+			}
+			jsonObject1.put("tags",tagList);
+			
 			jsonObject1.put("description", clientcmds.description);
 			jsonObject1.put("uri", clientcmds.uri);
 			jsonObject1.put("channel", clientcmds.channel);

@@ -47,33 +47,31 @@ public class Server {
 			e.printStackTrace();
 		}
 	}
-	
-	private static void serveClient(Socket client){
-		try(Socket clientSocket = client){
-			
+
+	private static void serveClient(Socket client) {
+		try (Socket clientSocket = client) {
+
 			// The JSON Parser
 			JSONParser parser = new JSONParser();
 			// Input stream
-			DataInputStream input = new DataInputStream(clientSocket.
-					getInputStream());
+			DataInputStream input = new DataInputStream(clientSocket.getInputStream());
 			// Output Stream
-		    DataOutputStream output = new DataOutputStream(clientSocket.
-		    		getOutputStream());
-		    System.out.println("CLIENT: "+input.readUTF());
-		    output.writeUTF("Server: Hi Client "+counter+" !!!");
-		    
-		    // Receive more data..
-		    while(true){
-		    	if(input.available() > 0){
-		    		// Attempt to convert read data to JSON
-		    		JSONObject command = (JSONObject) parser.parse(input.readUTF());
-		    		System.out.println("COMMAND RECEIVED: "+command.toJSONString());
+			DataOutputStream output = new DataOutputStream(clientSocket.getOutputStream());
+			System.out.println("CLIENT: " + input.readUTF());
+			output.writeUTF("Server: Hi Client " + counter + " !!!");
 
-		    		JSONObject results = new JSONObject();
-		    		results.put("response", "successful");
-		    		output.writeUTF(results.toJSONString());
-		    	}
-		    }
+			// Receive more data..
+			while (true) {
+				if (input.available() > 0) {
+					// Attempt to convert read data to JSON
+					JSONObject command = (JSONObject) parser.parse(input.readUTF());
+					System.out.println("COMMAND RECEIVED: " + command.toJSONString());
+
+					JSONObject results = new JSONObject();
+					results.put("response", "successful");
+					output.writeUTF(results.toJSONString());
+				}
+			}
 		} catch (IOException | ParseException e) {
 			e.printStackTrace();
 		}
