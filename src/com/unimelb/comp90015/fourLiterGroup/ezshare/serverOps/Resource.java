@@ -7,7 +7,7 @@ public class Resource {
 	private String URI = null;
 	private String Channel = null;
 	private String Owner = null;
-	private String EZserver = null;
+	private String[] EZserver = null;
 
 	public Resource() {// Constructor
 	}
@@ -37,8 +37,8 @@ public class Resource {
 		this.Owner = owner;
 	}
 
-	public void setEZServer(String ezserver) {
-		this.EZserver = ezserver;
+	public void setEZServer(String[] ezservers) {
+		this.EZserver = ezservers.clone();
 	}
 	
 	
@@ -58,7 +58,7 @@ public class Resource {
 		return this.Owner;
 	}
 	
-	public String getEZShare(){
+	public String[] getEZShare(){
 		return this.EZserver;
 	}
 	
