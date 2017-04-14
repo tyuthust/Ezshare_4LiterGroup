@@ -140,12 +140,9 @@ public class Server {
 		resource.setURI(jsonObject1.get("uri").toString());
 		System.out.println("The resource uri:" + resource.getURI());
 
-		if (map.get("ezserver") != null) {
-			String[] ezservers = map.get("ezshare").toString().split(",");
-			resource.setEZServer(ezservers);
-		}
-		System.out.println("The resource ezserver:" + resource.getEZShare());
-		
+		//ezserver will not be transported when using publish command 
+		System.out.println("The resource ezserver:" + "null");
+
 
 		if (true) {
 			result.put("response", "successful");

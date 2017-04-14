@@ -25,16 +25,16 @@ public class ClientPack implements JSONPack {
 
 			jsonObject1.put("name", clientcmds.name);
 			List<String> tagList = new ArrayList<String>();
-			for(String string: clientcmds.tags){
+			for (String string : clientcmds.tags) {
 				tagList.add(string);
 			}
-			jsonObject1.put("tags",tagList);
-			
+			jsonObject1.put("tags", tagList);
+
 			jsonObject1.put("description", clientcmds.description);
 			jsonObject1.put("uri", clientcmds.uri);
 			jsonObject1.put("channel", clientcmds.channel);
 			jsonObject1.put("owner", clientcmds.owner);
-			jsonObject1.put("ezserver", clientcmds.servers);
+			jsonObject1.put("ezserver", null);
 
 			jsonObject.put("resource", jsonObject1);
 			jsonObject.put("command", "PUBLISH");
@@ -43,11 +43,11 @@ public class ClientPack implements JSONPack {
 
 			jsonObject1.put("name", clientcmds.name);
 			List<String> tagList = new ArrayList<String>();
-			for(String string: clientcmds.tags){
+			for (String string : clientcmds.tags) {
 				tagList.add(string);
 			}
-			jsonObject1.put("tags",tagList);
-			
+			jsonObject1.put("tags", tagList);
+
 			jsonObject1.put("description", clientcmds.description);
 			jsonObject1.put("uri", clientcmds.uri);
 			jsonObject1.put("channel", clientcmds.channel);
@@ -62,11 +62,11 @@ public class ClientPack implements JSONPack {
 
 			jsonObject1.put("name", clientcmds.name);
 			List<String> tagList = new ArrayList<String>();
-			for(String string: clientcmds.tags){
+			for (String string : clientcmds.tags) {
 				tagList.add(string);
 			}
-			jsonObject1.put("tags",tagList);
-			
+			jsonObject1.put("tags", tagList);
+
 			jsonObject1.put("description", clientcmds.description);
 			jsonObject1.put("uri", clientcmds.uri);
 			jsonObject1.put("channel", clientcmds.channel);
@@ -80,11 +80,11 @@ public class ClientPack implements JSONPack {
 
 			jsonObject1.put("name", clientcmds.name);
 			List<String> tagList = new ArrayList<String>();
-			for(String string: clientcmds.tags){
+			for (String string : clientcmds.tags) {
 				tagList.add(string);
 			}
-			jsonObject1.put("tags",tagList);
-			
+			jsonObject1.put("tags", tagList);
+
 			jsonObject1.put("description", clientcmds.description);
 			jsonObject1.put("uri", clientcmds.uri);
 			jsonObject1.put("channel", clientcmds.channel);
@@ -99,11 +99,11 @@ public class ClientPack implements JSONPack {
 
 			jsonObject1.put("name", clientcmds.name);
 			List<String> tagList = new ArrayList<String>();
-			for(String string: clientcmds.tags){
+			for (String string : clientcmds.tags) {
 				tagList.add(string);
 			}
-			jsonObject1.put("tags",tagList);
-			
+			jsonObject1.put("tags", tagList);
+
 			jsonObject1.put("description", clientcmds.description);
 			jsonObject1.put("uri", clientcmds.uri);
 			jsonObject1.put("channel", clientcmds.channel);
@@ -120,11 +120,11 @@ public class ClientPack implements JSONPack {
 				jsonObject2.put("hostname", DomainAndPort[0]);
 				jsonObject2.put("port", DomainAndPort[1]);
 				jsonobjectList.add(jsonObject2);
-				//jsonObject1.put("serverList", jsonObject2);
+				// jsonObject1.put("serverList", jsonObject2);
 			}
 			JSONArray jsonMap = new JSONArray();
 			jsonMap.add(jsonobjectList);
-			jsonObject.put("serverList",jsonMap);
+			jsonObject.put("serverList", jsonMap);
 			jsonObject.put("command", "EXCHANGE");
 		}
 		return jsonObject;
