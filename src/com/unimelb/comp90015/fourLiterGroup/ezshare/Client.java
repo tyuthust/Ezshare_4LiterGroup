@@ -3,13 +3,15 @@ package com.unimelb.comp90015.fourLiterGroup.ezshare;
 import com.unimelb.comp90015.fourLiterGroup.ezshare.json.ClientPack;
 import com.unimelb.comp90015.fourLiterGroup.ezshare.json.JSONPack;
 import com.unimelb.comp90015.fourLiterGroup.ezshare.optionsInterpret.ClientCmds;
-import com.unimelb.comp90015.fourLiterGroup.ezshare.optionsInterpret.Cmds;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+
 import java.net.Socket;
 import java.net.UnknownHostException;
+
+
 
 public class Client {
 	private ClientCmds cmds;

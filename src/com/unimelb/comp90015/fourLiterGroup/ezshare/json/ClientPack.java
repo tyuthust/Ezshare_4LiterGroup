@@ -1,7 +1,9 @@
 package com.unimelb.comp90015.fourLiterGroup.ezshare.json;
 
-import org.json.simple.*;
-import org.json.JSONArray;
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
 
 import com.unimelb.comp90015.fourLiterGroup.ezshare.optionsInterpret.ClientCmds;
 import com.unimelb.comp90015.fourLiterGroup.ezshare.optionsInterpret.Cmds;
@@ -120,9 +122,10 @@ public class ClientPack implements JSONPack {
 				jsonobjectList.add(jsonObject2);
 				//jsonObject1.put("serverList", jsonObject2);
 			}
-			JSONArray jsonMap = new JSONArray(jsonobjectList);
+			JSONArray jsonMap = new JSONArray();
+			jsonMap.add(jsonobjectList);
 			jsonObject.put("serverList",jsonMap);
-			jsonObject.put("command", "Exchange");
+			jsonObject.put("command", "EXCHANGE");
 		}
 		return jsonObject;
 	}

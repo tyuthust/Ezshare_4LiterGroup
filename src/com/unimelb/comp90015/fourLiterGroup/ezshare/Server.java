@@ -5,14 +5,15 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
-
 import javax.net.ServerSocketFactory;
 
+import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 
 import com.unimelb.comp90015.fourLiterGroup.ezshare.optionsInterpret.ServerCmds;
+import com.unimelb.comp90015.fourLiterGroup.ezshare.serverOps.Resource;
 
 public class Server {
 	private ServerCmds cmds;
@@ -67,13 +68,100 @@ public class Server {
 					JSONObject command = (JSONObject) parser.parse(input.readUTF());
 					System.out.println("COMMAND RECEIVED: " + command.toJSONString());
 
-					JSONObject results = new JSONObject();
-					results.put("response", "successful");
+					JSONObject results = new JSONObject();// return json pack
+					if (command.get("command").equals("PUBLISH")) {//
+						results = publish(command);
+					} else if (command.get("command").equals("QUERY")) {
+						results = query(command);
+					} else if (command.get("command").equals("REMOVE")) {
+						results = remove(command);
+					} else if (command.get("command").equals("SHARE")) {
+						results = share(command);
+					} else if (command.get("command").equals("FETCH")) {
+						results = fetch(command);
+					} else if (command.get("command").equals("EXCHANGE")) {
+						results = exchange(command);
+					}
+
+					// Operate based on the JSON command
+
+					// Response to the client
+
 					output.writeUTF(results.toJSONString());
 				}
 			}
 		} catch (IOException | ParseException e) {
 			e.printStackTrace();
 		}
+	}
+
+	private static JSONObject publish(JSONObject jsonObject) {// publish
+																// function:
+																// need to be
+		// achieved
+		JSONObject result = new JSONObject();
+		System.out.println("Publish function");
+		//Resource resource = new Resource();
+		//resource.jsonObject.get("name").toString()
+		if (true) {
+			result.put("response", "successful");
+		}
+		return result;
+	}
+
+	private static JSONObject query(JSONObject jsonObject) {// query function:
+															// need to be
+															// achieved
+		JSONObject result = new JSONObject();
+		System.out.println("Query function");
+		if (true) {
+			result.put("response", "successful");
+		}
+		return result;
+	}
+
+	private static JSONObject remove(JSONObject jsonObject) {// remove function:
+																// need to be
+																// achieved
+		JSONObject result = new JSONObject();
+		System.out.println("Remove function");
+		if (true) {
+			result.put("response", "successful");
+		}
+		return result;
+	}
+
+	private static JSONObject share(JSONObject jsonObject) {// share function:
+															// need to be
+															// achieved
+		JSONObject result = new JSONObject();
+		System.out.println("Share function");
+		if (true) {
+			result.put("response", "successful");
+		}
+		return result;
+	}
+
+	private static JSONObject fetch(JSONObject jsonObject) {// share function:
+															// need to be
+															// achieved
+		JSONObject result = new JSONObject();
+		System.out.println("Fetch function");
+		if (true) {
+			result.put("response", "successful");
+		}
+		return result;
+	}
+
+	private static JSONObject exchange(JSONObject jsonObject) {// share
+																// function:
+		// need to be
+		// achieved
+		JSONObject result = new JSONObject();
+		System.out.println("Fetch function");
+		if (true) {
+			result.put("response", "successful");
+		}
+		return result;
 	}
 }
