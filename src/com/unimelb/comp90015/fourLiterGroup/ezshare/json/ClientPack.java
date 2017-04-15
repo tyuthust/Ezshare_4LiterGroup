@@ -113,17 +113,18 @@ public class ClientPack implements JSONPack {
 			jsonObject.put("resource", jsonObject1);
 			jsonObject.put("command", "FETCH");
 		} else if (clientcmds.exchange) {// pack exchange command in json
-			List<JSONObject> jsonobjectList = new ArrayList<JSONObject>();
+			//List<JSONObject> jsonobjectList = new ArrayList<JSONObject>();
+			JSONArray jsonMap = new JSONArray();
 			for (String string : clientcmds.servers) {
 				String[] DomainAndPort = string.split(":");
 				JSONObject jsonObject2 = new JSONObject();
 				jsonObject2.put("hostname", DomainAndPort[0]);
 				jsonObject2.put("port", DomainAndPort[1]);
-				jsonobjectList.add(jsonObject2);
+				jsonMap.add(jsonObject2);
+				//jsonobjectList.add(jsonObject2);
 				// jsonObject1.put("serverList", jsonObject2);
 			}
-			JSONArray jsonMap = new JSONArray();
-			jsonMap.add(jsonobjectList);
+			//jsonMap.add(jsonobjectList);
 			jsonObject.put("serverList", jsonMap);
 			jsonObject.put("command", "EXCHANGE");
 		}

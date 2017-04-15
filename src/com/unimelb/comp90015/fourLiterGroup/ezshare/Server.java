@@ -148,8 +148,8 @@ public class Server {
 			resource.setTags(tags);
 		}
 
-		List<String> tagList =new ArrayList<String>();
-		for(String string:resource.getTags()){
+		List<String> tagList = new ArrayList<String>();
+		for (String string : resource.getTags()) {
 			tagList.add(string);
 		}
 		System.out.println("The resource:" + tagList.toString());
@@ -212,6 +212,26 @@ public class Server {
 																// achieved
 		JSONObject result = new JSONObject();
 		System.out.println("Exchange function");
+		Resource resource = new Resource();
+
+		int counter=0;
+		JSONArray jsonArray = new JSONArray();
+		jsonArray = (JSONArray) jsonObject.get("serverList");
+		List<JSONObject> jsonobjectList = new ArrayList<JSONObject>();
+		for (int i = 0; i < jsonArray.size(); i++) {
+			jsonobjectList.add((JSONObject) jsonArray.get(i));
+		}
+		String[] ezservers=new String[jsonArray.size()];
+		for(JSONObject jsonOb: jsonobjectList){
+			ezservers[counter]=jsonOb.get("hostname").toString()+":"+jsonOb.get("port").toString();
+			counter++;
+		}
+		resource.setEZServer(ezservers);
+		List<String> resList = new ArrayList<String>();
+		for(String string:resource.getEZShare()){
+			resList.add(string); 
+		}
+		System.out.println("The resource ezservers:" + resList.toString());
 		if (true) {
 			result.put("response", "successful");
 		}
