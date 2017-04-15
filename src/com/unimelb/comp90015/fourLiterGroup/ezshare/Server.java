@@ -89,11 +89,6 @@ public class Server {
 					} else if (command.get("command").equals("EXCHANGE")) {
 						results = exchange(command);
 					}
-
-					// Operate based on the JSON command
-
-					// Response to the client
-
 					output.writeUTF(results.toJSONString());
 				}
 			}
@@ -106,7 +101,6 @@ public class Server {
 																// function:
 																// need to be
 																// achieved
-		JSONObject result = new JSONObject();
 		System.out.println("Publish function");
 
 		// create a jsonobject to save the map in resource
@@ -140,10 +134,27 @@ public class Server {
 		resource.setURI(jsonObject1.get("uri").toString());
 		System.out.println("The resource uri:" + resource.getURI());
 
-		//ezserver will not be transported when using publish command 
+		// ezserver will not be transported when using publish command
 		System.out.println("The resource ezserver:" + "null");
 
+		if (map.get("tags") != null) {
+			JSONArray jsonArray = new JSONArray();
+			jsonArray = (JSONArray) jsonObject1.get("tags");
+			String[] tags = new String[jsonArray.size()];
+			for (int i = 0; i < jsonArray.size(); i++) {
+				String r = jsonArray.get(i).toString();
+				tags[i] = r;
+			}
+			resource.setTags(tags);
+		}
 
+		List<String> tagList =new ArrayList<String>();
+		for(String string:resource.getTags()){
+			tagList.add(string);
+		}
+		System.out.println("The resource:" + tagList.toString());
+
+		JSONObject result = new JSONObject();
 		if (true) {
 			result.put("response", "successful");
 		}

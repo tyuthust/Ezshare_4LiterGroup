@@ -1,5 +1,7 @@
 package com.unimelb.comp90015.fourLiterGroup.ezshare.serverOps;
 
+import java.util.List;
+
 public class Resource {
 	private String Name = null;
 	private String Description = null;
@@ -21,8 +23,7 @@ public class Resource {
 	}
 
 	public void setTags(String[] tags) {
-		this.Tags = tags.clone();
-		System.out.println(tags.toString());
+		this.Tags=tags.clone();
 	}
 
 	public void setURI(String uri) {
@@ -64,5 +65,9 @@ public class Resource {
 	
 	public String getURI(){
 		return this.URI;
+	}
+	
+	public String[] getTags(){
+		return this.Tags;
 	}
 }
