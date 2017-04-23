@@ -5,7 +5,6 @@ import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 
-import com.sun.jndi.toolkit.url.Uri;
 import com.unimelb.comp90015.fourLiterGroup.ezshare.optionsInterpret.ClientCmds;
 import com.unimelb.comp90015.fourLiterGroup.ezshare.optionsInterpret.Cmds;
 
