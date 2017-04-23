@@ -55,7 +55,7 @@ public class Server {
 				Thread t = new Thread(() -> serveClient(client));
 				t.start();
 				fixedThreadPool.execute(t);
-				//need to be shutdown after C/S connection done.
+				//may need to be shutdown after a C/S connection done.
 				//fixedThreadPool.shutdown(); 
 			}
 
