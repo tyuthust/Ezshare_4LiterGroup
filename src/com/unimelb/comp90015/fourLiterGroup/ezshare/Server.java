@@ -53,12 +53,7 @@ public class Server {
 
 				// Start a new thread for a connection in the thread pool
 
-				fixedThreadPool.execute(new Runnable() {
-					public void run() {
-							Thread t = new Thread(() -> serveClient(client));
-							t.start();
-					}
-				});
+				fixedThreadPool.execute(new Thread(() -> serveClient(client)) );
 			}
 
 		} catch (IOException e) {
