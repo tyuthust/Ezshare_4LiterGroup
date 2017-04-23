@@ -52,8 +52,11 @@ public class Server {
 				System.out.println("Client " + counter + ": Applying for connection!");
 
 				// Start a new thread for a connection in the thread pool
-
-				fixedThreadPool.execute(new Thread(() -> serveClient(client)) );
+				Thread t = new Thread(() -> serveClient(client));
+				t.start();
+				fixedThreadPool.execute(t);
+				//need to be shutdown after C/S connection done.
+				//fixedThreadPool.shutdown(); 
 			}
 
 		} catch (IOException e) {
