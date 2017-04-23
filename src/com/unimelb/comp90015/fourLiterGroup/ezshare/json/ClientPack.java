@@ -5,6 +5,7 @@ import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 
+import com.sun.jndi.toolkit.url.Uri;
 import com.unimelb.comp90015.fourLiterGroup.ezshare.optionsInterpret.ClientCmds;
 import com.unimelb.comp90015.fourLiterGroup.ezshare.optionsInterpret.Cmds;
 
@@ -16,105 +17,90 @@ import java.util.List;
 public class ClientPack implements JSONPack {
 
 	@Override
-	public JSONObject Pack(Cmds cmds) {
+	public JSONObject Pack(Cmds cmds) throws CommandInvalidException {
 		ClientCmds clientcmds = (ClientCmds) cmds;
 		JSONObject jsonObject = new JSONObject();
 
 		if (clientcmds.publish) {// pack publish command in json
-			JSONObject jsonObject1 = new JSONObject();
+			JSONObject publishJsonObjectChild = new JSONObject();
 
-			jsonObject1.put("name", clientcmds.name);
-			List<String> tagList = new ArrayList<String>();
-			for (String string : clientcmds.tags) {
-				tagList.add(string);
-			}
-			jsonObject1.put("tags", tagList);
-
-			jsonObject1.put("description", clientcmds.description);
-			jsonObject1.put("uri", clientcmds.uri);
-			jsonObject1.put("channel", clientcmds.channel);
-			jsonObject1.put("owner", clientcmds.owner);
-			jsonObject1.put("ezserver", null);
-
-			jsonObject.put("resource", jsonObject1);
+			putNameInJSONObj(publishJsonObjectChild, clientcmds.name);
+			putTagsInJSONObj(publishJsonObjectChild, clientcmds.tags);
+			putDescriptionInJSONObj(publishJsonObjectChild, clientcmds.description);
+			putUriInJSONObj(publishJsonObjectChild, clientcmds.uri);
+			putChannelInJSONObj(publishJsonObjectChild, clientcmds.channel);
+			putOwnerInJSONObj(publishJsonObjectChild, clientcmds.owner);
+			putEzserverInJSONObj(publishJsonObjectChild, null);
+			
+			jsonObject.put("resource", publishJsonObjectChild);
 			jsonObject.put("command", "PUBLISH");
+			
 		} else if (clientcmds.query) {// pack query command in json
-			JSONObject jsonObject1 = new JSONObject();
+			JSONObject queryJsonObjectChild = new JSONObject();
 
-			jsonObject1.put("name", clientcmds.name);
-			List<String> tagList = new ArrayList<String>();
-			for (String string : clientcmds.tags) {
-				tagList.add(string);
-			}
-			jsonObject1.put("tags", tagList);
-
-			jsonObject1.put("description", clientcmds.description);
-			jsonObject1.put("uri", clientcmds.uri);
-			jsonObject1.put("channel", clientcmds.channel);
-			jsonObject1.put("owner", clientcmds.owner);
-			jsonObject1.put("ezserver", clientcmds.servers);
-
-			jsonObject.put("resource", jsonObject1);
+			putNameInJSONObj(queryJsonObjectChild, clientcmds.name);
+			putTagsInJSONObj(queryJsonObjectChild, clientcmds.tags);
+			putDescriptionInJSONObj(queryJsonObjectChild, clientcmds.description);
+			putUriInJSONObj(queryJsonObjectChild, clientcmds.uri);
+			putChannelInJSONObj(queryJsonObjectChild, clientcmds.channel);
+			putOwnerInJSONObj(queryJsonObjectChild, clientcmds.owner);
+			putEzserverInJSONObj(queryJsonObjectChild, clientcmds.servers);
+			
+			jsonObject.put("resource", queryJsonObjectChild);
 			jsonObject.put("relay", "true");
 			jsonObject.put("command", "QUERY");
+			
 		} else if (clientcmds.remove) {// pack remove command in json
-			JSONObject jsonObject1 = new JSONObject();
+			JSONObject removeJsonObjectChild = new JSONObject();
 
-			jsonObject1.put("name", clientcmds.name);
-			List<String> tagList = new ArrayList<String>();
-			for (String string : clientcmds.tags) {
-				tagList.add(string);
-			}
-			jsonObject1.put("tags", tagList);
+			putNameInJSONObj(removeJsonObjectChild, clientcmds.name);
+			putTagsInJSONObj(removeJsonObjectChild, clientcmds.tags);
+			putDescriptionInJSONObj(removeJsonObjectChild, clientcmds.description);
+			putUriInJSONObj(removeJsonObjectChild, clientcmds.uri);
+			putChannelInJSONObj(removeJsonObjectChild, clientcmds.channel);
+			putOwnerInJSONObj(removeJsonObjectChild, clientcmds.owner);
+			putEzserverInJSONObj(removeJsonObjectChild, clientcmds.servers);
 
-			jsonObject1.put("description", clientcmds.description);
-			jsonObject1.put("uri", clientcmds.uri);
-			jsonObject1.put("channel", clientcmds.channel);
-			jsonObject1.put("owner", clientcmds.owner);
-			jsonObject1.put("ezserver", clientcmds.servers);
-
-			jsonObject.put("resource", jsonObject1);
+			jsonObject.put("resource", removeJsonObjectChild);
 			jsonObject.put("command", "REMOVE");
+			
 		} else if (clientcmds.share) {// pack share command in json
-			JSONObject jsonObject1 = new JSONObject();
+			JSONObject shareJsonObjectChild = new JSONObject();
 
-			jsonObject1.put("name", clientcmds.name);
-			List<String> tagList = new ArrayList<String>();
-			for (String string : clientcmds.tags) {
-				tagList.add(string);
-			}
-			jsonObject1.put("tags", tagList);
+			putNameInJSONObj(shareJsonObjectChild, clientcmds.name);
+			putTagsInJSONObj(shareJsonObjectChild, clientcmds.tags);
+			putDescriptionInJSONObj(shareJsonObjectChild, clientcmds.description);
+			putUriInJSONObj(shareJsonObjectChild, clientcmds.uri);
+			putChannelInJSONObj(shareJsonObjectChild, clientcmds.channel);
+			putOwnerInJSONObj(shareJsonObjectChild, clientcmds.owner);
+			putEzserverInJSONObj(shareJsonObjectChild, clientcmds.servers);
 
-			jsonObject1.put("description", clientcmds.description);
-			jsonObject1.put("uri", clientcmds.uri);
-			jsonObject1.put("channel", clientcmds.channel);
-			jsonObject1.put("owner", clientcmds.owner);
-			jsonObject1.put("ezserver", clientcmds.servers);
 
-			jsonObject.put("resource", jsonObject1);
-			jsonObject.put("secret", clientcmds.secret);
+			jsonObject.put("resource", shareJsonObjectChild);
+			jsonObject.put("secret", clientcmds.secret);//what if null?
 			jsonObject.put("command", "SHARE");
+			
 		} else if (clientcmds.fetch) {// pack fetch command in json
-			JSONObject jsonObject1 = new JSONObject();
+			JSONObject fetchJsonObjectChild = new JSONObject();
 
-			jsonObject1.put("name", clientcmds.name);
-			List<String> tagList = new ArrayList<String>();
-			for (String string : clientcmds.tags) {
-				tagList.add(string);
-			}
-			jsonObject1.put("tags", tagList);
+			putNameInJSONObj(fetchJsonObjectChild, clientcmds.name);
+			putTagsInJSONObj(fetchJsonObjectChild, clientcmds.tags);
+			putDescriptionInJSONObj(fetchJsonObjectChild, clientcmds.description);
+			putUriInJSONObj(fetchJsonObjectChild, clientcmds.uri);
+			putChannelInJSONObj(fetchJsonObjectChild, clientcmds.channel);
+			putOwnerInJSONObj(fetchJsonObjectChild, clientcmds.owner);
+			putEzserverInJSONObj(fetchJsonObjectChild, clientcmds.servers);
 
-			jsonObject1.put("description", clientcmds.description);
-			jsonObject1.put("uri", clientcmds.uri);
-			jsonObject1.put("channel", clientcmds.channel);
-			jsonObject1.put("owner", clientcmds.owner);
-			jsonObject1.put("ezserver", clientcmds.servers);
-
-			jsonObject.put("resource", jsonObject1);
+			jsonObject.put("resource", fetchJsonObjectChild);
 			jsonObject.put("command", "FETCH");
+			
 		} else if (clientcmds.exchange) {// pack exchange command in json
 			//List<JSONObject> jsonobjectList = new ArrayList<JSONObject>();
 			JSONArray jsonMap = new JSONArray();
+			if(clientcmds.servers.equals(null)){
+				throw new CommandInvalidException("aa");
+			}
+
 			for (String string : clientcmds.servers) {
 				String[] DomainAndPort = string.split(":");
 				JSONObject jsonObject2 = new JSONObject();
@@ -130,5 +116,56 @@ public class ClientPack implements JSONPack {
 		}
 		return jsonObject;
 	}
+	
+	private void putNameInJSONObj(JSONObject object,String name){
+		if(!name.equals(null)){
+			object.put("name", name);
+		}
+	}
 
+	private void putTagsInJSONObj(JSONObject object,String[] tags) {
+		if(!tags.equals(null)){
+			List<String> tagList = new ArrayList<String>();
+			for (String string : tags) {
+				tagList.add(string);
+			}
+			object.put("tags", tagList);
+		}
+	}
+	
+	private void putDescriptionInJSONObj(JSONObject object,String description) {
+	
+		if(!description.equals(null)){
+			object.put("description", description);
+		}
+	}
+	
+	private void putUriInJSONObj(JSONObject object,String uri) {
+		
+		if(!uri.equals(null)){
+			object.put("uri", uri);
+		}
+	}
+	
+	private void putChannelInJSONObj(JSONObject object,String channel) {
+		
+		if(!channel.equals(null)){
+			object.put("channel", channel);
+		}
+	}
+	
+	private void putOwnerInJSONObj(JSONObject object,String owner) {
+		
+		if(!owner.equals(null)){
+			object.put("owner", owner);
+		}
+	}
+	
+	private void putEzserverInJSONObj(JSONObject object,String[] ezserver) {
+		
+		if(!ezserver.equals(null)){
+			object.put("owner", ezserver);
+		}
+	}
+	
 }

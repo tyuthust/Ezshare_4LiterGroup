@@ -1,6 +1,7 @@
 package com.unimelb.comp90015.fourLiterGroup.ezshare;
 
 import com.unimelb.comp90015.fourLiterGroup.ezshare.json.ClientPack;
+import com.unimelb.comp90015.fourLiterGroup.ezshare.json.CommandInvalidException;
 import com.unimelb.comp90015.fourLiterGroup.ezshare.json.JSONPack;
 import com.unimelb.comp90015.fourLiterGroup.ezshare.optionsInterpret.ClientCmds;
 
@@ -44,12 +45,20 @@ public class Client {
 			System.out.println(message);
 
 			// Send RMI to Server
-			output.writeUTF(jsonPack.Pack(this.cmds).toJSONString());
-			output.flush();
+			try {
+				output.writeUTF(jsonPack.Pack(this.cmds).toJSONString());
+				output.flush();
+				
+				// Print out results received from server..
+				String result = input.readUTF();
+				System.out.println("Received from server: " + result);
+			} catch (CommandInvalidException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 
-			// Print out results received from server..
-			String result = input.readUTF();
-			System.out.println("Received from server: " + result);
+
+
 
 		} catch (UnknownHostException e) {
 			e.printStackTrace();
