@@ -6,6 +6,6 @@ import com.unimelb.comp90015.fourLiterGroup.ezshare.optionsInterpret.Cmds;
 
 public interface JSONPack {
 	
-	public JSONObject Pack(Cmds cmds);
+	public JSONObject Pack(Cmds cmds) throws CommandInvalidException;
 	
 }
