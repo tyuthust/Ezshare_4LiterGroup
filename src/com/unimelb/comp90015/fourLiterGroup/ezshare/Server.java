@@ -11,6 +11,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import javax.net.ServerSocketFactory;
 
@@ -23,6 +25,7 @@ import com.unimelb.comp90015.fourLiterGroup.ezshare.optionsInterpret.ServerCmds;
 import com.unimelb.comp90015.fourLiterGroup.ezshare.serverOps.Resource;
 
 public class Server {
+	public static int MAX_THREADS = 20;
 	private ServerCmds cmds;
 	// Identifies the user number connected
 	private static int counter = 0;
@@ -37,6 +40,8 @@ public class Server {
 
 	public void setup() {
 		ServerSocketFactory factory = ServerSocketFactory.getDefault();
+		//start a Thread Pool with fixed quantity of threads
+		ExecutorService fixedThreadPool = Executors.newFixedThreadPool(MAX_THREADS);
 		try (ServerSocket server = factory.createServerSocket(this.cmds.port)) {
 			System.out.println("Waiting for client connection..");
 
@@ -46,9 +51,14 @@ public class Server {
 				counter++;
 				System.out.println("Client " + counter + ": Applying for connection!");
 
-				// Start a new thread for a connection
-				Thread t = new Thread(() -> serveClient(client));
-				t.start();
+				// Start a new thread for a connection in the thread pool
+
+				fixedThreadPool.execute(new Runnable() {
+					public void run() {
+							Thread t = new Thread(() -> serveClient(client));
+							t.start();
+					}
+				});
 			}
 
 		} catch (IOException e) {
