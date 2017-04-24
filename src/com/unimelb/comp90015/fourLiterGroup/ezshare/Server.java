@@ -25,7 +25,7 @@ import com.unimelb.comp90015.fourLiterGroup.ezshare.optionsInterpret.ServerCmds;
 import com.unimelb.comp90015.fourLiterGroup.ezshare.serverOps.Resource;
 
 public class Server {
-	public static int MAX_THREADS = 20;
+	
 	private ServerCmds cmds;
 	// Identifies the user number connected
 	private static int counter = 0;
@@ -40,8 +40,10 @@ public class Server {
 
 	public void setup() {
 		ServerSocketFactory factory = ServerSocketFactory.getDefault();
-		//start a Thread Pool with fixed quantity of threads
-		ExecutorService fixedThreadPool = Executors.newFixedThreadPool(MAX_THREADS);
+		//start a Thread Pool. Threads that have not been used for more than 
+		//sixty seconds are terminated and removed from the cache.
+		ExecutorService ThreadPool = Executors.newCachedThreadPool(); 
+		
 		try (ServerSocket server = factory.createServerSocket(this.cmds.port)) {
 			System.out.println("Waiting for client connection..");
 
@@ -54,9 +56,8 @@ public class Server {
 				// Start a new thread for a connection in the thread pool
 				Thread t = new Thread(() -> serveClient(client));
 				t.start();
-				fixedThreadPool.execute(t);
-				//may need to be shutdown after a C/S connection done.
-				//fixedThreadPool.shutdown(); 
+				//ThreadPool.execute(t);
+				
 			}
 
 		} catch (IOException e) {
