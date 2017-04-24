@@ -55,7 +55,6 @@ public class Server {
 
 				// Start a new thread for a connection in the thread pool
 				Thread t = new Thread(() -> serveClient(client));
-				t.start();
 				ThreadPool.execute(t);
 				
 			}
