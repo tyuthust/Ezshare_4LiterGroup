@@ -21,8 +21,11 @@ import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 
+import com.sun.glass.ui.TouchInputSupport;
 import com.unimelb.comp90015.fourLiterGroup.ezshare.optionsInterpret.ServerCmds;
+import com.unimelb.comp90015.fourLiterGroup.ezshare.serverOps.OperationRunningException;
 import com.unimelb.comp90015.fourLiterGroup.ezshare.serverOps.Resource;
+import com.unimelb.comp90015.fourLiterGroup.ezshare.serverOps.ServerOperationHandler;
 
 public class Server {
 	
@@ -37,6 +40,9 @@ public class Server {
 	public Server(ServerCmds cmds) {
 		resourceMap = new HashMap();
 		this.cmds = cmds;
+		if(null == this.cmds.secret){
+			this.cmds.generateSecret();
+		}
 	}
 
 	public void run() {
@@ -69,7 +75,7 @@ public class Server {
 		}
 	}
 
-	private static void serveClient(Socket client) {
+	private void serveClient(Socket client) {
 		try (Socket clientSocket = client) {
 
 			// The JSON Parser
@@ -91,14 +97,16 @@ public class Server {
 					JSONObject results = new JSONObject();// return json pack
 					
 					//TODO: change to ServerOperationHandler
-					if (command.get("command").equals("PUBLISH")) {//
-						results = publish(command);
+					if (command.get("command").equals("PUBLISH")) {
+						results = handlePublish(command);
+//						results = publish(command);
 					} else if (command.get("command").equals("QUERY")) {
 						results = query(command);
 					} else if (command.get("command").equals("REMOVE")) {
 						results = remove(command);
 					} else if (command.get("command").equals("SHARE")) {
-						results = share(command);
+						results = handleShare(command);
+//						results = share(command);
 					} else if (command.get("command").equals("FETCH")) {
 						results = fetch(command);
 					} else if (command.get("command").equals("EXCHANGE")) {
@@ -112,6 +120,82 @@ public class Server {
 		}
 	}
 
+	private static JSONObject handlePublish(JSONObject jsonObject){
+		JSONObject results = new JSONObject();
+		try {
+			Resource resource = ServerOperationHandler.publish(jsonObject);
+			//TODO: check resource
+			if(2==1+1){
+				//if same URI same Owner and same channel,
+				//overwrite
+				results.put("response", "successful");
+			}
+			else{
+				//if same URI same channel different OWner,
+				// error
+				results.put("response", "error");
+				results.put("errorMessage", "invalid resource");
+				
+			}
+		} catch (OperationRunningException e) {
+			results.put("response", "error");
+			results.put("errorMessage", e.toString());
+
+		}
+		return results;
+	}
+
+	private JSONObject handleShare(JSONObject jsonObject){
+		JSONObject results = new JSONObject();
+		//if secret is incorrect
+		
+		//check secret here because server keep the secret
+		if(jsonObject.get("secret") != null&&
+				!(jsonObject.get("secret").toString()).equals(this.cmds.secret)
+				){
+			results.put("response", "error");
+			results.put("errorMessage", "incorrect secret");
+		}
+		else {
+			try {
+				Resource resource = ServerOperationHandler.share(jsonObject);
+				//TODO: check resource
+				if(2==1+1){
+					//if same URI same Owner and same channel,
+					//overwrite
+					results.put("response", "successful");
+				}
+				else{
+					//if same URI same channel different OWner,
+					// error
+					results.put("response", "error");
+					results.put("errorMessage", "invalid resource");
+					
+				}
+			} catch (OperationRunningException e) {
+				results.put("response", "error");
+				results.put("errorMessage", e.toString());
+
+			}
+		}
+
+		return results;
+		
+	}
+
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
 	private static JSONObject publish(JSONObject jsonObject) {// publish
 																// function:
 																// need to be
@@ -177,6 +261,7 @@ public class Server {
 		return result;
 	}
 
+	
 	private static JSONObject query(JSONObject jsonObject) {// query function:
 															// need to be
 															// achieved
