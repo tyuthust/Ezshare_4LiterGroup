@@ -15,11 +15,14 @@ import java.util.List;
 
 public class ClientPack implements JSONPack {
 
+	public static String MISSING_OR_INVALID_SERVER_LIST = "missing or invalid server list";
 	@Override
 	public JSONObject Pack(Cmds cmds) throws CommandInvalidException {
 		ClientCmds clientcmds = (ClientCmds) cmds;
 		JSONObject jsonObject = new JSONObject();
 
+		//TODO: check each essential element
+		//validation with throwable exception!
 		if (clientcmds.publish) {// pack publish command in json
 			JSONObject publishJsonObjectChild = new JSONObject();
 
@@ -97,7 +100,7 @@ public class ClientPack implements JSONPack {
 			//List<JSONObject> jsonobjectList = new ArrayList<JSONObject>();
 			JSONArray jsonMap = new JSONArray();
 			if(clientcmds.servers.equals(null)){
-				throw new CommandInvalidException("aa");
+				throw new CommandInvalidException(MISSING_OR_INVALID_SERVER_LIST);
 			}
 
 			for (String string : clientcmds.servers) {
@@ -117,9 +120,7 @@ public class ClientPack implements JSONPack {
 	}
 	
 	private void putNameInJSONObj(JSONObject object,String name){
-		if(!name.equals(null)){
 			object.put("name", name);
-		}
 	}
 
 	private void putTagsInJSONObj(JSONObject object,String[] tags) {
@@ -129,6 +130,9 @@ public class ClientPack implements JSONPack {
 				tagList.add(string);
 			}
 			object.put("tags", tagList);
+		}
+		else{
+			object.put("tags", null);
 		}
 	}
 	
@@ -141,30 +145,22 @@ public class ClientPack implements JSONPack {
 	
 	private void putUriInJSONObj(JSONObject object,String uri) {
 		
-		if(!uri.equals(null)){
 			object.put("uri", uri);
-		}
 	}
 	
 	private void putChannelInJSONObj(JSONObject object,String channel) {
 		
-		if(!channel.equals(null)){
 			object.put("channel", channel);
-		}
 	}
 	
 	private void putOwnerInJSONObj(JSONObject object,String owner) {
 		
-		if(!owner.equals(null)){
 			object.put("owner", owner);
-		}
 	}
 	
 	private void putEzserverInJSONObj(JSONObject object,String[] ezserver) {
-		
-		if(!ezserver.equals(null)){
-			object.put("owner", ezserver);
-		}
+		object.put("owner", ezserver);
+
 	}
 	
 }
