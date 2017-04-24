@@ -30,7 +30,12 @@ public class Server {
 	// Identifies the user number connected
 	private static int counter = 0;
 
+	private HashMap<String,HashMap<String,HashMap<String,Resource>>> resourceMap;
+	private ArrayList<String> ServerList;
+	
+	
 	public Server(ServerCmds cmds) {
+		resourceMap = new HashMap();
 		this.cmds = cmds;
 	}
 
