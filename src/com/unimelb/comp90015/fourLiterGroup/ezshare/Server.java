@@ -89,6 +89,8 @@ public class Server {
 					System.out.println("COMMAND RECEIVED: " + command.toJSONString());
 
 					JSONObject results = new JSONObject();// return json pack
+					
+					//TODO: change to ServerOperationHandler
 					if (command.get("command").equals("PUBLISH")) {//
 						results = publish(command);
 					} else if (command.get("command").equals("QUERY")) {
