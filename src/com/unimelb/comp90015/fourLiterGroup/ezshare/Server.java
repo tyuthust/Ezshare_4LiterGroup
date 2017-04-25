@@ -100,16 +100,17 @@ public class Server {
 						results = handlePublish(command);
 						// results = publish(command);
 					} else if (command.get("command").equals("QUERY")) {
-						//results = query(command);
+						// results = query(command);
 					} else if (command.get("command").equals("REMOVE")) {
-						//results = remove(command);
+						// results = remove(command);
 					} else if (command.get("command").equals("SHARE")) {
 						results = handleShare(command);
 						// results = share(command);
 					} else if (command.get("command").equals("FETCH")) {
-						//results = fetch(command);
+						results = handleFetch(command);
+						// results = fetch(command);
 					} else if (command.get("command").equals("EXCHANGE")) {
-						//results = exchange(command);
+						// results = exchange(command);
 					}
 					output.writeUTF(results.toJSONString());
 				}
@@ -171,6 +172,33 @@ public class Server {
 				results.put("errorMessage", e.toString());
 
 			}
+		}
+
+		return results;
+
+	}
+
+	private JSONObject handleFetch(JSONObject jsonObject) {
+		JSONObject results = new JSONObject();
+		// if secret is incorrect
+		try {
+			Resource resource = ServerOperationHandler.share(jsonObject);
+			// TODO: check resource
+			if (2 == 1 + 1) {
+				// if same URI same Owner and same channel,
+				// overwrite
+				results.put("response", "successful");
+			} else {
+				// if same URI same channel different OWner,
+				// error
+				results.put("response", "error");
+				results.put("errorMessage", "invalid resource");
+
+			}
+		} catch (OperationRunningException e) {
+			results.put("response", "error");
+			results.put("errorMessage", e.toString());
+
 		}
 
 		return results;
