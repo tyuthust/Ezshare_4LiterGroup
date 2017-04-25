@@ -25,6 +25,7 @@ import com.sun.glass.ui.TouchInputSupport;
 import com.unimelb.comp90015.fourLiterGroup.ezshare.optionsInterpret.ServerCmds;
 import com.unimelb.comp90015.fourLiterGroup.ezshare.serverOps.OperationRunningException;
 import com.unimelb.comp90015.fourLiterGroup.ezshare.serverOps.Resource;
+import com.unimelb.comp90015.fourLiterGroup.ezshare.serverOps.ResourceWarehouse;
 import com.unimelb.comp90015.fourLiterGroup.ezshare.serverOps.ServerOperationHandler;
 
 public class Server {
@@ -33,11 +34,11 @@ public class Server {
 	// Identifies the user number connected
 	private static int counter = 0;
 
-	private HashMap<String, HashMap<String, HashMap<String, Resource>>> resourceMap;
+	private ResourceWarehouse resourceWarehouse;
 	private ArrayList<String> ServerList;
 
 	public Server(ServerCmds cmds) {
-		resourceMap = new HashMap();
+		resourceWarehouse = new ResourceWarehouse();
 		this.cmds = cmds;
 		if (null == this.cmds.secret) {
 			this.cmds.generateSecret();
@@ -119,18 +120,13 @@ public class Server {
 		}
 	}
 
-	private static JSONObject handlePublish(JSONObject jsonObject) {
+	private JSONObject handlePublish(JSONObject jsonObject) {
 		JSONObject results = new JSONObject();
 		try {
 			Resource resource = ServerOperationHandler.publish(jsonObject);
-			// TODO: check resource
-			if (2 == 1 + 1) {
-				// if same URI same Owner and same channel,
-				// overwrite
+			if (resourceWarehouse.AddResource(resource)) {
 				results.put("response", "successful");
 			} else {
-				// if same URI same channel different OWner,
-				// error
 				results.put("response", "error");
 				results.put("errorMessage", "invalid resource");
 
@@ -138,7 +134,6 @@ public class Server {
 		} catch (OperationRunningException e) {
 			results.put("response", "error");
 			results.put("errorMessage", e.toString());
-
 		}
 		return results;
 	}
@@ -155,9 +150,7 @@ public class Server {
 			try {
 				Resource resource = ServerOperationHandler.share(jsonObject);
 				// TODO: check resource
-				if (2 == 1 + 1) {
-					// if same URI same Owner and same channel,
-					// overwrite
+				if (resourceWarehouse.AddResource(resource)) {
 					results.put("response", "successful");
 				} else {
 					// if same URI same channel different OWner,
