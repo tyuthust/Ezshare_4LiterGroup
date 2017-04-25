@@ -149,7 +149,7 @@ public class ClientPack implements JSONPack {
 
 	private void putChannelInJSONObj(JSONObject object, String channel) {
 
-		if (!channel.equals(null)) {
+		if (channel != null) {
 			object.put("channel", channel);
 		} else {
 			object.put("channel", "");
@@ -158,7 +158,7 @@ public class ClientPack implements JSONPack {
 
 	private void putOwnerInJSONObj(JSONObject object, String owner) {
 
-		if (!owner.equals(null)) {
+		if (owner != null) {
 			object.put("owner", owner);
 		} else {
 			object.put("owner", "");

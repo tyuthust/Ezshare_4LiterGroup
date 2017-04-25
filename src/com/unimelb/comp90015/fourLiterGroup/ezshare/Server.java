@@ -173,7 +173,7 @@ public class Server {
 
 	private JSONObject handleFetch(JSONObject jsonObject) {
 		JSONObject results = new JSONObject();
-		// if secret is incorrect
+		
 		try {
 			Resource resource = ServerOperationHandler.fetch(jsonObject);
 			// TODO: check resource

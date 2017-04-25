@@ -118,26 +118,21 @@ public class ServerOperationHandler {
 		
 		System.out.println(fetchResourceJsonObj);
 
-		// check if the the json data break the rule
-
+		if(fetchResourceJsonObj.isEmpty()){
+			throw new OperationRunningException("missing resourceTemplate");
+		}
 		// The URI must be present, must be absolute and must be a file scheme.
 		String uriString = fetchResourceJsonObj.get("uri").toString();
-
+		String chanString = fetchResourceJsonObj.get("channel").toString();
+		
 		// URI The URI must be present
 		if (null == uriString || uriString.equals("")) {
-			throw new OperationRunningException("cannot share resource");
+			throw new OperationRunningException("missing resourceTemplate");
 		}
 		URI resourceUri = URI.create(uriString);
-
-		// must be a file scheme
-		// TODO: must be absolute
-		if (!resourceUri.getScheme().contains("file:")) {
-			throw new OperationRunningException("cannot share resource");
-		}
-
-		// The Owner field must not be the single character "*".
-		if (fetchResourceJsonObj.get("owner").toString().equals("*")) {
-			throw new OperationRunningException("cannot share resource");
+		
+		if (null == chanString){
+			throw new OperationRunningException("missing resourceTemplate");
 		}
 		return null;
 	}
