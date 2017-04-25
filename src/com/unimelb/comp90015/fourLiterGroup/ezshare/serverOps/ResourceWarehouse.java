@@ -77,6 +77,10 @@ public class ResourceWarehouse {
 		}
 		return success;
 	}
+	
+	public int getSizeOfWarehourse(){
+		return resourceMap.size();
+	}
 	/**
 	 * Find the Resource via the three keys
 	 * @param channel Channel of the resource
