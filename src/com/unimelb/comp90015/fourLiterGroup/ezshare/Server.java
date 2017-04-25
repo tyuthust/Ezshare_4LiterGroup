@@ -175,7 +175,7 @@ public class Server {
 		JSONObject results = new JSONObject();
 		// if secret is incorrect
 		try {
-			Resource resource = ServerOperationHandler.share(jsonObject);
+			Resource resource = ServerOperationHandler.fetch(jsonObject);
 			// TODO: check resource
 			if (2 == 1 + 1) {
 				// if same URI same Owner and same channel,

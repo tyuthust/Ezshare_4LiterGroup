@@ -93,7 +93,7 @@ public class ClientPack implements JSONPack {
 			putOwnerInJSONObj(fetchJsonObjectChild, clientcmds.owner);
 			putEzserverInJSONObj(fetchJsonObjectChild, clientcmds.servers);
 
-			jsonObject.put("resource", fetchJsonObjectChild);
+			jsonObject.put("resourceTemplate", fetchJsonObjectChild);
 			jsonObject.put("command", "FETCH");
 
 		} else if (clientcmds.exchange) {// pack exchange command in json
@@ -149,24 +149,24 @@ public class ClientPack implements JSONPack {
 
 	private void putChannelInJSONObj(JSONObject object, String channel) {
 
-		if (channel == null) {
-			object.put("channel", "");
-		} else {
+		if (!channel.equals(null)) {
 			object.put("channel", channel);
+		} else {
+			object.put("channel", "");
 		}
 	}
 
 	private void putOwnerInJSONObj(JSONObject object, String owner) {
 
-		if (owner == null) {
-			object.put("owner", "");
-		} else {
+		if (!owner.equals(null)) {
 			object.put("owner", owner);
+		} else {
+			object.put("owner", "");
 		}
 	}
 
 	private void putEzserverInJSONObj(JSONObject object, String[] ezserver) {
-		//TODO: set ezserver null when using other commands
+		// TODO: set ezserver null when using other commands
 		object.put("ezserver", ezserver);
 
 	}

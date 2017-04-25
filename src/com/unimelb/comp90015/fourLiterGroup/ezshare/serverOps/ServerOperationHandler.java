@@ -45,26 +45,25 @@ public class ServerOperationHandler {
 			 */
 			URI resourceUri = URI.create(uriString);
 			// cannot be a file scheme and must be an absolute path
-			if (resourceUri.isAbsolute()){
+			if (resourceUri.isAbsolute()) {
 				if (resourceUri.getScheme().contains("file:")) {
 					throw new OperationRunningException("cannot publish resource");
 				}
-			}else{
+			} else {
 				throw new OperationRunningException("cannot publish resource");
 			}
-
 
 			// The Owner field must not be the single character "*".
-			if(shareResourceMap.get("owner")==null){
+			if (shareResourceMap.get("owner") == null) {
 				shareResourceJsonObj.replace("onwer", "");
-			}else if (shareResourceMap.get("owner") == ("*")) {
+			} else if (shareResourceMap.get("owner") == ("*")) {
 				throw new OperationRunningException("cannot publish resource");
 			}
-			
+
 		} else {
 			throw new OperationRunningException("cannot publish resource");
 		}
-		
+
 		return generatingResourceHandler(shareResourceJsonObj);
 	}
 
@@ -107,24 +106,22 @@ public class ServerOperationHandler {
 		return generatingResourceHandler(shareResourceJsonObj);
 	}
 
-	public static void fetch(JSONObject jsonObject) throws OperationRunningException {
-		System.out.println("etch function");
+	public static Resource fetch(JSONObject jsonObject) throws OperationRunningException {
+		System.out.println("fetch function");
 		JSONObject result = new JSONObject();
 
 		// TODO: Achieve Fetch Functions
 
-		JSONObject shareResourceJsonObj = new JSONObject();
-		// If the resource field was not given or not of the correct type
-		if (null == jsonObject.get("resource") || null == jsonObject.get("secret")) {
-			throw new OperationRunningException("missing resource and/or secret");
-		}
-		shareResourceJsonObj.putAll((Map) jsonObject.get("resource"));
-		System.out.println(shareResourceJsonObj);
+		JSONObject fetchResourceJsonObj = new JSONObject();
+		
+		fetchResourceJsonObj.putAll((Map) jsonObject.get("resourceTemplate"));
+		
+		System.out.println(fetchResourceJsonObj);
 
 		// check if the the json data break the rule
 
 		// The URI must be present, must be absolute and must be a file scheme.
-		String uriString = shareResourceJsonObj.get("uri").toString();
+		String uriString = fetchResourceJsonObj.get("uri").toString();
 
 		// URI The URI must be present
 		if (null == uriString || uriString.equals("")) {
@@ -139,11 +136,12 @@ public class ServerOperationHandler {
 		}
 
 		// The Owner field must not be the single character "*".
-		if (shareResourceJsonObj.get("owner").toString().equals("*")) {
+		if (fetchResourceJsonObj.get("owner").toString().equals("*")) {
 			throw new OperationRunningException("cannot share resource");
 		}
+		return null;
 	}
-	
+
 	private static Resource generatingResourceHandler(JSONObject shareResourceJsonObj)
 			throws OperationRunningException {
 
