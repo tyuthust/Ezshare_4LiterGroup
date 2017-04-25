@@ -106,7 +106,7 @@ public class Server {
 						results = remove(command);
 					} else if (command.get("command").equals("SHARE")) {
 						results = handleShare(command);
-//						results = share(command);
+//						results = share(command); 
 					} else if (command.get("command").equals("FETCH")) {
 						results = fetch(command);
 					} else if (command.get("command").equals("EXCHANGE")) {
@@ -130,7 +130,7 @@ public class Server {
 				//overwrite
 				results.put("response", "successful");
 			}
-			else{
+			else {
 				//if same URI same channel different OWner,
 				// error
 				results.put("response", "error");
