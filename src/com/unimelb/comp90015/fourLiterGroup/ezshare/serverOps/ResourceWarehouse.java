@@ -112,7 +112,7 @@ public class ResourceWarehouse {
 		return resource;
 	}
 
-	public Resource FindResourceWithoutOwner(String channel, String uri) throws OperationRunningException {
+	public Resource FindResource(String channel, String uri) throws OperationRunningException {
 		Resource resource = null;
 		if (resourceMap.containsKey(channel)) {
 			if (resourceMap.get(channel).containsKey(uri)) {

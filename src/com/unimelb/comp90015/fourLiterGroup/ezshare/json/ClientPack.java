@@ -166,9 +166,7 @@ public class ClientPack implements JSONPack {
 	}
 
 	private void putEzserverInJSONObj(JSONObject object, String[] ezserver) {
-		// TODO: set ezserver null when using other commands
 		object.put("ezserver", ezserver);
-
 	}
 
 }
