@@ -4,6 +4,8 @@ import static org.junit.Assert.assertEquals;
 
 import org.junit.*;
 
+import com.unimelb.comp90015.fourLiterGroup.ezshare.utils.utils;
+
 import jdk.nashorn.internal.ir.WithNode;
 
 public class ResourceWarehouseUnitTest {
@@ -39,6 +41,14 @@ public class ResourceWarehouseUnitTest {
 		  warehouse.AddResource(resource1);
 		  assertEquals(false, warehouse.AddResource(resource2));
 		  assertEquals(1, warehouse.getSizeOfWarehourse());
+	  }
+	  
+	  @Test public void stringUtilTest(){
+		  assertEquals("", utils.trimFirstAndLastChar("", "a"));
+		  assertEquals("", utils.trimFirstAndLastChar("", " "));
+		  assertEquals("", utils.trimFirstAndLastChar("   ", " "));
+		  assertEquals("", utils.trimFirstAndLastChar("    ", " "));
+		  assertEquals("1", utils.trimFirstAndLastChar("  1 ", " "));
 	  }
 	
 }

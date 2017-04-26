@@ -9,16 +9,29 @@ public class utils {
 		boolean endIndexFlag = true;
 		if (null != source && null != element){
 			do {
-				int beginIndex = source.indexOf(element) == 0 ? 1 : 0;
-				int endIndex = source.lastIndexOf(element) + 1 == source.length() ? source.lastIndexOf(element)
-						: source.length();
-				source = source.substring(beginIndex, endIndex);
-				beginIndexFlag = (source.indexOf(element) == 0);
+				if(-1 == source.indexOf(element)){
+					return source;
+				}
+				boolean begin = (source.indexOf(element) == 0);
+				if(begin){
+					source = source.replaceFirst(element, "");
+				}
+				if(-1 == source.indexOf(element)){
+					return source;
+				}
+				boolean end = (source.lastIndexOf(element) == source.length() -1);
+				if(end){
+					source = replaceLast(source, element, "");
+				}
 				endIndexFlag = (source.lastIndexOf(element) + 1 == source.length());
 			} while (beginIndexFlag || endIndexFlag);
 		}
 		return source;
 	}
+	
+    private static String replaceLast(String text, String regex, String replacement) {
+        return text.replaceFirst("(?s)"+regex+"(?!.*?"+regex+")", replacement);
+    }
 
 	public static String RandomString(int length) {
 		String str = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
