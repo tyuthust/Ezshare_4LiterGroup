@@ -31,12 +31,13 @@ public class Client {
 		for (String string : cmds.servers) {
 			System.out.println("server: " + string);
 		}
-		
-		// System.out.println(cmds.host);
-		// System.out.println(cmds.port);
 	}
 
 	public void connect() throws IOException, CommandInvalidException {
+		if(cmds.debug){
+			System.out.print("[debug] "+"setting client debug on. ");
+			System.out.println("The port is: " + cmds.port);
+		}
 		try (Socket socket = new Socket(this.cmds.host, this.cmds.port);) {
 			// Output and Input Stream
 			DataInputStream input = new DataInputStream(socket.getInputStream());
@@ -53,7 +54,11 @@ public class Client {
 
 			// Send RMI to Server
 			try {
-				output.writeUTF(jsonPack.Pack(this.cmds).toJSONString());
+				String JsonCmdsString = jsonPack.Pack(this.cmds).toJSONString();
+				if(cmds.debug){	
+					System.out.println("[debug] [sent] "+JsonCmdsString);
+				}
+				output.writeUTF(JsonCmdsString);
 				output.flush();
 				JSONParser parser = new JSONParser();
 	    		

@@ -60,6 +60,10 @@ public class Server {
 		ExecutorService ThreadPool = Executors.newCachedThreadPool();
 
 		try (ServerSocket server = factory.createServerSocket(this.cmds.port)) {
+			if(cmds.debug){
+				System.out.print("[debug] "+"setting server debug on. ");
+				System.out.println("The port is: " + cmds.port);
+			}
 			System.out.println("Waiting for client connection..");
 
 			// Wait for connections.
@@ -89,6 +93,9 @@ public class Server {
 			// Output Stream
 			DataOutputStream output = new DataOutputStream(clientSocket.getOutputStream());
 			System.out.println("CLIENT: " + input.readUTF());
+			if(cmds.debug){
+				System.out.println("[debug] [sent] "+"Server: Hi Client " + counter + " !!!");
+			}
 			output.writeUTF("Server: Hi Client " + counter + " !!!");
 
 			// Receive more data..
