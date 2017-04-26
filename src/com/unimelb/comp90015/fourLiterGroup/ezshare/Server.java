@@ -2,10 +2,13 @@ package com.unimelb.comp90015.fourLiterGroup.ezshare;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
+import java.io.File;
 import java.io.IOException;
+import java.io.RandomAccessFile;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -109,23 +112,24 @@ public class Server {
 
 					// TODO: change to ServerOperationHandler
 					if (command.get("command").equals("PUBLISH")) {
-						results = handlePublish(command);
+						results = handlePublish(command,output);
 						// results = publish(command);
 					} else if (command.get("command").equals("QUERY")) {
 						// results = query(command);
 					} else if (command.get("command").equals("REMOVE")) {
 						// results = remove(command);
 					} else if (command.get("command").equals("SHARE")) {
-						results = handleShare(command);
+						results = handleShare(command,output);
 						// results = share(command);
 					} else if (command.get("command").equals("FETCH")) {
-						results = handleFetch(command);
+						results = handleFetch(command, output);
+
 						// results = fetch(command);
 					} else if (command.get("command").equals("EXCHANGE")) {
-						results = handleExchange(command);
+						results = handleExchange(command,output);
 						// results = exchange(command);
 					}
-					output.writeUTF(results.toJSONString());
+					//output.writeUTF(results.toJSONString());
 				}
 			}
 		} catch (IOException | ParseException e) {
@@ -133,7 +137,7 @@ public class Server {
 		}
 	}
 
-	private JSONObject handlePublish(JSONObject jsonObject) {
+	private JSONObject handlePublish(JSONObject jsonObject, DataOutputStream output) {
 		JSONObject results = new JSONObject();
 		try {
 			Resource resource = ServerOperationHandler.publish(jsonObject);
@@ -151,7 +155,7 @@ public class Server {
 		return results;
 	}
 
-	private JSONObject handleShare(JSONObject jsonObject) {
+	private JSONObject handleShare(JSONObject jsonObject, DataOutputStream output) {
 		JSONObject results = new JSONObject();
 		// if secret is incorrect
 
@@ -183,23 +187,53 @@ public class Server {
 
 	}
 
-	private JSONObject handleFetch(JSONObject jsonObject) {
+	private JSONObject handleFetch(JSONObject jsonObject, DataOutputStream output) {
 		JSONObject results = new JSONObject();
 
 		try {
 			Resource resource = ServerOperationHandler.fetch(jsonObject);
-			//TODO: download function
-			
-			/*if (resourceWarehouse.FindResource(resource.getChannel(), resource.getURI())) {
+			// TODO: download function
+			// Just for test
+			String uri = resource.getURI();
+			String filename = uri.replaceFirst("file:///", "");
+			File f = new File(filename);
+
+			if (f.exists()) {
+
+				// Send this back to client so that they know what the file is.
 				results.put("response", "success");
 				results.put("resource", resourcePack(resource));
 				results.put("resultSize", resultSize);
-				
-				//TODO: download function
+				System.out.println(results.toJSONString());
+				try {
+
+					// Start sending file
+					RandomAccessFile byteFile = new RandomAccessFile(f, "r");
+					byte[] sendingBuffer = new byte[1024 * 1024];
+					int num;
+					// While there are still bytes to send..
+					while ((num = byteFile.read(sendingBuffer)) > 0) {
+						System.out.println(num);
+						output.write(Arrays.copyOf(sendingBuffer, num));
+					}
+					byteFile.close();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
 			} else {
-				results.put("response", "error");
-				results.put("errorMessage", "invalid resourceTemplate");
-			}*/
+				// Throw an error here..
+			}
+
+			/*
+			 * if (resourceWarehouse.FindResource(resource.getChannel(),
+			 * resource.getURI())) { results.put("response", "success");
+			 * results.put("resource", resourcePack(resource));
+			 * results.put("resultSize", resultSize);
+			 * 
+			 * //TODO: download function } else { results.put("response",
+			 * "error"); results.put("errorMessage",
+			 * "invalid resourceTemplate"); }
+			 */
 		} catch (OperationRunningException e) {
 			results.put("response", "error");
 			results.put("errorMessage", e.toString());
@@ -208,7 +242,7 @@ public class Server {
 		return results;
 	}
 
-	private JSONObject handleExchange(JSONObject jsonObject) {
+	private JSONObject handleExchange(JSONObject jsonObject, DataOutputStream output) {
 		JSONObject results = new JSONObject();
 		try {
 			Servers = ServerOperationHandler.exchange(jsonObject).clone();
