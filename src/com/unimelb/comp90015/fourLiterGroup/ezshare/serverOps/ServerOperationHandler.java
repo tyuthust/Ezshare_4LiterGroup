@@ -151,7 +151,6 @@ public class ServerOperationHandler {
 
 		fetchResourceJsonObj.putAll((Map) jsonObject.get("resourceTemplate"));
 
-		System.out.println(fetchResourceJsonObj);
 
 		if (fetchResourceJsonObj.isEmpty()) {
 			throw new OperationRunningException("missing resourceTemplate");
@@ -179,11 +178,11 @@ public class ServerOperationHandler {
 
 		// remove all start and end whitespace
 		// remove "\0"
-		ResourceJsonObj.forEach((key, value) -> {
+		/*ResourceJsonObj.forEach((key, value) -> {
 			utils.trimFirstAndLastChar((String) value, " ");
 			((String) value).replaceAll("\\0", "");
 
-		});
+		});*/
 
 		// create a new resource and set its value
 		Resource resource = new Resource();

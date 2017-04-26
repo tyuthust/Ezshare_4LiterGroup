@@ -1,5 +1,0 @@
-Test Instruction
-	1.Create a Server and give its advertised host name and port:
-		EZShare.Server -advertisedhostname 127.0.0.1 -port 3000
-	2.Create a client with an exchange command and a client with a publish command
-		EZShare.Client -exchange -host 127.0.0.1 -port 3000 -name "Unimelb website" -tags web,html -description "The main page for the University of Melbourne" -uri "http://www.unimelb.edu.au" -servers 10.0.0.1:8081,www.google.com:6000
