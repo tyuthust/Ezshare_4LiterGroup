@@ -125,4 +125,21 @@ public class ResourceWarehouse {
 		return existResource;
 	}
 
+	public void printResourceMap(){
+		String channel = null;
+		String uri = null;
+		String owner = null;
+		
+		for(HashMap.Entry<String,HashMap<String,HashMap<String,Resource>>> entry:resourceMap.entrySet()){
+			channel=entry.getKey();
+			for(HashMap.Entry<String,HashMap<String, Resource>> entry1:entry.getValue().entrySet()){
+				uri=entry.getKey();
+				for(HashMap.Entry<String,Resource> entry2: entry1.getValue().entrySet()){
+					owner=entry2.getKey();
+					System.out.println("The primary key is " + channel + "," + uri + "," + owner);
+					System.out.println("The resource name is " + entry2.getValue().getName());
+				}
+			}
+		}
+	}
 }

@@ -70,4 +70,5 @@ public class Resource {
 	public String[] getTags(){
 		return this.Tags;
 	}
+	
 }

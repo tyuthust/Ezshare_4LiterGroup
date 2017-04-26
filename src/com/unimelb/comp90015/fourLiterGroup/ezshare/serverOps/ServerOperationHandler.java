@@ -46,7 +46,7 @@ public class ServerOperationHandler {
 			URI resourceUri = URI.create(uriString);
 			// cannot be a file scheme and must be an absolute path
 			if (resourceUri.isAbsolute()) {
-				if (resourceUri.getScheme().contains("file:")) {
+				if (resourceUri.getScheme().contains("file")) {
 					throw new OperationRunningException("cannot publish resource");
 				}
 			} else {
@@ -129,7 +129,7 @@ public class ServerOperationHandler {
 
 		// must be a file scheme
 		// TODO: must be absolute
-		if (!resourceUri.getScheme().contains("file:")) {
+		if (!resourceUri.getScheme().contains("file")) {
 			throw new OperationRunningException("cannot share resource");
 		}
 
