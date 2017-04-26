@@ -10,7 +10,7 @@ public class Resource {
 	private String Channel = null;
 	private String Owner = null;
 	private String[] EZserver = null;
-
+	private int resourceSize=0;
 	public Resource() {// Constructor
 	}
 
@@ -42,7 +42,9 @@ public class Resource {
 		this.EZserver = ezservers.clone();
 	}
 	
-	
+	public void setResourceSize(int size){
+		this.resourceSize=size;
+	}
 	public String getName(){
 		return this.Name;
 	}
@@ -71,4 +73,7 @@ public class Resource {
 		return this.Tags;
 	}
 	
+	public int getSize(){
+		return this.resourceSize;
+	}
 }

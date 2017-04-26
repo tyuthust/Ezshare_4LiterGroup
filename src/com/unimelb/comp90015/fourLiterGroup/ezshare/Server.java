@@ -181,17 +181,18 @@ public class Server {
 
 		try {
 			Resource resource = ServerOperationHandler.fetch(jsonObject);
-			int resourceSize = 0;
-			if (resourceWarehouse.FindResource(resource.getChannel(), resource.getURI())) {
+			//TODO: download function
+			
+			/*if (resourceWarehouse.FindResource(resource.getChannel(), resource.getURI())) {
 				results.put("response", "success");
-				results.put("resource", resourcePack(resource, resourceSize));
+				results.put("resource", resourcePack(resource));
 				results.put("resultSize", resultSize);
 				
 				//TODO: download function
 			} else {
 				results.put("response", "error");
 				results.put("errorMessage", "invalid resourceTemplate");
-			}
+			}*/
 		} catch (OperationRunningException e) {
 			results.put("response", "error");
 			results.put("errorMessage", e.toString());
@@ -218,7 +219,7 @@ public class Server {
 
 	}
 
-	private JSONObject resourcePack(Resource resource, int resourceSize) {
+	private JSONObject resourcePack(Resource resource) {
 		JSONObject results = new JSONObject();
 		results.put("name", resource.getName());
 		results.put("tags", resource.getTags());
@@ -227,7 +228,7 @@ public class Server {
 		results.put("channel", resource.getChannel());
 		results.put("owner", resource.getOwner());
 		results.put("ezserver", resource.getEzserver());
-		results.put("resourceSize", resourceSize);
+		results.put("resourceSize", resource.getSize());
 
 		return results;
 	}
