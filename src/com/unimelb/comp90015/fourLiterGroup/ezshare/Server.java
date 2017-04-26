@@ -34,8 +34,10 @@ public class Server {
 	// Identifies the user number connected
 	private static int counter = 0;
 
+	// Resource Map
 	private ResourceWarehouse resourceWarehouse;
-	private ArrayList<String> ServerList;
+	// Server List
+	private String[] Servers = null;
 
 	public Server(ServerCmds cmds) {
 		resourceWarehouse = new ResourceWarehouse();
@@ -111,6 +113,7 @@ public class Server {
 						results = handleFetch(command);
 						// results = fetch(command);
 					} else if (command.get("command").equals("EXCHANGE")) {
+						results = handleExchange(command);
 						// results = exchange(command);
 					}
 					output.writeUTF(results.toJSONString());
@@ -126,7 +129,7 @@ public class Server {
 		try {
 			Resource resource = ServerOperationHandler.publish(jsonObject);
 			if (resourceWarehouse.AddResource(resource)) {
-				results.put("response", "successful");
+				results.put("response", "success");
 			} else {
 				results.put("response", "error");
 				results.put("errorMessage", "invalid resource");
@@ -152,7 +155,7 @@ public class Server {
 				Resource resource = ServerOperationHandler.share(jsonObject);
 				// TODO: check resource
 				if (resourceWarehouse.AddResource(resource)) {
-					results.put("response", "successful");
+					results.put("response", "success");
 				} else {
 					// if same URI same channel different OWner,
 					// error
@@ -173,14 +176,14 @@ public class Server {
 
 	private JSONObject handleFetch(JSONObject jsonObject) {
 		JSONObject results = new JSONObject();
-		
+
 		try {
 			Resource resource = ServerOperationHandler.fetch(jsonObject);
 			// TODO: check resource
 			if (2 == 1 + 1) {
 				// if same URI same Owner and same channel,
 				// overwrite
-				results.put("response", "successful");
+				results.put("response", "success");
 			} else {
 				// if same URI same channel different OWner,
 				// error
@@ -198,6 +201,23 @@ public class Server {
 
 	}
 
+	private JSONObject handleExchange(JSONObject jsonObject) {
+		JSONObject results = new JSONObject();
+		try {
+			Servers = ServerOperationHandler.exchange(jsonObject).clone();
+			for(String string: Servers){
+				System.out.println(string);
+			}
+
+			results.put("response", "success");
+		} catch (OperationRunningException e) {
+			results.put("response", "error");
+			results.put("errorMessage", e.toString());
+
+		}
+		return results;
+
+	}
 	/*
 	 * private static JSONObject publish(JSONObject jsonObject) {// publish //
 	 * function: // need to be // achieved
@@ -269,22 +289,5 @@ public class Server {
 	 * System.out.println("Fetch function"); if (true) { result.put("response",
 	 * "successful"); } return result; }
 	 * 
-	 * private static JSONObject exchange(JSONObject jsonObject) {// share //
-	 * function: // need to be // achieved JSONObject result = new JSONObject();
-	 * System.out.println("Exchange function"); Resource resource = new
-	 * Resource();
-	 * 
-	 * int counter=0; JSONArray jsonArray = new JSONArray(); jsonArray =
-	 * (JSONArray) jsonObject.get("serverList"); List<JSONObject> jsonobjectList
-	 * = new ArrayList<JSONObject>(); for (int i = 0; i < jsonArray.size(); i++)
-	 * { jsonobjectList.add((JSONObject) jsonArray.get(i)); } String[]
-	 * ezservers=new String[jsonArray.size()]; for(JSONObject jsonOb:
-	 * jsonobjectList){
-	 * ezservers[counter]=jsonOb.get("hostname").toString()+":"+jsonOb.get(
-	 * "port").toString(); counter++; } resource.setEZServer(ezservers);
-	 * List<String> resList = new ArrayList<String>(); for(String
-	 * string:resource.getEZShare()){ resList.add(string); }
-	 * System.out.println("The resource ezservers:" + resList.toString()); if
-	 * (true) { result.put("response", "successful"); } return result; }
 	 */
 }

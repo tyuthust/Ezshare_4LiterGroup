@@ -25,6 +25,7 @@ public class Client {
 		for (String string : cmds.servers) {
 			System.out.println("server: " + string);
 		}
+		
 		// System.out.println(cmds.host);
 		// System.out.println(cmds.port);
 	}

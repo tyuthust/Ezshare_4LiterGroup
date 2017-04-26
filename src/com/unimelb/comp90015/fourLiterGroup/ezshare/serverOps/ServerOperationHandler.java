@@ -67,6 +67,41 @@ public class ServerOperationHandler {
 		return generatingResourceHandler(shareResourceJsonObj);
 	}
 
+	public static String[] exchange(JSONObject jsonObject) throws OperationRunningException {
+
+		System.out.println("Exchange function");
+		// create a json object to save the map in resource
+		JSONObject exchangeStringObj = new JSONObject();
+		JSONArray jsonArray = new JSONArray();
+		jsonArray = (JSONArray) jsonObject.get("serverList");
+
+		// a pointer which is used to assign
+		int counter = 0;
+
+		String[] ezservers = new String[jsonArray.size()];
+
+		// TODO: a server record is invalid
+		if (false) {
+			throw new OperationRunningException("missing resourceTemplate");
+		}
+		// TODO: sever list was missing or invalid
+		if (false) {
+			throw new OperationRunningException("missing or invalide server List");
+		} else {
+			// do exchange function
+			List<JSONObject> jsonobjectList = new ArrayList<JSONObject>();
+			for (int i = 0; i < jsonArray.size(); i++) {
+				jsonobjectList.add((JSONObject) jsonArray.get(i));
+			}
+			// Looking at each element in the jsonobjectList
+			for (JSONObject jsonOb : jsonobjectList) {
+				ezservers[counter] = jsonOb.get("hostname").toString() + ":" + jsonOb.get("port").toString();
+				counter++;
+			}
+		}
+		return ezservers;
+	}
+
 	public static Resource share(JSONObject jsonObject) throws OperationRunningException {
 		System.out.println("Share function");
 		JSONObject result = new JSONObject();
@@ -113,25 +148,25 @@ public class ServerOperationHandler {
 		// TODO: Achieve Fetch Functions
 
 		JSONObject fetchResourceJsonObj = new JSONObject();
-		
+
 		fetchResourceJsonObj.putAll((Map) jsonObject.get("resourceTemplate"));
-		
+
 		System.out.println(fetchResourceJsonObj);
 
-		if(fetchResourceJsonObj.isEmpty()){
+		if (fetchResourceJsonObj.isEmpty()) {
 			throw new OperationRunningException("missing resourceTemplate");
 		}
 		// The URI must be present, must be absolute and must be a file scheme.
 		String uriString = fetchResourceJsonObj.get("uri").toString();
 		String chanString = fetchResourceJsonObj.get("channel").toString();
-		
+
 		// URI The URI must be present
 		if (null == uriString || uriString.equals("")) {
 			throw new OperationRunningException("missing resourceTemplate");
 		}
 		URI resourceUri = URI.create(uriString);
-		
-		if (null == chanString){
+
+		if (null == chanString) {
 			throw new OperationRunningException("missing resourceTemplate");
 		}
 		return null;
