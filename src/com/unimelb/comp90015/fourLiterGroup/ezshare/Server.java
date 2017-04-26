@@ -34,6 +34,8 @@ public class Server {
 	// Identifies the user number connected
 	private static int counter = 0;
 
+	private static int resultSize = 1;
+
 	// Resource Map
 	private ResourceWarehouse resourceWarehouse;
 	// Server List
@@ -179,33 +181,30 @@ public class Server {
 
 		try {
 			Resource resource = ServerOperationHandler.fetch(jsonObject);
-			// TODO: check resource
-			if (2 == 1 + 1) {
-				// if same URI same Owner and same channel,
-				// overwrite
+			int resourceSize = 0;
+			if (resourceWarehouse.FindResource(resource.getChannel(), resource.getURI())) {
 				results.put("response", "success");
+				results.put("resource", resourcePack(resource, resourceSize));
+				results.put("resultSize", resultSize);
+				
+				//TODO: download function
 			} else {
-				// if same URI same channel different OWner,
-				// error
 				results.put("response", "error");
-				results.put("errorMessage", "invalid resource");
-
+				results.put("errorMessage", "invalid resourceTemplate");
 			}
 		} catch (OperationRunningException e) {
 			results.put("response", "error");
 			results.put("errorMessage", e.toString());
 
 		}
-
 		return results;
-
 	}
 
 	private JSONObject handleExchange(JSONObject jsonObject) {
 		JSONObject results = new JSONObject();
 		try {
 			Servers = ServerOperationHandler.exchange(jsonObject).clone();
-			for(String string: Servers){
+			for (String string : Servers) {
 				System.out.println(string);
 			}
 
@@ -217,6 +216,20 @@ public class Server {
 		}
 		return results;
 
+	}
+
+	private JSONObject resourcePack(Resource resource, int resourceSize) {
+		JSONObject results = new JSONObject();
+		results.put("name", resource.getName());
+		results.put("tags", resource.getTags());
+		results.put("description", resource.getDescription());
+		results.put("uri", resource.getURI());
+		results.put("channel", resource.getChannel());
+		results.put("owner", resource.getOwner());
+		results.put("ezserver", resource.getEzserver());
+		results.put("resourceSize", resourceSize);
+
+		return results;
 	}
 	/*
 	 * private static JSONObject publish(JSONObject jsonObject) {// publish //

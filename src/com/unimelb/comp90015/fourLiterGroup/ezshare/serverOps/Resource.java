@@ -59,7 +59,7 @@ public class Resource {
 		return this.Owner;
 	}
 	
-	public String[] getEZShare(){
+	public String[] getEzserver(){
 		return this.EZserver;
 	}
 	

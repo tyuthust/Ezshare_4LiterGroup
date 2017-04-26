@@ -96,7 +96,7 @@ public class ResourceWarehouse {
 	 * @return Resource based on the parameter given, null if no resource is
 	 *         founded
 	 */
-	public Resource FindResource(String channel, String uri, String Owner) {
+	private Resource FindResource(String channel, String uri, String Owner) {
 		Resource resource = null;
 		if (resourceMap.containsKey(channel)) {
 
@@ -112,26 +112,17 @@ public class ResourceWarehouse {
 		return resource;
 	}
 
-	public Resource FindResource(String channel, String uri) throws OperationRunningException {
-		Resource resource = null;
+	public boolean FindResource(String channel, String uri) throws OperationRunningException {
+		boolean existResource = false;
 		if (resourceMap.containsKey(channel)) {
 			if (resourceMap.get(channel).containsKey(uri)) {
 				List<Resource> resList = new ArrayList<Resource>();
 				if (!resourceMap.get(channel).get(uri).isEmpty()) {
-					for (Resource res : resourceMap.get(channel).get(uri).values()) {
-						resList.add(res);
-					}
-					resource = resList.get(0);
-				} else {
-					throw new OperationRunningException("invalid resourceTemplate");
+					existResource = true;
 				}
-			} else {
-				throw new OperationRunningException("invalid resourceTemplate");
 			}
-		} else {
-			throw new OperationRunningException("invalid resourceTemplate");
 		}
-		return resource;
+		return existResource;
 	}
 
 }

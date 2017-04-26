@@ -164,16 +164,14 @@ public class ServerOperationHandler {
 		if (null == uriString || uriString.equals("")) {
 			throw new OperationRunningException("missing resourceTemplate");
 		}
-		URI resourceUri = URI.create(uriString);
-
 		if (null == chanString) {
 			throw new OperationRunningException("missing resourceTemplate");
 		}
-		return null;
+		return generatingResourceHandler(fetchResourceJsonObj);
+
 	}
 
-	private static Resource generatingResourceHandler(JSONObject shareResourceJsonObj)
-			throws OperationRunningException {
+	private static Resource generatingResourceHandler(JSONObject ResourceJsonObj) throws OperationRunningException {
 
 		// String values must not contain the "\0" character,
 		// nor start or end with whitespace.
@@ -181,7 +179,7 @@ public class ServerOperationHandler {
 
 		// remove all start and end whitespace
 		// remove "\0"
-		shareResourceJsonObj.forEach((key, value) -> {
+		ResourceJsonObj.forEach((key, value) -> {
 			utils.trimFirstAndLastChar((String) value, " ");
 			((String) value).replaceAll("\\0", "");
 
@@ -189,35 +187,35 @@ public class ServerOperationHandler {
 
 		// create a new resource and set its value
 		Resource resource = new Resource();
-		if (null == shareResourceJsonObj.get("name")) {
+		if (null == ResourceJsonObj.get("name")) {
 			throw new OperationRunningException("missing resource");
 		}
-		resource.setName(shareResourceJsonObj.get("name").toString());
+		resource.setName(ResourceJsonObj.get("name").toString());
 		System.out.println("The resource name:" + resource.getName());
 
 		// clone the jsonobject to a hashmap
 		Map map = new HashMap();
-		map = (Map) shareResourceJsonObj.clone();
+		map = (Map) ResourceJsonObj.clone();
 
 		if (map.get("channel") != null) {// otherwise, there is an exception
 			// when channel is null
-			resource.setChannel(shareResourceJsonObj.get("channel").toString());
+			resource.setChannel(ResourceJsonObj.get("channel").toString());
 		} else {
 			throw new OperationRunningException("missing resource");
 		}
 		System.out.println("The resource channel:" + resource.getChannel());
 
-		resource.setDescription(shareResourceJsonObj.get("description").toString());
+		resource.setDescription(ResourceJsonObj.get("description").toString());
 		System.out.println("The resource description:" + resource.getDescription());
 
 		if (map.get("owner") != null) {
-			resource.setOwner(shareResourceJsonObj.get("owner").toString());
+			resource.setOwner(ResourceJsonObj.get("owner").toString());
 		} else {
 			throw new OperationRunningException("missing resource");
 		}
 		System.out.println("The resource owner:" + resource.getOwner());
 
-		resource.setURI(shareResourceJsonObj.get("uri").toString());
+		resource.setURI(ResourceJsonObj.get("uri").toString());
 		System.out.println("The resource uri:" + resource.getURI());
 
 		// ezserver will not be transported when using publish command
@@ -225,7 +223,7 @@ public class ServerOperationHandler {
 
 		if (map.get("tags") != null) {
 			JSONArray jsonArray = new JSONArray();
-			jsonArray = (JSONArray) shareResourceJsonObj.get("tags");
+			jsonArray = (JSONArray) ResourceJsonObj.get("tags");
 			String[] tags = new String[jsonArray.size()];
 			for (int i = 0; i < jsonArray.size(); i++) {
 				String r = jsonArray.get(i).toString();
