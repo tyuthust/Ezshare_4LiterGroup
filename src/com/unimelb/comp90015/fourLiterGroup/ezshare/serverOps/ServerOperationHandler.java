@@ -82,12 +82,6 @@ public class ServerOperationHandler {
 
 		if (jsonArray != null) {
 			ezservers = new String[jsonArray.size()];
-			// invalid server list
-			for (String string : ezservers) {
-				if (utils.isIPandPort(string)) {
-					throw new OperationRunningException("missing or invalide server List");
-				}
-			}
 			// do exchange function
 			List<JSONObject> jsonobjectList = new ArrayList<JSONObject>();
 			for (int i = 0; i < jsonArray.size(); i++) {
@@ -97,6 +91,12 @@ public class ServerOperationHandler {
 			for (JSONObject jsonOb : jsonobjectList) {
 				ezservers[counter] = jsonOb.get("hostname").toString() + ":" + jsonOb.get("port").toString();
 				counter++;
+			}
+			// invalid server list
+			for (String string : ezservers) {
+				if (!utils.isIPandPort(string)) {
+					throw new OperationRunningException("missing or invalide server List");
+				}
 			}
 		} else {
 			// server list is missing
