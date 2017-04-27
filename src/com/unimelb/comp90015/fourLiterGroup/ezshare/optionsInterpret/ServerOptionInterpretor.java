@@ -25,7 +25,7 @@ public class ServerOptionInterpretor implements OptionInterpretor {
       	cmd = parser.parse(options,args);
       	
       	ServerCmds serverCmds = new ServerCmds();
-        if(cmd.hasOption("advertisedhostname"))
+        if(cmd.hasOption("advertisedhostname"))//TODO: judge whether the asvetisehostname is legal
         	serverCmds.advertisedhostname = cmd.getOptionValue("advertisedhostname");
         if(cmd.hasOption("connectionintervallimit")){
         	//if the string does not contain a parsable integer, throw a NumberFormatException

@@ -13,18 +13,17 @@ import java.net.Socket;
 import java.net.UnknownHostException;
 import java.util.Arrays;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
-
+import java.util.logging.*;
 
 public class Client {
 	private ClientCmds cmds;
-	//TODO: to config logger
-	private static Logger logger = LogManager.getLogger();
+	
+	private static Logger logger = Logger.getLogger(Client.class.getName());
+	
 	public Client(ClientCmds cmds) {
 		this.cmds = cmds;
 	}
@@ -36,8 +35,9 @@ public class Client {
 	}
 
 	public void connect() throws IOException, CommandInvalidException {
+		logger.setLevel(Level.INFO);
 		if(cmds.debug){
-			logger.info("setting client debug on. "+"The port is: " + cmds.port);
+			logger.info("setting client debug on. "+"The port: " + cmds.port);
 		}
 		try (Socket socket = new Socket(this.cmds.host, this.cmds.port);) {
 			// Output and Input Stream
@@ -45,7 +45,9 @@ public class Client {
 			DataOutputStream output = new DataOutputStream(socket.getOutputStream());
 
 			output.writeUTF("I want to connect!");
-			System.out.println("I want to connect!");
+			if(cmds.debug){
+				logger.info("[sent] I want to connect!");
+			}
 			output.flush();
 
 			JSONPack jsonPack = new ClientPack();
@@ -74,18 +76,19 @@ public class Client {
 	    	    		
 
 	    	    		// Check the command name
-	    	    		if(command.containsKey("resource")){
-	    	    			JSONObject resource = (JSONObject) command.get("resource");
-	    	    			if(this.cmds.fetch){
+	    	    		if(command.containsKey("command_name")){
+	    	    			if(command.get("command_name").toString().equals("SENDING_FILE")){
 	    	    				
 	    	    				// The file location
-	    						String fileName = "client_folder/"+resource.get("name");
-	    						
+	    						String fileName = "client_files/"+command.get("file_name");
+	    						if(cmds.debug){	
+	    							logger.info("[sent] "+fileName);
+	    						}
 	    						// Create a RandomAccessFile to read and write the output file.
 	    						RandomAccessFile downloadingFile = new RandomAccessFile(fileName, "rw");
 	    						
 	    						// Find out how much size is remaining to get from the server.
-	    						long fileSizeRemaining = (Long) resource.get("resourceSize");
+	    						long fileSizeRemaining = (Long) command.get("file_size");
 	    						
 	    						int chunkSize = setChunkSize(fileSizeRemaining);
 	    						

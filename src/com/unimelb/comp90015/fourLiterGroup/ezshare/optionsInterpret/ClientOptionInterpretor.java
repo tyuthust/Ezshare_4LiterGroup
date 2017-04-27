@@ -55,7 +55,7 @@ public class ClientOptionInterpretor implements OptionInterpretor {
         	clientCmds.exchange = true;
         if(cmd.hasOption("fetch"))
         	clientCmds.fetch = true;
-        if(cmd.hasOption("host")){
+        if(cmd.hasOption("host")){//TODO: judge whether the host is legal
         	String hostpara = cmd.getOptionValue("host");
         	if(isStringDomain(hostpara)||isStringIPAddr(hostpara)){
         		clientCmds.host = hostpara;

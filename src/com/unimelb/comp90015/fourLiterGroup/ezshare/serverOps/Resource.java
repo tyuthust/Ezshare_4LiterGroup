@@ -12,7 +12,7 @@ public class Resource implements IResourceTemplate {
 	private String Channel = null;
 	private String Owner = null;
 	private String[] EZserver = null;
-	private int resourceSize=0;
+	private long resourceSize=0;
 	public Resource() {// Constructor
 	}
 
@@ -60,7 +60,7 @@ public class Resource implements IResourceTemplate {
 		}
 	}
 	
-	public void setResourceSize(int size){
+	public void setResourceSize(long size){
 		this.resourceSize=size;
 	}
 	public String getName(){
@@ -91,7 +91,7 @@ public class Resource implements IResourceTemplate {
 		return this.Tags;
 	}
 	
-	public int getSize(){
+	public long getSize(){
 		return this.resourceSize;
 	}
 	
