@@ -36,7 +36,7 @@ import com.unimelb.comp90015.fourLiterGroup.ezshare.serverOps.ServerOperationHan
 public class Server {
 
 	public static boolean DEFAULT_RELAY_MODE = true;
-	
+
 	private ServerCmds cmds;
 	// Identifies the user number connected
 	private static int counter = 0;
@@ -50,7 +50,7 @@ public class Server {
 	private String[] Servers = null;
 
 	public Server(ServerCmds cmds) {
-		
+
 		resourceWarehouse = new ResourceWarehouse();
 		this.cmds = cmds;
 		if (null == this.cmds.secret) {
@@ -70,7 +70,7 @@ public class Server {
 		ExecutorService ThreadPool = Executors.newCachedThreadPool();
 
 		try (ServerSocket server = factory.createServerSocket(this.cmds.port)) {
-			if(cmds.debug){
+			if (cmds.debug) {
 				logger.info("setting server debug on. ");
 				logger.info("The port: " + cmds.port);
 			}
@@ -103,9 +103,9 @@ public class Server {
 			// Output Stream
 			DataOutputStream output = new DataOutputStream(clientSocket.getOutputStream());
 			System.out.println("CLIENT: " + input.readUTF());
-			
-			if(cmds.debug){
-				logger.info("[sent]"+"Server: Hi Client " + counter + " !!!");
+
+			if (cmds.debug) {
+				logger.info("[sent]" + "Server: Hi Client " + counter + " !!!");
 			}
 			output.writeUTF("Server: Hi Client " + counter + " !!!");
 			output.flush();
@@ -115,7 +115,7 @@ public class Server {
 				if (input.available() > 0) {
 					// Attempt to convert read data to JSON
 					JSONObject command = (JSONObject) parser.parse(input.readUTF());
-					if(cmds.debug){
+					if (cmds.debug) {
 						logger.info("COMMAND RECEIVED: " + command.toJSONString());
 					}
 					JSONObject results = new JSONObject();// return json pack
@@ -163,53 +163,57 @@ public class Server {
 			results.put("response", "error");
 			results.put("errorMessage", e.toString());
 		}
-		if(cmds.debug){
+		if (cmds.debug) {
 			logger.info(results.toJSONString());
 		}
 		return results;
 	}
-	
-	private JSONObject handleQuery(JSONObject jsonObject, DataOutputStream output){
+
+	private JSONObject handleQuery(JSONObject jsonObject, DataOutputStream output) {
 		JSONObject results = new JSONObject();
 		ArrayList<Resource> resultResources = new ArrayList<>();
 		Boolean relayMode = DEFAULT_RELAY_MODE;
-		if(null!=  jsonObject.get("relay")){
-			relayMode = jsonObject.get("relay") == "false" ? false:true;
+		if (null != jsonObject.get("relay")) {
+			relayMode = jsonObject.get("relay") == "false" ? false : true;
 		}
 		try {
 			IResourceTemplate resource = ServerOperationHandler.query(jsonObject);
 			this.resourceWarehouse.FindReource(resource);
-			if(relayMode){
-				//TODO: Ask servers in ServerList for query
-					//TODO: Change query jsonobject 
-					//TODO: send to servers
-					//TODO: set timeout
-					//TODO: collectAllResource
-					//package in JSONObject
+			if (relayMode) {
+				// TODO: Ask servers in ServerList for query
+				// TODO: Change query jsonobject
+				// TODO: send to servers
+				// TODO: set timeout
+				// TODO: collectAllResource
+				// package in JSONObject
 			}
 		} catch (OperationRunningException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		if(cmds.debug){
+		if (cmds.debug) {
 			logger.info(results.toJSONString());
 		}
 		return results;
 	}
+
 	private JSONObject handleRemove(JSONObject jsonObject, DataOutputStream output) {
 		JSONObject results = new JSONObject();
 		//TODO
 		
-		
-		
-		
-		
-		
+		try{
+			Resource resource = ServerOperationHandler.remove(jsonObject);
+			results.put("response", "success");
+		}catch (OperationRunningException e) {
+			results.put("response", "error");
+			results.put("errorMessage", e.toString());
+		}
 		if(cmds.debug){
 			logger.info(results.toJSONString());
 		}
 		return results;
 	}
+
 	private JSONObject handleShare(JSONObject jsonObject, DataOutputStream output) {
 		JSONObject results = new JSONObject();
 		// if secret is incorrect
@@ -236,7 +240,7 @@ public class Server {
 
 			}
 		}
-		if(cmds.debug){
+		if (cmds.debug) {
 			logger.info(results.toJSONString());
 		}
 		return results;
@@ -248,7 +252,6 @@ public class Server {
 
 		try {
 			Resource resource = ServerOperationHandler.fetch(jsonObject);
-			
 
 			if (resourceWarehouse.FindResource(resource.getChannel(), resource.getURI())) {
 				System.out.println(results.toJSONString());
@@ -256,16 +259,17 @@ public class Server {
 				// get filename from uri
 				String uri = resource.getURI();
 				String filename = uri.replaceFirst("file://", "");
-				
+
 				// String filename = "server_files/"+ resource.getName();
 				// String filename = "/Users/fangrisheng/Desktop/sauron.jpg";
-				
+
 				File f = new File(filename);
 				JSONObject trigger = new JSONObject();
 
 				if (f.exists()) {
 
-					// Send trigger back to client so that they know what the file is.
+					// Send trigger back to client so that they know what the
+					// file is.
 					try {
 						trigger.put("command_name", "SENDING_FILE");
 						trigger.put("file_name", "sauron.jpg");
@@ -303,7 +307,7 @@ public class Server {
 			results.put("errorMessage", e.toString());
 
 		}
-		if(cmds.debug){
+		if (cmds.debug) {
 			logger.info(results.toJSONString());
 		}
 		return results;
@@ -315,7 +319,7 @@ public class Server {
 			Servers = ServerOperationHandler.exchange(jsonObject).clone();
 			if (cmds.debug) {
 				for (String string : Servers) {
-					logger.info("Server list: "+ string);
+					logger.info("Server list: " + string);
 				}
 			}
 
@@ -325,7 +329,7 @@ public class Server {
 			results.put("errorMessage", e.toString());
 
 		}
-		if(cmds.debug){
+		if (cmds.debug) {
 			logger.info(results.toJSONString());
 		}
 		return results;
@@ -350,7 +354,7 @@ public class Server {
 		results.put("owner", resource.getOwner());
 		results.put("ezserver", resource.getEzserver());
 		results.put("resourceSize", resource.getSize());
-		if(cmds.debug){
+		if (cmds.debug) {
 			logger.info(results.toJSONString());
 		}
 		return results;

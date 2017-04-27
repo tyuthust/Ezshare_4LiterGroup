@@ -104,7 +104,49 @@ public class ServerOperationHandler {
 		}
 		return ezservers;
 	}
+	
+	public static Resource remove(JSONObject jsonObject) throws OperationRunningException {
+		System.out.println("Remove function");//TODO: change to logger
+		JSONObject result = new JSONObject();
 
+		// TODO: Check rules breaker
+
+		JSONObject removeResourceJsonObj = new JSONObject();
+		// If the resource field was not given or not of the correct type
+		if (null == jsonObject.get("resource") || null == jsonObject.get("secret")) {
+			throw new OperationRunningException("missing resource and/or secret");
+		}
+		removeResourceJsonObj.putAll((Map) jsonObject.get("resource"));
+		System.out.println(removeResourceJsonObj);
+
+		// check if the the json data break the rule
+
+		// The URI must be present, must be absolute and must be a file scheme.
+		String uriString = removeResourceJsonObj.get("uri").toString();
+
+		// URI The URI must be present
+		if (null == uriString || uriString.equals("")) {
+			throw new OperationRunningException("cannot share resource");
+		}
+		URI resourceUri = URI.create(uriString);
+
+		// must be absolute and must be a file scheme
+		if (resourceUri.isAbsolute()) {
+			if (!resourceUri.getScheme().contains("file")) {
+				throw new OperationRunningException("cannot share resource");
+			}
+		} else {
+			throw new OperationRunningException("cannot share resource");
+		}
+
+		// The Owner field must not be the single character "*".
+		if (removeResourceJsonObj.get("owner").toString().equals("*")) {
+			throw new OperationRunningException("cannot share resource");
+		}
+
+		return generatingResourceHandler(removeResourceJsonObj);
+	}
+	
 	public static Resource share(JSONObject jsonObject) throws OperationRunningException {
 		System.out.println("Share function");
 		JSONObject result = new JSONObject();
