@@ -23,9 +23,11 @@ import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
+import org.apache.logging.log4j.*;
 
 import com.sun.glass.ui.TouchInputSupport;
 import com.unimelb.comp90015.fourLiterGroup.ezshare.optionsInterpret.ServerCmds;
+import com.unimelb.comp90015.fourLiterGroup.ezshare.serverOps.IResourceTemplate;
 import com.unimelb.comp90015.fourLiterGroup.ezshare.serverOps.OperationRunningException;
 import com.unimelb.comp90015.fourLiterGroup.ezshare.serverOps.Resource;
 import com.unimelb.comp90015.fourLiterGroup.ezshare.serverOps.ResourceWarehouse;
@@ -33,12 +35,15 @@ import com.unimelb.comp90015.fourLiterGroup.ezshare.serverOps.ServerOperationHan
 
 public class Server {
 
+	public static boolean DEFAULT_RELAY_MODE = true;
+	
 	private ServerCmds cmds;
 	// Identifies the user number connected
 	private static int counter = 0;
 
 	private static int resultSize = 1;
-
+	//TODO: to config logger
+	private static Logger logger = LogManager.getLogger();
 	// Resource Map
 	private ResourceWarehouse resourceWarehouse;
 	// Server List
@@ -63,6 +68,10 @@ public class Server {
 		ExecutorService ThreadPool = Executors.newCachedThreadPool();
 
 		try (ServerSocket server = factory.createServerSocket(this.cmds.port)) {
+			if(cmds.debug){
+				logger.info("setting server debug on. ");
+				logger.info("The port is: " + cmds.port);
+			}
 			System.out.println("Waiting for client connection..");
 
 			// Wait for connections.
@@ -92,7 +101,10 @@ public class Server {
 			// Output Stream
 			DataOutputStream output = new DataOutputStream(clientSocket.getOutputStream());
 			System.out.println("CLIENT: " + input.readUTF());
-
+			
+			if(cmds.debug){
+				logger.info("[sent]"+"Server: Hi Client " + counter + " !!!");
+			}
 			output.writeUTF("Server: Hi Client " + counter + " !!!");
 			output.flush();
 
@@ -147,6 +159,31 @@ public class Server {
 		} catch (OperationRunningException e) {
 			results.put("response", "error");
 			results.put("errorMessage", e.toString());
+		}
+		return results;
+	}
+	
+	private JSONObject handleQuery(JSONObject jsonObject, DataOutputStream output){
+		JSONObject results = new JSONObject();
+		ArrayList<Resource> resultResources = new ArrayList<>();
+		Boolean relayMode = DEFAULT_RELAY_MODE;
+		if(null!=  jsonObject.get("relay")){
+			relayMode = jsonObject.get("relay") == "false" ? false:true;
+		}
+		try {
+			IResourceTemplate resource = ServerOperationHandler.query(jsonObject);
+			this.resourceWarehouse.FindReource(resource);
+			if(relayMode){
+				//TODO: Ask servers in ServerList for query
+					//TODO: Change query jsonobject 
+					//TODO: send to servers
+					//TODO: set timeout
+					//TODO: collectAllResource
+					//package in JSONObject
+			}
+		} catch (OperationRunningException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
 		return results;
 	}
@@ -249,8 +286,10 @@ public class Server {
 		JSONObject results = new JSONObject();
 		try {
 			Servers = ServerOperationHandler.exchange(jsonObject).clone();
-			for (String string : Servers) {
-				System.out.println(string);
+			if (cmds.debug) {
+				for (String string : Servers) {
+					logger.info("Server list: "+ string);
+				}
 			}
 
 			results.put("response", "success");

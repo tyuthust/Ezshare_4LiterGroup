@@ -70,7 +70,6 @@ public class ServerOperationHandler {
 	public static String[] exchange(JSONObject jsonObject) throws OperationRunningException {
 
 		System.out.println("Exchange function");
-
 		// create a json object to save the map in resource
 		JSONObject exchangeStringObj = new JSONObject();
 		JSONArray jsonArray = new JSONArray();
@@ -147,7 +146,25 @@ public class ServerOperationHandler {
 
 		return generatingResourceHandler(shareResourceJsonObj);
 	}
+	
+	public static Resource query(JSONObject jsonObject) throws OperationRunningException{
+		System.out.println("query function");
+		JSONObject result = new JSONObject();
+		
+		JSONObject queryResourceJsonObj = new JSONObject();
 
+		queryResourceJsonObj.putAll((Map) jsonObject.get("resourceTemplate"));
+
+
+		if (queryResourceJsonObj.isEmpty()) {
+			throw new OperationRunningException("missing resourceTemplate");
+		}
+		// The URI must be present, must be absolute and must be a file scheme.
+		String uriString = queryResourceJsonObj.get("uri").toString();
+		String chanString = queryResourceJsonObj.get("channel").toString();
+		return generatingResourceHandler(queryResourceJsonObj);
+	}
+	
 	public static Resource fetch(JSONObject jsonObject) throws OperationRunningException {
 		System.out.println("fetch function");
 		JSONObject result = new JSONObject();
@@ -175,20 +192,6 @@ public class ServerOperationHandler {
 	}
 
 	private static Resource generatingResourceHandler(JSONObject ResourceJsonObj) throws OperationRunningException {
-
-		// String values must not contain the "\0" character,
-		// nor start or end with whitespace.
-		// The server may silently remove such characters
-
-		// remove all start and end whitespace
-		// remove "\0"
-		/*
-		 * ResourceJsonObj.forEach((key, value) -> {
-		 * utils.trimFirstAndLastChar((String) value, " "); ((String)
-		 * value).replaceAll("\\0", "");
-		 * 
-		 * });
-		 */
 
 		// create a new resource and set its value
 		Resource resource = new Resource();

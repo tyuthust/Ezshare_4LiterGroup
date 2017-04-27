@@ -2,7 +2,9 @@ package com.unimelb.comp90015.fourLiterGroup.ezshare.serverOps;
 
 import java.util.List;
 
-public class Resource {
+import com.unimelb.comp90015.fourLiterGroup.ezshare.utils.utils;
+
+public class Resource implements IResourceTemplate {
 	private String Name = null;
 	private String Description = null;
 	private String[] Tags = null;
@@ -16,30 +18,46 @@ public class Resource {
 
 	public void setName(String name) {
 		this.Name = name;
+		formatStringOfResource(this.Name);
 	}
 
 	public void setDescription(String description) {
 		this.Description = description;
+		formatStringOfResource(this.Description);
 	}
 
 	public void setTags(String[] tags) {
 		this.Tags=tags.clone();
+		if(null != this.Tags){
+			for (String string : this.Tags) {
+				formatStringOfResource(string);
+			}
+		}
 	}
 
 	public void setURI(String uri) {
 		this.URI = uri;
+		formatStringOfResource(this.URI);
 	}
 
 	public void setChannel(String channel) {
 		this.Channel = channel;
+		formatStringOfResource(this.Channel);
 	}
 
 	public void setOwner(String owner) {
 		this.Owner = owner;
+		formatStringOfResource(this.Owner);
+		
 	}
 
 	public void setEZServer(String[] ezservers) {
 		this.EZserver = ezservers.clone();
+		if(null != this.EZserver){
+			for (String string : this.EZserver) {
+				formatStringOfResource(string);
+			}
+		}
 	}
 	
 	public void setResourceSize(long size){
@@ -75,5 +93,21 @@ public class Resource {
 	
 	public long getSize(){
 		return this.resourceSize;
+	}
+	
+	private static void formatStringOfResource(String unformatedString) {
+
+		// String values must not contain the "\0" character,
+		// nor start or end with whitespace.
+		// The server may silently remove such characters
+
+		// remove all start and end whitespace
+		// remove "\0"
+
+		utils.trimFirstAndLastChar(unformatedString, " ");
+		if (null != unformatedString) {
+			((String) unformatedString).replaceAll("\0", "");
+			unformatedString += "\0";
+		}
 	}
 }
