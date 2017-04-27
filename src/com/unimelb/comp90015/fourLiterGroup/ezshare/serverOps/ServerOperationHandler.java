@@ -140,6 +140,33 @@ public class ServerOperationHandler {
 
 		return generatingResourceHandler(shareResourceJsonObj);
 	}
+	
+	public static Resource query(JSONObject jsonObject) throws OperationRunningException{
+		System.out.println("query function");
+		JSONObject result = new JSONObject();
+		
+		JSONObject queryResourceJsonObj = new JSONObject();
+
+		queryResourceJsonObj.putAll((Map) jsonObject.get("resourceTemplate"));
+
+
+		if (queryResourceJsonObj.isEmpty()) {
+			throw new OperationRunningException("missing resourceTemplate");
+		}
+		// The URI must be present, must be absolute and must be a file scheme.
+		String uriString = queryResourceJsonObj.get("uri").toString();
+		String chanString = queryResourceJsonObj.get("channel").toString();
+
+		// URI The URI must be present
+		if (null == uriString || uriString.equals("")) {
+			throw new OperationRunningException("missing resourceTemplate");
+		}
+		if (null == chanString) {
+			throw new OperationRunningException("missing resourceTemplate");
+		}
+		return generatingResourceHandler(queryResourceJsonObj);
+		
+	}
 
 	public static Resource fetch(JSONObject jsonObject) throws OperationRunningException {
 		System.out.println("fetch function");
