@@ -39,7 +39,7 @@ public class Server {
 	private static int counter = 0;
 
 	private static int resultSize = 1;
-	//need to config logger
+	//TODO: to config logger
 	private static Logger logger = LogManager.getLogger();
 	// Resource Map
 	private ResourceWarehouse resourceWarehouse;

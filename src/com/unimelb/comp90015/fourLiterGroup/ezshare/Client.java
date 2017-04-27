@@ -23,6 +23,7 @@ import org.json.simple.parser.ParseException;
 
 public class Client {
 	private ClientCmds cmds;
+	//TODO: to config logger
 	private static Logger logger = LogManager.getLogger();
 	public Client(ClientCmds cmds) {
 		this.cmds = cmds;
