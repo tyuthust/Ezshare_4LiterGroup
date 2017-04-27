@@ -13,18 +13,17 @@ import java.net.Socket;
 import java.net.UnknownHostException;
 import java.util.Arrays;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
-
+import java.util.logging.*;
 
 public class Client {
 	private ClientCmds cmds;
 	//TODO: to config logger
-	private static Logger logger = LogManager.getLogger();
+	private static Logger logger = Logger.getLogger(Client.class.getName());
+	//private static Logger getLogger();
 	public Client(ClientCmds cmds) {
 		this.cmds = cmds;
 	}
@@ -36,8 +35,9 @@ public class Client {
 	}
 
 	public void connect() throws IOException, CommandInvalidException {
+		//logger.setLevel(Level.INFO);
 		if(cmds.debug){
-			logger.info("setting client debug on. "+"The port is: " + cmds.port);
+			logger.info("setting client debug on. "+"The port: " + cmds.port+"; "+"The host: "+cmds.host);
 		}
 		try (Socket socket = new Socket(this.cmds.host, this.cmds.port);) {
 			// Output and Input Stream

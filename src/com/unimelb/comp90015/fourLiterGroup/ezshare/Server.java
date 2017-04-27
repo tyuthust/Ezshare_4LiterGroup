@@ -23,7 +23,7 @@ import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
-import org.apache.logging.log4j.*;
+import java.util.logging.*;
 
 import com.sun.glass.ui.TouchInputSupport;
 import com.unimelb.comp90015.fourLiterGroup.ezshare.optionsInterpret.ServerCmds;
@@ -43,13 +43,14 @@ public class Server {
 
 	private static int resultSize = 1;
 	//TODO: to config logger
-	private static Logger logger = LogManager.getLogger();
+	protected static Logger logger = Logger.getLogger(Server.class.getName());
 	// Resource Map
 	private ResourceWarehouse resourceWarehouse;
 	// Server List
 	private String[] Servers = null;
 
 	public Server(ServerCmds cmds) {
+		
 		resourceWarehouse = new ResourceWarehouse();
 		this.cmds = cmds;
 		if (null == this.cmds.secret) {
@@ -62,6 +63,7 @@ public class Server {
 	}
 
 	public void setup() {
+		logger.setLevel(Level.INFO);
 		ServerSocketFactory factory = ServerSocketFactory.getDefault();
 		// start a Thread Pool. Threads that have not been used for more than
 		// sixty seconds are terminated and removed from the cache.
@@ -70,7 +72,7 @@ public class Server {
 		try (ServerSocket server = factory.createServerSocket(this.cmds.port)) {
 			if(cmds.debug){
 				logger.info("setting server debug on. ");
-				logger.info("The port is: " + cmds.port);
+				logger.info("The port: " + cmds.port);
 			}
 			System.out.println("Waiting for client connection..");
 
@@ -113,8 +115,9 @@ public class Server {
 				if (input.available() > 0) {
 					// Attempt to convert read data to JSON
 					JSONObject command = (JSONObject) parser.parse(input.readUTF());
-					System.out.println("COMMAND RECEIVED: " + command.toJSONString());
-
+					if(cmds.debug){
+						logger.info("COMMAND RECEIVED: " + command.toJSONString());
+					}
 					JSONObject results = new JSONObject();// return json pack
 
 					// TODO: change to ServerOperationHandler
