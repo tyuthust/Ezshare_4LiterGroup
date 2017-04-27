@@ -158,7 +158,7 @@ public class ServerOperationHandler {
 		String chanString = queryResourceJsonObj.get("channel").toString();
 
 		// URI The URI must be present
-		if (null == uriString || uriString.equals("")) {
+		if (null == uriString) {
 			throw new OperationRunningException("missing resourceTemplate");
 		}
 		if (null == chanString) {

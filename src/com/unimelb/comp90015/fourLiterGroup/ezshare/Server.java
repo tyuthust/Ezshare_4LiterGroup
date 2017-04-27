@@ -169,23 +169,44 @@ public class Server {
 		}
 		try {
 			IResourceTemplate resource = ServerOperationHandler.query(jsonObject);
-			this.resourceWarehouse.FindReource(resource);
+			Resource[] hitResources = this.resourceWarehouse.FindReource(resource);
+			if(null != hitResources){
+				for (Resource hitresource : hitResources) {
+					if(!hitresource.getOwner().equals(null)&&!hitresource.getOwner().equals("")){
+						hitresource.setOwner("*");
+					}
+					resultResources.add(hitresource);
+				}
+			}
+			
 			if(relayMode){
 				//TODO: Ask servers in ServerList for query
-					//TODO: Change query jsonobject 
-					//TODO: send to servers
-					//TODO: set timeout
-					//TODO: collectAllResource
+					//Change query jsonobject 
+					//send to servers
+					//set timeout
+					//collectAllResource
+					//modify all named owner with "*"
 					//package in JSONObject
 			}
+			
+			results.put("response", "success");
+			if(null!= hitResources&&hitResources.length>0 ){
+				for (Resource hitResource : hitResources) {
+					results.put("resource", resourcePack(hitResource));
+				}
+				results.put("resultSize", hitResources.length);
+			}
+			else {
+				results.put("resultSize", 0);
+			}
+
+			
+			
 		} catch (OperationRunningException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 
-
-		
-		
 		
 		return results;
 	}
