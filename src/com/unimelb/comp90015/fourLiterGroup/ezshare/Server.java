@@ -23,6 +23,7 @@ import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
+import org.apache.logging.log4j.*;
 
 import com.sun.glass.ui.TouchInputSupport;
 import com.unimelb.comp90015.fourLiterGroup.ezshare.optionsInterpret.ServerCmds;
@@ -33,14 +34,13 @@ import com.unimelb.comp90015.fourLiterGroup.ezshare.serverOps.ServerOperationHan
 
 public class Server {
 
-	public static boolean DEFAULT_RELAY_MODE = true;
-	
 	private ServerCmds cmds;
 	// Identifies the user number connected
 	private static int counter = 0;
 
 	private static int resultSize = 1;
-
+	//need to config logger
+	private static Logger logger = LogManager.getLogger();
 	// Resource Map
 	private ResourceWarehouse resourceWarehouse;
 	// Server List
@@ -66,8 +66,8 @@ public class Server {
 
 		try (ServerSocket server = factory.createServerSocket(this.cmds.port)) {
 			if(cmds.debug){
-				System.out.print("[debug] "+"setting server debug on. ");
-				System.out.println("The port is: " + cmds.port);
+				logger.info("setting server debug on. ");
+				logger.info("The port is: " + cmds.port);
 			}
 			System.out.println("Waiting for client connection..");
 
@@ -99,7 +99,7 @@ public class Server {
 			DataOutputStream output = new DataOutputStream(clientSocket.getOutputStream());
 			System.out.println("CLIENT: " + input.readUTF());
 			if(cmds.debug){
-				System.out.println("[debug] [sent] "+"Server: Hi Client " + counter + " !!!");
+				logger.info("[sent]"+"Server: Hi Client " + counter + " !!!");
 			}
 			output.writeUTF("Server: Hi Client " + counter + " !!!");
 
@@ -154,20 +154,6 @@ public class Server {
 			results.put("response", "error");
 			results.put("errorMessage", e.toString());
 		}
-		return results;
-	}
-	
-	private JSONObject handleQuery(JSONObject jsonObject, DataOutputStream output){
-		JSONObject results = new JSONObject();
-		Boolean relayMode = DEFAULT_RELAY_MODE;
-		if(null!=  jsonObject.get("relay")){
-			relayMode = jsonObject.get("relay") == "false" ? false:true;
-		}
-
-
-		
-		
-		
 		return results;
 	}
 
@@ -262,8 +248,10 @@ public class Server {
 		JSONObject results = new JSONObject();
 		try {
 			Servers = ServerOperationHandler.exchange(jsonObject).clone();
-			for (String string : Servers) {
-				System.out.println(string);
+			if (cmds.debug) {
+				for (String string : Servers) {
+					logger.info("Server list: "+ string);
+				}
 			}
 
 			results.put("response", "success");

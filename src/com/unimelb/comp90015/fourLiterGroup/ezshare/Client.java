@@ -13,16 +13,17 @@ import java.net.Socket;
 import java.net.UnknownHostException;
 import java.util.Arrays;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 
 
-
 public class Client {
 	private ClientCmds cmds;
-
+	private static Logger logger = LogManager.getLogger();
 	public Client(ClientCmds cmds) {
 		this.cmds = cmds;
 	}
@@ -35,8 +36,7 @@ public class Client {
 
 	public void connect() throws IOException, CommandInvalidException {
 		if(cmds.debug){
-			System.out.print("[debug] "+"setting client debug on. ");
-			System.out.println("The port is: " + cmds.port);
+			logger.info("setting client debug on. "+"The port is: " + cmds.port);
 		}
 		try (Socket socket = new Socket(this.cmds.host, this.cmds.port);) {
 			// Output and Input Stream
@@ -56,7 +56,7 @@ public class Client {
 			try {
 				String JsonCmdsString = jsonPack.Pack(this.cmds).toJSONString();
 				if(cmds.debug){	
-					System.out.println("[debug] [sent] "+JsonCmdsString);
+					logger.info("[sent] "+JsonCmdsString);
 				}
 				output.writeUTF(JsonCmdsString);
 				output.flush();
