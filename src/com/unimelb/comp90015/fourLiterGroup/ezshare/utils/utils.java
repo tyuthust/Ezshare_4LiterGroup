@@ -43,4 +43,15 @@ public class utils {
 		}
 		return buf.toString();
 	}
+	
+	public static boolean isIPandPort(String string){//TODO: judge the string of IP:Port is legal
+		boolean Str = false;
+		String[] IPandPort = string.split(":");
+		/*if(IPandPort[0]==){
+			Str = true;
+		}
+		if(IPandPort[1]<=){
+		}*/
+		return Str;
+	}
 }

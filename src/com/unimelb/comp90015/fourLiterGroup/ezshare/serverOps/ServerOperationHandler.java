@@ -37,29 +37,29 @@ public class ServerOperationHandler {
 		// scheme.
 
 		// URI The URI must be present
-		if (shareResourceMap.get("uri") != "" && shareResourceMap.get("uri") != null) {
+		if (shareResourceMap.get("uri") != null) {
 			String uriString = shareResourceJsonObj.get("uri").toString();
-			/*
-			 * if (null == uriString || uriString.equals("")) { throw new
-			 * OperationRunningException("cannot publish resource"); }
-			 */
-			URI resourceUri = URI.create(uriString);
-			// cannot be a file scheme and must be an absolute path
-			if (resourceUri.isAbsolute()) {
-				if (resourceUri.getScheme().contains("file")) {
+
+			if (uriString != "") {
+				URI resourceUri = URI.create(uriString);
+				// cannot be a file scheme and must be an absolute path
+				if (resourceUri.isAbsolute()) {
+					if (resourceUri.getScheme().contains("file")) {
+						throw new OperationRunningException("cannot publish resource");
+					}
+				} else {
 					throw new OperationRunningException("cannot publish resource");
 				}
-			} else {
+
+				// The Owner field must not be the single character "*".
+				if (shareResourceMap.get("owner") == null) {
+					shareResourceJsonObj.replace("onwer", "");
+				} else if (shareResourceMap.get("owner") == ("*")) {
+					throw new OperationRunningException("cannot publish resource");
+				}
+			}else{
 				throw new OperationRunningException("cannot publish resource");
 			}
-
-			// The Owner field must not be the single character "*".
-			if (shareResourceMap.get("owner") == null) {
-				shareResourceJsonObj.replace("onwer", "");
-			} else if (shareResourceMap.get("owner") == ("*")) {
-				throw new OperationRunningException("cannot publish resource");
-			}
-
 		} else {
 			throw new OperationRunningException("cannot publish resource");
 		}
@@ -70,34 +70,35 @@ public class ServerOperationHandler {
 	public static String[] exchange(JSONObject jsonObject) throws OperationRunningException {
 
 		System.out.println("Exchange function");
+
 		// create a json object to save the map in resource
 		JSONObject exchangeStringObj = new JSONObject();
 		JSONArray jsonArray = new JSONArray();
 		jsonArray = (JSONArray) jsonObject.get("serverList");
 
+		String[] ezservers = null;
+
 		// a pointer which is used to assign
 		int counter = 0;
-
-		String[] ezservers = new String[jsonArray.size()];
-
-		// TODO: a server record is invalid
-		if (false) {
-			throw new OperationRunningException("missing resourceTemplate");
-		}
-		// TODO: sever list was missing or invalid
-		if (false) {
-			throw new OperationRunningException("missing or invalide server List");
+		if (jsonArray != null) {
+			ezservers = new String[jsonArray.size()];
+			if (false) {// TODO: invalid server list
+				throw new OperationRunningException("missing or invalide server List");
+			} else {
+				// do exchange function
+				List<JSONObject> jsonobjectList = new ArrayList<JSONObject>();
+				for (int i = 0; i < jsonArray.size(); i++) {
+					jsonobjectList.add((JSONObject) jsonArray.get(i));
+				}
+				// Looking at each element in the jsonobjectList
+				for (JSONObject jsonOb : jsonobjectList) {
+					ezservers[counter] = jsonOb.get("hostname").toString() + ":" + jsonOb.get("port").toString();
+					counter++;
+				}
+			}
 		} else {
-			// do exchange function
-			List<JSONObject> jsonobjectList = new ArrayList<JSONObject>();
-			for (int i = 0; i < jsonArray.size(); i++) {
-				jsonobjectList.add((JSONObject) jsonArray.get(i));
-			}
-			// Looking at each element in the jsonobjectList
-			for (JSONObject jsonOb : jsonobjectList) {
-				ezservers[counter] = jsonOb.get("hostname").toString() + ":" + jsonOb.get("port").toString();
-				counter++;
-			}
+			// server list is missing
+			throw new OperationRunningException("missing or invalide server List");
 		}
 		return ezservers;
 	}
@@ -128,11 +129,11 @@ public class ServerOperationHandler {
 		URI resourceUri = URI.create(uriString);
 
 		// must be absolute and must be a file scheme
-		if(resourceUri.isAbsolute()){
+		if (resourceUri.isAbsolute()) {
 			if (!resourceUri.getScheme().contains("file")) {
 				throw new OperationRunningException("cannot share resource");
 			}
-		}else{
+		} else {
 			throw new OperationRunningException("cannot share resource");
 		}
 
@@ -151,7 +152,6 @@ public class ServerOperationHandler {
 		JSONObject fetchResourceJsonObj = new JSONObject();
 
 		fetchResourceJsonObj.putAll((Map) jsonObject.get("resourceTemplate"));
-
 
 		if (fetchResourceJsonObj.isEmpty()) {
 			throw new OperationRunningException("missing resourceTemplate");
@@ -179,11 +179,13 @@ public class ServerOperationHandler {
 
 		// remove all start and end whitespace
 		// remove "\0"
-		/*ResourceJsonObj.forEach((key, value) -> {
-			utils.trimFirstAndLastChar((String) value, " ");
-			((String) value).replaceAll("\\0", "");
-
-		});*/
+		/*
+		 * ResourceJsonObj.forEach((key, value) -> {
+		 * utils.trimFirstAndLastChar((String) value, " "); ((String)
+		 * value).replaceAll("\\0", "");
+		 * 
+		 * });
+		 */
 
 		// create a new resource and set its value
 		Resource resource = new Resource();
