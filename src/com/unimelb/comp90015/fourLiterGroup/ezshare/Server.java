@@ -27,6 +27,7 @@ import java.util.logging.*;
 
 import com.sun.glass.ui.TouchInputSupport;
 import com.unimelb.comp90015.fourLiterGroup.ezshare.optionsInterpret.ServerCmds;
+import com.unimelb.comp90015.fourLiterGroup.ezshare.serverOps.IResourceTemplate;
 import com.unimelb.comp90015.fourLiterGroup.ezshare.serverOps.OperationRunningException;
 import com.unimelb.comp90015.fourLiterGroup.ezshare.serverOps.Resource;
 import com.unimelb.comp90015.fourLiterGroup.ezshare.serverOps.ResourceWarehouse;
@@ -34,6 +35,8 @@ import com.unimelb.comp90015.fourLiterGroup.ezshare.serverOps.ServerOperationHan
 
 public class Server {
 
+	public static boolean DEFAULT_RELAY_MODE = true;
+	
 	private ServerCmds cmds;
 	// Identifies the user number connected
 	private static int counter = 0;
@@ -157,6 +160,36 @@ public class Server {
 			results.put("response", "error");
 			results.put("errorMessage", e.toString());
 		}
+		return results;
+	}
+	
+	private JSONObject handleQuery(JSONObject jsonObject, DataOutputStream output){
+		JSONObject results = new JSONObject();
+		ArrayList<Resource> resultResources = new ArrayList<>();
+		Boolean relayMode = DEFAULT_RELAY_MODE;
+		if(null!=  jsonObject.get("relay")){
+			relayMode = jsonObject.get("relay") == "false" ? false:true;
+		}
+		try {
+			IResourceTemplate resource = ServerOperationHandler.query(jsonObject);
+			this.resourceWarehouse.FindReource(resource);
+			if(relayMode){
+				//TODO: Ask servers in ServerList for query
+					//TODO: Change query jsonobject 
+					//TODO: send to servers
+					//TODO: set timeout
+					//TODO: collectAllResource
+					//package in JSONObject
+			}
+		} catch (OperationRunningException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+
+		
+		
+		
 		return results;
 	}
 

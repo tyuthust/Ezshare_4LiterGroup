@@ -142,4 +142,11 @@ public class ResourceWarehouse {
 			}
 		}
 	}
+	
+	public Resource[] FindReource(IResourceTemplate resourceTemplate){
+		Resource[] resources = null;
+		
+		
+		return resources;
+	}
 }
