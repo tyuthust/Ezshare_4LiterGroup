@@ -50,5 +50,63 @@ public class ResourceWarehouseUnitTest {
 		  assertEquals("", utils.trimFirstAndLastChar("    ", " "));
 		  assertEquals("1", utils.trimFirstAndLastChar("  1 ", " "));
 	  }
-	
+	  /*  @Test public void addResourceWithSameOwner(){
+	  Resource resource1 = new Resource();
+	  resource1.setChannel("channel");
+	  resource1.setURI("http://www.bilibili.com");
+	  resource1.setOwner("STB");
+	  resource1.setDescription("This is STB");
+	  
+	  Resource resource2 = new Resource();
+	  resource2.setChannel("channel");
+	  resource2.setURI("http://www.bilibili.com");
+	  resource2.setOwner("STB");
+	  resource2.setDescription("This is not STB");
+	  
+	  
+	  ResourceWarehouse warehouse = new ResourceWarehouse();
+	  warehouse.AddResource(resource1);
+	  warehouse.AddResource(resource2);
+	  
+	  assertEquals("This is not STB",resource2.getDescription() );
+	  assertEquals(1, warehouse.getSizeOfWarehourse());
+  }*/
+  
+  @Test public void testRemoveResource() throws OperationRunningException{
+	  Resource resource1 = new Resource();
+	  resource1.setChannel("channel");
+	  resource1.setURI("http://www.bilibili.com");
+	  resource1.setOwner("STB");
+	  
+	  ResourceWarehouse warehouse = new ResourceWarehouse();
+	  warehouse.AddResource(resource1);
+	  warehouse.RemoveResource(resource1);
+	  assertEquals(0, warehouse.getSizeOfWarehourse());
+  }
+  
+  @Test public void testFindResource(){
+	  //test find
+	  Resource resource1 = new Resource();
+	  resource1.setChannel("channel");
+	  resource1.setURI("http://www.bilibili.com");
+	  resource1.setOwner("STB");
+	  
+	  ResourceWarehouse warehouse = new ResourceWarehouse();
+	  warehouse.AddResource(resource1);
+	  assertEquals(resource1,warehouse.FindResource("channel","http://www.bilibili.com","STB"));
+
+  }
+  
+  @Test public void testFindResource1() throws OperationRunningException{
+	  //test exist
+	  Resource resource1 = new Resource();
+	  resource1.setChannel("channel");
+	  resource1.setURI("http://www.bilibili.com");
+	  resource1.setOwner("STB");
+	  
+	  ResourceWarehouse warehouse = new ResourceWarehouse();
+	  warehouse.AddResource(resource1);
+	  assertEquals(true,warehouse.FindResource("channel","http://www.bilibili.com"));
+
+  }
 }

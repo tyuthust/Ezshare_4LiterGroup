@@ -96,7 +96,7 @@ public class ResourceWarehouse {
 	 * @return Resource based on the parameter given, null if no resource is
 	 *         founded
 	 */
-	private Resource FindResource(String channel, String uri, String Owner) {
+	Resource FindResource(String channel, String uri, String Owner) {
 		Resource resource = null;
 		if (resourceMap.containsKey(channel)) {
 
