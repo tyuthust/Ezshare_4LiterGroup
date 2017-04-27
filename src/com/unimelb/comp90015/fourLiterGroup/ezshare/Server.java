@@ -92,7 +92,9 @@ public class Server {
 			// Output Stream
 			DataOutputStream output = new DataOutputStream(clientSocket.getOutputStream());
 			System.out.println("CLIENT: " + input.readUTF());
+			
 			output.writeUTF("Server: Hi Client " + counter + " !!!");
+			output.flush();
 
 			// Receive more data..
 			while (true) {
@@ -188,20 +190,25 @@ public class Server {
 			// TODO: download function
 			// Just for test
 			String uri = resource.getURI();
-			String filename = uri.replaceFirst("file:///", "");
+			//String filename = "server_files/"+ resource.getName();
+			String filename = uri.replaceFirst("file://", "");
+			//String filename = "/Users/fangrisheng/Desktop/sauron.jpg";
 			File f = new File(filename);
-
+			JSONObject trigger = new JSONObject();
+			
 			if (f.exists()) {
 
 				// Send this back to client so that they know what the file is.
-				results.put("response", "success");
-				results.put("resource", resourcePack(resource));
-				results.put("resultSize", resultSize);
-				System.out.println(results.toJSONString());
 				try {
-
+					trigger.put("command_name", "SENDING_FILE");
+					trigger.put("file_name","sauron.jpg");
+					trigger.put("file_size",f.length());
+					output.writeUTF(trigger.toJSONString());
+					output.flush();
+					
 					// Start sending file
 					RandomAccessFile byteFile = new RandomAccessFile(f, "r");
+					resource.setResourceSize(f.length());
 					byte[] sendingBuffer = new byte[1024 * 1024];
 					int num;
 					// While there are still bytes to send..
@@ -209,6 +216,7 @@ public class Server {
 						System.out.println(num);
 						output.write(Arrays.copyOf(sendingBuffer, num));
 					}
+					output.flush();
 					byteFile.close();
 				} catch (IOException e) {
 					e.printStackTrace();
@@ -216,7 +224,10 @@ public class Server {
 			} else {
 				// Throw an error here..
 			}
-
+			results.put("response", "success");
+			results.put("resource", resourcePack(resource));
+			results.put("resultSize", resultSize);
+			System.out.println(results.toJSONString());
 			/*
 			 * if (resourceWarehouse.FindResource(resource.getChannel(),
 			 * resource.getURI())) { results.put("response", "success");
@@ -256,7 +267,15 @@ public class Server {
 	private JSONObject resourcePack(Resource resource) {
 		JSONObject results = new JSONObject();
 		results.put("name", resource.getName());
-		results.put("tags", resource.getTags());
+		if (resource.getTags() != null) {
+			List<String> tagList = new ArrayList<String>();
+			for (String string : resource.getTags()) {
+				tagList.add(string);
+			}
+			results.put("tags", tagList);
+		} else {
+			results.put("tags", null);
+		}
 		results.put("description", resource.getDescription());
 		results.put("uri", resource.getURI());
 		results.put("channel", resource.getChannel());

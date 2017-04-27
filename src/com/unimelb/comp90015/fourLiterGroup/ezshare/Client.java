@@ -68,18 +68,17 @@ public class Client {
 	    	    		
 
 	    	    		// Check the command name
-	    	    		if(command.containsKey("resource")){
-	    	    			JSONObject resource = (JSONObject) command.get("resource");
-	    	    			if(this.cmds.fetch){
+	    	    		if(command.containsKey("command_name")){
+	    	    			if(command.get("command_name").toString().equals("SENDING_FILE")){
 	    	    				
 	    	    				// The file location
-	    						String fileName = "client_folder/"+resource.get("name");
+	    						String fileName = "client_files/"+command.get("file_name");
 	    						
 	    						// Create a RandomAccessFile to read and write the output file.
 	    						RandomAccessFile downloadingFile = new RandomAccessFile(fileName, "rw");
 	    						
 	    						// Find out how much size is remaining to get from the server.
-	    						long fileSizeRemaining = (Long) resource.get("resourceSize");
+	    						long fileSizeRemaining = (Long) command.get("file_size");
 	    						
 	    						int chunkSize = setChunkSize(fileSizeRemaining);
 	    						
