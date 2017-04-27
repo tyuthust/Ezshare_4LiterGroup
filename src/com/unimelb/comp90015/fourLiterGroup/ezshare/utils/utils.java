@@ -55,7 +55,7 @@ public class utils {
 
 		return Str;
 	}
-	private static boolean isPort(String port){
+	public static boolean isPort(String port){
 		int Port=0;
 		try{
 			Port = Integer.parseInt(port);
@@ -69,15 +69,14 @@ public class utils {
 		}
 	}
 	
-	private static boolean isAddress(String addr){
-		if(addr.length() < 7 || addr.length() > 15 || "".equals(addr))  { 
+	public static boolean isAddress(String addr){
+		/*if(addr.length() < 7 || addr.length() > 15 || "".equals(addr))  { 
 			return false;
-        }  
-        String rexp = "([1-9]|[1-9]\\d|1\\d{2}|2[0-4]\\d|25[0-5])(\\.(\\d|[1-9]\\d|1\\d{2}|2[0-4]\\d|25[0-5])){3}";  
+        }*/
+        String rexp = "((25[0-5])|(2[0-4]\\d)|(1\\d\\d)|([1-9]\\d)|\\[1-9])(\\.((25[0-5])|(2[0-4]\\d)|(1\\d\\d)|([1-9]\\d)|\\d)){3}";
         Pattern pat = Pattern.compile(rexp);    
         Matcher mat = pat.matcher(addr);    
         boolean ipAddress = mat.find();  
-
         return ipAddress;  
     }  
 }
