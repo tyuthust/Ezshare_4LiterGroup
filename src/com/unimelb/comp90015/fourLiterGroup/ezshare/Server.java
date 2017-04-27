@@ -42,7 +42,7 @@ public class Server {
 	private static int counter = 0;
 
 	private static int resultSize = 1;
-	//TODO: to config logger
+
 	protected static Logger logger = Logger.getLogger(Server.class.getName());
 	// Resource Map
 	private ResourceWarehouse resourceWarehouse;
@@ -163,6 +163,9 @@ public class Server {
 			results.put("response", "error");
 			results.put("errorMessage", e.toString());
 		}
+		if(cmds.debug){
+			logger.info(results.toJSONString());
+		}
 		return results;
 	}
 	
@@ -188,9 +191,25 @@ public class Server {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+		if(cmds.debug){
+			logger.info(results.toJSONString());
+		}
 		return results;
 	}
-
+	private JSONObject handleRemove(JSONObject jsonObject, DataOutputStream output) {
+		JSONObject results = new JSONObject();
+		//TODO
+		
+		
+		
+		
+		
+		
+		if(cmds.debug){
+			logger.info(results.toJSONString());
+		}
+		return results;
+	}
 	private JSONObject handleShare(JSONObject jsonObject, DataOutputStream output) {
 		JSONObject results = new JSONObject();
 		// if secret is incorrect
@@ -217,7 +236,9 @@ public class Server {
 
 			}
 		}
-
+		if(cmds.debug){
+			logger.info(results.toJSONString());
+		}
 		return results;
 
 	}
@@ -282,6 +303,9 @@ public class Server {
 			results.put("errorMessage", e.toString());
 
 		}
+		if(cmds.debug){
+			logger.info(results.toJSONString());
+		}
 		return results;
 	}
 
@@ -300,6 +324,9 @@ public class Server {
 			results.put("response", "error");
 			results.put("errorMessage", e.toString());
 
+		}
+		if(cmds.debug){
+			logger.info(results.toJSONString());
 		}
 		return results;
 
@@ -323,7 +350,9 @@ public class Server {
 		results.put("owner", resource.getOwner());
 		results.put("ezserver", resource.getEzserver());
 		results.put("resourceSize", resource.getSize());
-
+		if(cmds.debug){
+			logger.info(results.toJSONString());
+		}
 		return results;
 	}
 	/*
