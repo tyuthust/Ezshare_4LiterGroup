@@ -21,9 +21,9 @@ import java.util.logging.*;
 
 public class Client {
 	private ClientCmds cmds;
-	//TODO: to config logger
+	
 	private static Logger logger = Logger.getLogger(Client.class.getName());
-	//private static Logger getLogger();
+	
 	public Client(ClientCmds cmds) {
 		this.cmds = cmds;
 	}
@@ -35,9 +35,9 @@ public class Client {
 	}
 
 	public void connect() throws IOException, CommandInvalidException {
-		//logger.setLevel(Level.INFO);
+		logger.setLevel(Level.INFO);
 		if(cmds.debug){
-			logger.info("setting client debug on. "+"The port: " + cmds.port+"; "+"The host: "+cmds.host);
+			logger.info("setting client debug on. "+"The port: " + cmds.port);
 		}
 		try (Socket socket = new Socket(this.cmds.host, this.cmds.port);) {
 			// Output and Input Stream
@@ -45,7 +45,9 @@ public class Client {
 			DataOutputStream output = new DataOutputStream(socket.getOutputStream());
 
 			output.writeUTF("I want to connect!");
-			System.out.println("I want to connect!");
+			if(cmds.debug){
+				logger.info("[sent] I want to connect!");
+			}
 			output.flush();
 
 			JSONPack jsonPack = new ClientPack();
@@ -79,7 +81,9 @@ public class Client {
 	    	    				
 	    	    				// The file location
 	    						String fileName = "client_files/"+command.get("file_name");
-	    						
+	    						if(cmds.debug){	
+	    							logger.info("[sent] "+fileName);
+	    						}
 	    						// Create a RandomAccessFile to read and write the output file.
 	    						RandomAccessFile downloadingFile = new RandomAccessFile(fileName, "rw");
 	    						
