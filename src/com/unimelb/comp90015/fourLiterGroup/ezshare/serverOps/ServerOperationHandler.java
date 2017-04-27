@@ -57,7 +57,7 @@ public class ServerOperationHandler {
 				} else if (shareResourceMap.get("owner") == ("*")) {
 					throw new OperationRunningException("cannot publish resource");
 				}
-			}else{
+			} else {
 				throw new OperationRunningException("cannot publish resource");
 			}
 		} else {
@@ -80,21 +80,24 @@ public class ServerOperationHandler {
 
 		// a pointer which is used to assign
 		int counter = 0;
+
 		if (jsonArray != null) {
 			ezservers = new String[jsonArray.size()];
-			if (false) {// TODO: invalid server list
-				throw new OperationRunningException("missing or invalide server List");
-			} else {
-				// do exchange function
-				List<JSONObject> jsonobjectList = new ArrayList<JSONObject>();
-				for (int i = 0; i < jsonArray.size(); i++) {
-					jsonobjectList.add((JSONObject) jsonArray.get(i));
+			// invalid server list
+			for (String string : ezservers) {
+				if (utils.isIPandPort(string)) {
+					throw new OperationRunningException("missing or invalide server List");
 				}
-				// Looking at each element in the jsonobjectList
-				for (JSONObject jsonOb : jsonobjectList) {
-					ezservers[counter] = jsonOb.get("hostname").toString() + ":" + jsonOb.get("port").toString();
-					counter++;
-				}
+			}
+			// do exchange function
+			List<JSONObject> jsonobjectList = new ArrayList<JSONObject>();
+			for (int i = 0; i < jsonArray.size(); i++) {
+				jsonobjectList.add((JSONObject) jsonArray.get(i));
+			}
+			// Looking at each element in the jsonobjectList
+			for (JSONObject jsonOb : jsonobjectList) {
+				ezservers[counter] = jsonOb.get("hostname").toString() + ":" + jsonOb.get("port").toString();
+				counter++;
 			}
 		} else {
 			// server list is missing

@@ -1,6 +1,8 @@
 package com.unimelb.comp90015.fourLiterGroup.ezshare.utils;
 
 import java.util.Random;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class utils {
 
@@ -47,11 +49,35 @@ public class utils {
 	public static boolean isIPandPort(String string){//TODO: judge the string of IP:Port is legal
 		boolean Str = false;
 		String[] IPandPort = string.split(":");
-		/*if(IPandPort[0]==){
+		if(isAddress(IPandPort[0]) && isPort(IPandPort[1])){
 			Str = true;
 		}
-		if(IPandPort[1]<=){
-		}*/
+
 		return Str;
 	}
+	private static boolean isPort(String port){
+		int Port=0;
+		try{
+			Port = Integer.parseInt(port);
+		} catch (NumberFormatException e) {
+		    e.printStackTrace();
+		}
+		if(Port>=0 && Port<=65535){
+			return true;
+		}else{
+			return false;
+		}
+	}
+	
+	private static boolean isAddress(String addr){
+		if(addr.length() < 7 || addr.length() > 15 || "".equals(addr))  { 
+			return false;
+        }  
+        String rexp = "([1-9]|[1-9]\\d|1\\d{2}|2[0-4]\\d|25[0-5])(\\.(\\d|[1-9]\\d|1\\d{2}|2[0-4]\\d|25[0-5])){3}";  
+        Pattern pat = Pattern.compile(rexp);    
+        Matcher mat = pat.matcher(addr);    
+        boolean ipAddress = mat.find();  
+
+        return ipAddress;  
+    }  
 }
