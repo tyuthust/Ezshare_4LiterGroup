@@ -4,7 +4,7 @@ import java.util.List;
 
 import com.unimelb.comp90015.fourLiterGroup.ezshare.utils.utils;
 
-public class Resource {
+public class Resource implements IResourceTemplate {
 	private String Name = null;
 	private String Description = null;
 	private String[] Tags = null;
