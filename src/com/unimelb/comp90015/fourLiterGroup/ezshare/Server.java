@@ -92,7 +92,7 @@ public class Server {
 			// Output Stream
 			DataOutputStream output = new DataOutputStream(clientSocket.getOutputStream());
 			System.out.println("CLIENT: " + input.readUTF());
-			
+
 			output.writeUTF("Server: Hi Client " + counter + " !!!");
 			output.flush();
 
@@ -107,24 +107,25 @@ public class Server {
 
 					// TODO: change to ServerOperationHandler
 					if (command.get("command").equals("PUBLISH")) {
-						results = handlePublish(command,output);
+						results = handlePublish(command, output);
 						// results = publish(command);
 					} else if (command.get("command").equals("QUERY")) {
 						// results = query(command);
 					} else if (command.get("command").equals("REMOVE")) {
 						// results = remove(command);
 					} else if (command.get("command").equals("SHARE")) {
-						results = handleShare(command,output);
+						results = handleShare(command, output);
 						// results = share(command);
 					} else if (command.get("command").equals("FETCH")) {
 						results = handleFetch(command, output);
 
 						// results = fetch(command);
 					} else if (command.get("command").equals("EXCHANGE")) {
-						results = handleExchange(command,output);
+						results = handleExchange(command, output);
 						// results = exchange(command);
 					}
-					//output.writeUTF(results.toJSONString());
+					output.writeUTF(results.toJSONString());
+					output.flush();
 				}
 			}
 		} catch (IOException | ParseException e) {
@@ -161,7 +162,6 @@ public class Server {
 		} else {
 			try {
 				Resource resource = ServerOperationHandler.share(jsonObject);
-				// TODO: check resource
 				if (resourceWarehouse.AddResource(resource)) {
 					results.put("response", "success");
 				} else {
@@ -187,57 +187,56 @@ public class Server {
 
 		try {
 			Resource resource = ServerOperationHandler.fetch(jsonObject);
-			// TODO: download function
-			// Just for test
-			String uri = resource.getURI();
-			//String filename = "server_files/"+ resource.getName();
-			String filename = uri.replaceFirst("file://", "");
-			//String filename = "/Users/fangrisheng/Desktop/sauron.jpg";
-			File f = new File(filename);
-			JSONObject trigger = new JSONObject();
 			
-			if (f.exists()) {
 
-				// Send this back to client so that they know what the file is.
-				try {
-					trigger.put("command_name", "SENDING_FILE");
-					trigger.put("file_name","sauron.jpg");
-					trigger.put("file_size",f.length());
-					output.writeUTF(trigger.toJSONString());
-					output.flush();
-					
-					// Start sending file
-					RandomAccessFile byteFile = new RandomAccessFile(f, "r");
-					resource.setResourceSize(f.length());
-					byte[] sendingBuffer = new byte[1024 * 1024];
-					int num;
-					// While there are still bytes to send..
-					while ((num = byteFile.read(sendingBuffer)) > 0) {
-						System.out.println(num);
-						output.write(Arrays.copyOf(sendingBuffer, num));
+			if (resourceWarehouse.FindResource(resource.getChannel(), resource.getURI())) {
+				System.out.println(results.toJSONString());
+
+				// get filename from uri
+				String uri = resource.getURI();
+				String filename = uri.replaceFirst("file://", "");
+				
+				// String filename = "server_files/"+ resource.getName();
+				// String filename = "/Users/fangrisheng/Desktop/sauron.jpg";
+				
+				File f = new File(filename);
+				JSONObject trigger = new JSONObject();
+
+				if (f.exists()) {
+
+					// Send trigger back to client so that they know what the file is.
+					try {
+						trigger.put("command_name", "SENDING_FILE");
+						trigger.put("file_name", "sauron.jpg");
+						trigger.put("file_size", f.length());
+						output.writeUTF(trigger.toJSONString());
+						output.flush();
+
+						// Start sending file
+						RandomAccessFile byteFile = new RandomAccessFile(f, "r");
+						resource.setResourceSize(f.length());
+						byte[] sendingBuffer = new byte[1024 * 1024];
+						int num;
+						// While there are still bytes to send..
+						while ((num = byteFile.read(sendingBuffer)) > 0) {
+							System.out.println(num);
+							output.write(Arrays.copyOf(sendingBuffer, num));
+						}
+						output.flush();
+						results.put("response", "success");
+						results.put("resource", resourcePack(resource));
+						results.put("resultSize", resultSize);
+						byteFile.close();
+					} catch (IOException e) {
+						e.printStackTrace();
 					}
-					output.flush();
-					byteFile.close();
-				} catch (IOException e) {
-					e.printStackTrace();
+				} else {
+					throw new OperationRunningException("Download file error");
 				}
 			} else {
-				// Throw an error here..
+				results.put("response", "error");
+				results.put("errorMessage", "invalid resourceTemplate");
 			}
-			results.put("response", "success");
-			results.put("resource", resourcePack(resource));
-			results.put("resultSize", resultSize);
-			System.out.println(results.toJSONString());
-			/*
-			 * if (resourceWarehouse.FindResource(resource.getChannel(),
-			 * resource.getURI())) { results.put("response", "success");
-			 * results.put("resource", resourcePack(resource));
-			 * results.put("resultSize", resultSize);
-			 * 
-			 * //TODO: download function } else { results.put("response",
-			 * "error"); results.put("errorMessage",
-			 * "invalid resourceTemplate"); }
-			 */
 		} catch (OperationRunningException e) {
 			results.put("response", "error");
 			results.put("errorMessage", e.toString());

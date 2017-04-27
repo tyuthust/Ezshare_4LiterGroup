@@ -127,9 +127,12 @@ public class ServerOperationHandler {
 		}
 		URI resourceUri = URI.create(uriString);
 
-		// must be a file scheme
-		// TODO: must be absolute
-		if (!resourceUri.getScheme().contains("file")) {
+		// must be absolute and must be a file scheme
+		if(resourceUri.isAbsolute()){
+			if (!resourceUri.getScheme().contains("file")) {
+				throw new OperationRunningException("cannot share resource");
+			}
+		}else{
 			throw new OperationRunningException("cannot share resource");
 		}
 
@@ -144,8 +147,6 @@ public class ServerOperationHandler {
 	public static Resource fetch(JSONObject jsonObject) throws OperationRunningException {
 		System.out.println("fetch function");
 		JSONObject result = new JSONObject();
-
-		// TODO: Achieve Fetch Functions
 
 		JSONObject fetchResourceJsonObj = new JSONObject();
 
@@ -163,7 +164,7 @@ public class ServerOperationHandler {
 		if (null == uriString || uriString.equals("")) {
 			throw new OperationRunningException("missing resourceTemplate");
 		}
-		if (null == chanString) {
+		if (null == chanString || chanString.equals("")) {
 			throw new OperationRunningException("missing resourceTemplate");
 		}
 		return generatingResourceHandler(fetchResourceJsonObj);

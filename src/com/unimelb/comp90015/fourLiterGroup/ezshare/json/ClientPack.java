@@ -22,7 +22,6 @@ public class ClientPack implements JSONPack {
 		ClientCmds clientcmds = (ClientCmds) cmds;
 		JSONObject jsonObject = new JSONObject();
 
-		// TODO: check each essential element
 		// validation with throwable exception!
 		if (clientcmds.publish) {// pack publish command in json
 			JSONObject publishJsonObjectChild = new JSONObject();
@@ -139,12 +138,19 @@ public class ClientPack implements JSONPack {
 
 		if (!description.equals(null)) {
 			object.put("description", description);
+		}else{
+			object.put("description", "");
 		}
 	}
 
 	private void putUriInJSONObj(JSONObject object, String uri) {
 
-		object.put("uri", uri);
+		if(uri != null){
+			object.put("uri", uri);
+		} else{
+			object.put("uri", "");
+		}
+		
 	}
 
 	private void putChannelInJSONObj(JSONObject object, String channel) {
