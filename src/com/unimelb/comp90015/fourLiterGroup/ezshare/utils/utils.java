@@ -23,7 +23,8 @@ public class utils {
 				if(end){
 					source = replaceLast(source, element, "");
 				}
-				endIndexFlag = (source.lastIndexOf(element) + 1 == source.length());
+				beginIndexFlag = begin;
+				endIndexFlag = end;
 			} while (beginIndexFlag || endIndexFlag);
 		}
 		return source;

@@ -33,6 +33,8 @@ import com.unimelb.comp90015.fourLiterGroup.ezshare.serverOps.ServerOperationHan
 
 public class Server {
 
+	public static boolean DEFAULT_RELAY_MODE = true;
+	
 	private ServerCmds cmds;
 	// Identifies the user number connected
 	private static int counter = 0;
@@ -152,6 +154,20 @@ public class Server {
 			results.put("response", "error");
 			results.put("errorMessage", e.toString());
 		}
+		return results;
+	}
+	
+	private JSONObject handleQuery(JSONObject jsonObject, DataOutputStream output){
+		JSONObject results = new JSONObject();
+		Boolean relayMode = DEFAULT_RELAY_MODE;
+		if(null!=  jsonObject.get("relay")){
+			relayMode = jsonObject.get("relay") == "false" ? false:true;
+		}
+
+
+		
+		
+		
 		return results;
 	}
 

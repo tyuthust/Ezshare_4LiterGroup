@@ -172,18 +172,6 @@ public class ServerOperationHandler {
 
 	private static Resource generatingResourceHandler(JSONObject ResourceJsonObj) throws OperationRunningException {
 
-		// String values must not contain the "\0" character,
-		// nor start or end with whitespace.
-		// The server may silently remove such characters
-
-		// remove all start and end whitespace
-		// remove "\0"
-		/*ResourceJsonObj.forEach((key, value) -> {
-			utils.trimFirstAndLastChar((String) value, " ");
-			((String) value).replaceAll("\\0", "");
-
-		});*/
-
 		// create a new resource and set its value
 		Resource resource = new Resource();
 		if (null == ResourceJsonObj.get("name")) {
