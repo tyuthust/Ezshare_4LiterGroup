@@ -40,7 +40,7 @@ public class ClientPack implements JSONPack {
 			putOwnerInJSONObj(queryJsonObjectChild, clientcmds.owner);
 			putEzserverInJSONObj(queryJsonObjectChild, clientcmds.servers);
 
-			jsonObject.put("resource", queryJsonObjectChild);
+			jsonObject.put("resourceTemplate", queryJsonObjectChild);
 			jsonObject.put("relay", "true");
 			jsonObject.put("command", "QUERY");
 
@@ -119,7 +119,7 @@ public class ClientPack implements JSONPack {
 	}
 
 	private void putTagsInJSONObj(JSONObject object, String[] tags) {
-		if (tags != null) {
+		if (null != tags) {
 			List<String> tagList = new ArrayList<String>();
 			for (String string : tags) {
 				tagList.add(string);
@@ -132,7 +132,7 @@ public class ClientPack implements JSONPack {
 
 	private void putDescriptionInJSONObj(JSONObject object, String description) {
 
-		if (!description.equals(null)) {
+		if (null != description) {
 			object.put("description", description);
 		} else {
 			object.put("description", "");

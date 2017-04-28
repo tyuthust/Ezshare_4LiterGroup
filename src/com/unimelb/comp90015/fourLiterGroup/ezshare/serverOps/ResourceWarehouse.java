@@ -22,12 +22,15 @@ public class ResourceWarehouse {
 				for (String string : owners) {
 					if (!string.equals(resource.getOwner())) {
 						success = false;
+						System.out.println("fail to add FIle because diff owner!");
 					}
 				}
 				// true => no different then overwrite
 				if (success) {
-					resourceMap.get(resource.getChannel()).get(resource.getURI()).replace(resource.getOwner(),
-							resource);
+					resourceMap.get(resource.getChannel())
+					.get(resource.getURI())
+					.replace(resource.getOwner(),resource);
+					System.out.println("SuccessOverwriteFIle!");
 				}
 			} else {
 				// uri different => new one
@@ -35,6 +38,7 @@ public class ResourceWarehouse {
 				ownerResourceMap.put(resource.getOwner(), resource);
 
 				resourceMap.get(resource.getChannel()).put(resource.getURI(), ownerResourceMap);
+				System.out.println("SuccessAddFIle!");
 			}
 		} else {
 			HashMap<String, Resource> ownerResourceMap = new HashMap<String, Resource>();
@@ -43,7 +47,7 @@ public class ResourceWarehouse {
 			uriResourceMap.put(resource.getURI(), ownerResourceMap);
 
 			resourceMap.put(resource.getChannel(), uriResourceMap);
-
+			System.out.println("SuccessAddFIle!");
 		}
 
 		return success;
@@ -246,8 +250,14 @@ public class ResourceWarehouse {
 				}				
 			}
 			resources = candidateResourceList;
-		}//end of uriMap empty		
-		return (Resource[])resources.toArray();
+		}//end of uriMap empty	
+		if(0 == resources.size()){
+			return null;
+		}
+		else{
+			return (Resource[])(resources.toArray());
+		}
+
 	}//end of func
 	
 	

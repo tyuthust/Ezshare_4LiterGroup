@@ -18,27 +18,26 @@ public class ServerOperationHandler {
 		System.out.println("Publish function");
 
 		// create a json object to save the map in resource
-		JSONObject publishResourceJsonObj = new JSONObject();
-		publishResourceJsonObj.putAll((Map) jsonObject.get("resource"));
+		JSONObject shareResourceJsonObj = new JSONObject();
+		shareResourceJsonObj.putAll((Map) jsonObject.get("resource"));
 
 		// If the resource field was not given or not of the correct type
-		if (publishResourceJsonObj.isEmpty()) {
+		if (shareResourceJsonObj.isEmpty()) {
 			throw new OperationRunningException("missing resource");
 		}
 
-		// Map shareResourceMap = new HashMap();
-		// shareResourceMap = (Map) shareResourceJsonObj.clone();
-
+		Map shareResourceMap = new HashMap();
+		shareResourceMap = (Map) shareResourceJsonObj.clone();
 		// TODO: add to logger
-		System.out.println(publishResourceJsonObj);
+		System.out.println(shareResourceMap);
 
 		// check if the the json data break the rule
 		// The URI must be present, must be absolute and cannot be a file
 		// scheme.
 
 		// URI The URI must be present
-		if (publishResourceJsonObj.get("uri") != null) {
-			String uriString = publishResourceJsonObj.get("uri").toString();
+		if (shareResourceJsonObj.get("uri") != null) {
+			String uriString = shareResourceJsonObj.get("uri").toString();
 
 			if (uriString != "") {
 				URI resourceUri = URI.create(uriString);
@@ -52,15 +51,15 @@ public class ServerOperationHandler {
 				}
 
 				// The Owner field must not be the single character "*".
-				if (publishResourceJsonObj.get("owner") == null) {
-					publishResourceJsonObj.replace("onwer", "");
-				} else if (publishResourceJsonObj.get("owner") == ("*")) {
+				if (shareResourceJsonObj.get("owner") == null) {
+					shareResourceJsonObj.replace("onwer", "");
+				} else if (shareResourceJsonObj.get("owner") == ("*")) {
 					throw new OperationRunningException("cannot publish resource");
 				}
 
 				// The owner field
-				if (publishResourceJsonObj.get("channel") == null) {
-					publishResourceJsonObj.replace("channel", "");
+				if (shareResourceJsonObj.get("channel") == null) {
+					shareResourceJsonObj.replace("channel", "");
 				}
 			} else {
 				throw new OperationRunningException("cannot publish resource");
@@ -69,7 +68,7 @@ public class ServerOperationHandler {
 			throw new OperationRunningException("cannot publish resource");
 		}
 
-		return generatingResourceHandler(publishResourceJsonObj);
+		return generatingResourceHandler(shareResourceJsonObj);
 	}
 
 	public static String[] exchange(JSONObject jsonObject) throws OperationRunningException {
