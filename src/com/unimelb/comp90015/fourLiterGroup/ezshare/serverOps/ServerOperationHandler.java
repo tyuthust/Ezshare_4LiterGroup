@@ -171,9 +171,12 @@ public class ServerOperationHandler {
 	
 	public static Resource query(JSONObject jsonObject) throws OperationRunningException{
 		System.out.println("query function");
-		
+		System.out.println(jsonObject.toString());
 		JSONObject queryResourceJsonObj = new JSONObject();
 
+		if(null == jsonObject.get("resourceTemplate")){
+			throw new OperationRunningException("missing resourceTemplate");			
+		}
 		queryResourceJsonObj.putAll((Map) jsonObject.get("resourceTemplate"));
 
 
@@ -226,10 +229,21 @@ public class ServerOperationHandler {
 
 		// create a new resource and set its value
 		Resource resource = new Resource();
-		if (null == ResourceJsonObj.get("name")) {
+		if(null == ResourceJsonObj){
+			new OperationRunningException("invalid resource");
+		}
+		
+		//name
+		if (!ResourceJsonObj.containsKey("name")) {
 			throw new OperationRunningException("missing resource");
 		}
-		resource.setName(ResourceJsonObj.get("name").toString());
+		if(null != ResourceJsonObj.get("name")){
+			resource.setName(ResourceJsonObj.get("name").toString());
+		}
+		else{
+			resource.setName("");
+		}
+
 		System.out.println("The resource name:" + resource.getName());
 
 		// clone the jsonobject to a hashmap
@@ -247,8 +261,14 @@ public class ServerOperationHandler {
 		resource.setDescription(ResourceJsonObj.get("description").toString());
 		System.out.println("The resource description:" + resource.getDescription());
 
-		if (map.get("owner") != null) {
-			resource.setOwner(ResourceJsonObj.get("owner").toString());
+		if (map.containsKey("owner")) {
+			if(null != ResourceJsonObj.get("owner")){
+				resource.setOwner(ResourceJsonObj.get("owner").toString());
+			}
+			else {
+				resource.setOwner(ResourceJsonObj.get("owner").toString());
+			}
+
 		} else {
 			throw new OperationRunningException("missing resource");
 		}
@@ -257,27 +277,50 @@ public class ServerOperationHandler {
 		resource.setURI(ResourceJsonObj.get("uri").toString());
 		System.out.println("The resource uri:" + resource.getURI());
 
-		// ezserver will not be transported when using publish command
-		System.out.println("The resource ezserver:" + "null");
 
-		if (map.get("tags") != null) {
+
+		if (map.containsKey("ezserver")) {
+			JSONArray jsonArray = new JSONArray();
+			jsonArray = (JSONArray) ResourceJsonObj.get("ezserver");
+			if(null!= jsonArray){
+				String[] servers = new String[jsonArray.size()];
+				for (int i = 0; i < jsonArray.size(); i++) {
+					String r = jsonArray.get(i).toString();
+					servers[i] = r;
+				}
+				resource.setEZServer(servers);
+			}
+
+		} else {
+			throw new OperationRunningException("missing resource");
+		}
+		
+		
+		if (map.containsKey("tags")) {
 			JSONArray jsonArray = new JSONArray();
 			jsonArray = (JSONArray) ResourceJsonObj.get("tags");
-			String[] tags = new String[jsonArray.size()];
-			for (int i = 0; i < jsonArray.size(); i++) {
-				String r = jsonArray.get(i).toString();
-				tags[i] = r;
+			if(null!= jsonArray){
+				String[] tags = new String[jsonArray.size()];
+				for (int i = 0; i < jsonArray.size(); i++) {
+					String r = jsonArray.get(i).toString();
+					tags[i] = r;
+				}
+				resource.setTags(tags);
+				List<String> tagList = new ArrayList<String>();
+				for (String string : resource.getTags()) {
+					tagList.add(string);
+				}
+				System.out.println("The resource:" + tagList.toString());
 			}
-			resource.setTags(tags);
+			else{
+				System.out.println("The resource:" + null);
+			}
+
 		} else {
 			throw new OperationRunningException("missing resource");
 		}
 
-		List<String> tagList = new ArrayList<String>();
-		for (String string : resource.getTags()) {
-			tagList.add(string);
-		}
-		System.out.println("The resource:" + tagList.toString());
+
 
 		// JSONObject result = new JSONObject();
 		// if (true) {

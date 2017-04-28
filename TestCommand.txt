@@ -3,3 +3,4 @@ EZShare.Client -exchange -host 127.0.0.1 -port 3000 -servers 10.0.0.1:8081,www.g
 EZShare.Client -publish -host 127.0.0.1 -port 3000 -name "Unimelb website" -tags web,html -description "The main page for the University of Melbourne" -uri "http://www.unimelb.edu.au"
 EZShare.Client -share -host 127.0.0.1 -port 3000 -name "Unimelb website" -tags web,html -description "The main page for the University of Melbourne" -uri "file:///C:/Users/rishe/Desktop/1.jpgG" -secret 749486
 EZShare.Client -fetch -host 127.0.0.1 -port 3000 -name "1.jpg" -tags web,html -description "The main page for the University of Melbourne" -uri "file:///C:/Users/rishe/Desktop/1.jpg" -channel "My_private_channel" 
+EZShare.Client -query -debug  -port 3000

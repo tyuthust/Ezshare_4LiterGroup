@@ -26,8 +26,9 @@ public class ResourceWarehouse {
 				}
 				// true => no different then overwrite
 				if (success) {
-					resourceMap.get(resource.getChannel()).get(resource.getURI()).replace(resource.getOwner(),
-							resource);
+					resourceMap.get(resource.getChannel())
+					.get(resource.getURI())
+					.replace(resource.getOwner(),resource);
 				}
 			} else {
 				// uri different => new one
@@ -216,8 +217,14 @@ public class ResourceWarehouse {
 				}				
 			}
 			resources = candidateResourceList;
-		}//end of uriMap empty		
-		return (Resource[])resources.toArray();
+		}//end of uriMap empty	
+		if(0 == resources.size()){
+			return null;
+		}
+		else{
+			return (Resource[])(resources.toArray());
+		}
+
 	}//end of func
 	
 	
