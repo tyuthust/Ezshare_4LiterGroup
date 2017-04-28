@@ -14,27 +14,31 @@ import com.unimelb.comp90015.fourLiterGroup.ezshare.utils.utils;
 public class ServerOperationHandler {
 
 	public static Resource publish(JSONObject jsonObject) throws OperationRunningException {
-
+		//TODO: add to logger
 		System.out.println("Publish function");
 
 		// create a json object to save the map in resource
-		JSONObject shareResourceJsonObj = new JSONObject();
+		JSONObject publishResourceJsonObj = new JSONObject();
+		publishResourceJsonObj.putAll((Map) jsonObject.get("resource"));
+
 		// If the resource field was not given or not of the correct type
-		if (null == jsonObject.get("resource")) {
+		if (publishResourceJsonObj.isEmpty()) {
 			throw new OperationRunningException("missing resource");
 		}
-		shareResourceJsonObj.putAll((Map) jsonObject.get("resource"));
-		Map shareResourceMap = new HashMap();
-		shareResourceMap = (Map) shareResourceJsonObj.clone();
-		System.out.println(shareResourceMap);
+
+		// Map shareResourceMap = new HashMap();
+		// shareResourceMap = (Map) shareResourceJsonObj.clone();
+
+		// TODO: add to logger
+		System.out.println(publishResourceJsonObj);
 
 		// check if the the json data break the rule
 		// The URI must be present, must be absolute and cannot be a file
 		// scheme.
 
 		// URI The URI must be present
-		if (shareResourceMap.get("uri") != null) {
-			String uriString = shareResourceJsonObj.get("uri").toString();
+		if (publishResourceJsonObj.get("uri") != null) {
+			String uriString = publishResourceJsonObj.get("uri").toString();
 
 			if (uriString != "") {
 				URI resourceUri = URI.create(uriString);
@@ -48,10 +52,15 @@ public class ServerOperationHandler {
 				}
 
 				// The Owner field must not be the single character "*".
-				if (shareResourceMap.get("owner") == null) {
-					shareResourceJsonObj.replace("onwer", "");
-				} else if (shareResourceMap.get("owner") == ("*")) {
+				if (publishResourceJsonObj.get("owner") == null) {
+					publishResourceJsonObj.replace("onwer", "");
+				} else if (publishResourceJsonObj.get("owner") == ("*")) {
 					throw new OperationRunningException("cannot publish resource");
+				}
+
+				// The owner field
+				if (publishResourceJsonObj.get("channel") == null) {
+					publishResourceJsonObj.replace("channel", "");
 				}
 			} else {
 				throw new OperationRunningException("cannot publish resource");
@@ -60,11 +69,11 @@ public class ServerOperationHandler {
 			throw new OperationRunningException("cannot publish resource");
 		}
 
-		return generatingResourceHandler(shareResourceJsonObj);
+		return generatingResourceHandler(publishResourceJsonObj);
 	}
 
 	public static String[] exchange(JSONObject jsonObject) throws OperationRunningException {
-
+		//TODO: add to logger
 		System.out.println("Exchange function");
 		// create a json object to save the map in resource
 		JSONArray jsonArray = new JSONArray();
@@ -99,20 +108,21 @@ public class ServerOperationHandler {
 		}
 		return ezservers;
 	}
-	
+
 	public static Resource remove(JSONObject jsonObject) throws OperationRunningException {
-		System.out.println("Remove function");//TODO: add logger
+		//TODO: add to logger
+		System.out.println("Remove function");
 		JSONObject removeResourceJsonObj = new JSONObject();
 		removeResourceJsonObj.putAll((Map) jsonObject.get("resource"));
-		
+
 		// If the resource field was not given or not of the correct type
-		System.out.println(removeResourceJsonObj);//TODO: add logger
-		
+		System.out.println(removeResourceJsonObj);// TODO: add logger
+
 		if (removeResourceJsonObj.isEmpty()) {
-			if(removeResourceJsonObj.get("uri")==null || removeResourceJsonObj.get("uri").equals("")){
+			if (removeResourceJsonObj.get("uri") == null || removeResourceJsonObj.get("uri").equals("")) {
 				throw new OperationRunningException("invalide resource");
 			}
-			if(removeResourceJsonObj.get("channel")==null || removeResourceJsonObj.get("owner")==null){
+			if (removeResourceJsonObj.get("channel") == null || removeResourceJsonObj.get("owner") == null) {
 				throw new OperationRunningException("invalide resource");
 			}
 			String uriString = removeResourceJsonObj.get("uri").toString();
@@ -121,17 +131,16 @@ public class ServerOperationHandler {
 			if (!resourceUri.isAbsolute()) {
 				throw new OperationRunningException("cannot publish resource");
 			}
-		} else{
+		} else {
 			throw new OperationRunningException("missing resource");
 		}
-		
 
 		return generatingResourceHandler(removeResourceJsonObj);
 	}
-	
+
 	public static Resource share(JSONObject jsonObject) throws OperationRunningException {
+		//TODO: add to logger
 		System.out.println("Share function");
-		// TODO: Check rules breaker
 
 		JSONObject shareResourceJsonObj = new JSONObject();
 		// If the resource field was not given or not of the correct type
@@ -168,25 +177,23 @@ public class ServerOperationHandler {
 
 		return generatingResourceHandler(shareResourceJsonObj);
 	}
-	
-	public static Resource query(JSONObject jsonObject) throws OperationRunningException{
+
+	public static Resource query(JSONObject jsonObject) throws OperationRunningException {
+		//TODO: add to logger
 		System.out.println("query function");
-		
+
 		JSONObject queryResourceJsonObj = new JSONObject();
 
 		queryResourceJsonObj.putAll((Map) jsonObject.get("resourceTemplate"));
 
-
 		if (queryResourceJsonObj.isEmpty()) {
 			throw new OperationRunningException("missing resourceTemplate");
 		}
-		
-		//TODO: check info!
-		//there are other stuff for checking
+
+		// there are other stuff for checking
 		// The URI must be present, must be absolute and must be a file scheme.
 		String uriString = queryResourceJsonObj.get("uri").toString();
 		String chanString = queryResourceJsonObj.get("channel").toString();
-
 
 		// URI The URI must be present
 		if (null == uriString) {
@@ -197,8 +204,9 @@ public class ServerOperationHandler {
 		}
 		return generatingResourceHandler(queryResourceJsonObj);
 	}
-	
+
 	public static Resource fetch(JSONObject jsonObject) throws OperationRunningException {
+		//TODO: add to logger
 		System.out.println("fetch function");
 
 		JSONObject fetchResourceJsonObj = new JSONObject();
@@ -226,41 +234,76 @@ public class ServerOperationHandler {
 
 		// create a new resource and set its value
 		Resource resource = new Resource();
-		if (null == ResourceJsonObj.get("name")) {
+
+		if(null == ResourceJsonObj){
 			throw new OperationRunningException("missing resource");
 		}
-		resource.setName(ResourceJsonObj.get("name").toString());
-		System.out.println("The resource name:" + resource.getName());
+		// set name
+		if (null != ResourceJsonObj.get("name")) {
+			String nameString = ResourceJsonObj.get("name").toString();
+			if (!nameString.equals("")) {
+				resource.setName(nameString);
+			}
+			//TODO: add to logger
+			System.out.println("The resource name:" + resource.getName());
+		}
+		//TODO: add to logger
+		System.out.println("The resource name: ");
+		
+		// set channel
+		if (null != ResourceJsonObj.get("channel")) {
+			String chanString = ResourceJsonObj.get("channel").toString();
+			if (!chanString.equals("")) {
+				resource.setChannel(chanString);
+			}
+			// TODO: add to logger
+			System.out.println("The resource channel:" + resource.getChannel());
+		}
+		//TODO: add to logger
+		System.out.println("The resource channel: ");
+													
+		// set description
+		if (null != ResourceJsonObj.get("description")) {
+			String desString = ResourceJsonObj.get("description").toString();
+			if (!desString.equals("")) {
+				resource.setDescription(desString);
+			}
+			//TODO: add to logger
+			System.out.println("The resource description:" + resource.getDescription());
+		}
+		//TODO: add to logger
+		System.out.println("The resource description: ");
 
-		// clone the jsonobject to a hashmap
-		Map map = new HashMap();
-		map = (Map) ResourceJsonObj.clone();
-		// TODO: whether name is needed when creating resource
-		if (map.get("channel") != null) {// otherwise, there is an exception
-			// when channel is null
-			resource.setChannel(ResourceJsonObj.get("channel").toString());
-		} else {
+		// set owner
+		if (null != ResourceJsonObj.get("owner")) {
+			String ownerString = ResourceJsonObj.get("owner").toString();
+			if (!ownerString.equals("")) {
+				resource.setOwner(ownerString);
+			}
+			//TODO: add to logger
+			System.out.println("The resource owner:" + resource.getOwner());
+		}
+		System.out.println("The resource owner: ");
+		
+		// set uri
+		if (null == ResourceJsonObj.get("uri")) {
 			throw new OperationRunningException("missing resource");
 		}
-		System.out.println("The resource channel:" + resource.getChannel());
-
-		resource.setDescription(ResourceJsonObj.get("description").toString());
-		System.out.println("The resource description:" + resource.getDescription());
-
-		if (map.get("owner") != null) {
-			resource.setOwner(ResourceJsonObj.get("owner").toString());
-		} else {
+		String uriString = ResourceJsonObj.get("uri").toString();
+		if (!uriString.equals("")) {
+			resource.setURI(uriString);
+		}else{
 			throw new OperationRunningException("missing resource");
 		}
-		System.out.println("The resource owner:" + resource.getOwner());
-
-		resource.setURI(ResourceJsonObj.get("uri").toString());
 		System.out.println("The resource uri:" + resource.getURI());
 
 		// ezserver will not be transported when using publish command
-		System.out.println("The resource ezserver:" + "null");
+		
+		// TODO: add to logger
+		System.out.println("The resource ezserver: null");
 
-		if (map.get("tags") != null) {
+		// set tags
+		if (null != ResourceJsonObj.get("tags")) {
 			JSONArray jsonArray = new JSONArray();
 			jsonArray = (JSONArray) ResourceJsonObj.get("tags");
 			String[] tags = new String[jsonArray.size()];
@@ -269,22 +312,19 @@ public class ServerOperationHandler {
 				tags[i] = r;
 			}
 			resource.setTags(tags);
-		} else {
-			throw new OperationRunningException("missing resource");
-		}
 
-		List<String> tagList = new ArrayList<String>();
-		for (String string : resource.getTags()) {
-			tagList.add(string);
-		}
-		System.out.println("The resource:" + tagList.toString());
+			List<String> tagList = new ArrayList<String>();
+			for (String string : resource.getTags()) {
+				tagList.add(string);
+			}
 
-		// JSONObject result = new JSONObject();
-		// if (true) {
-		// result.put("response", "successful");
-		// }
+			// TODO: add to logger
+			System.out.println("The resource tags:" + tagList.toString());
+		}else{
+			// TODO: add to logger
+			System.out.println("The resource tags:" + "null");
+		}
 
 		return resource;
 	}
-
 }
