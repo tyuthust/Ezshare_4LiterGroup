@@ -240,60 +240,72 @@ public class ServerOperationHandler {
 		}
 		// set name
 		if (null != ResourceJsonObj.get("name")) {
-			String nameString = ResourceJsonObj.get("name").toString();
-			if (!nameString.equals("")) {
-				resource.setName(nameString);
+
+			if (!ResourceJsonObj.get("name").equals("")) {
+				resource.setName(ResourceJsonObj.get("name").toString());
+			}else{
+				resource.setName("");
 			}
 			//TODO: add to logger
 			System.out.println("The resource name:" + resource.getName());
+		}else{
+			throw new OperationRunningException("missing resource name");
 		}
-		//TODO: add to logger
-		System.out.println("The resource name: ");
 		
 		// set channel
 		if (null != ResourceJsonObj.get("channel")) {
 			String chanString = ResourceJsonObj.get("channel").toString();
 			if (!chanString.equals("")) {
 				resource.setChannel(chanString);
+			}else{
+				resource.setChannel("");
 			}
 			// TODO: add to logger
 			System.out.println("The resource channel:" + resource.getChannel());
+		}else{
+			throw new OperationRunningException("missing resource channel");
 		}
 		//TODO: add to logger
-		System.out.println("The resource channel: ");
 													
 		// set description
 		if (null != ResourceJsonObj.get("description")) {
 			String desString = ResourceJsonObj.get("description").toString();
 			if (!desString.equals("")) {
 				resource.setDescription(desString);
+			}else{
+				resource.setDescription("");
 			}
 			//TODO: add to logger
 			System.out.println("The resource description:" + resource.getDescription());
+		} else{
+			throw new OperationRunningException("missing resource description");
 		}
-		//TODO: add to logger
-		System.out.println("The resource description: ");
 
 		// set owner
 		if (null != ResourceJsonObj.get("owner")) {
 			String ownerString = ResourceJsonObj.get("owner").toString();
 			if (!ownerString.equals("")) {
 				resource.setOwner(ownerString);
+			}else{
+				resource.setOwner("");
 			}
 			//TODO: add to logger
 			System.out.println("The resource owner:" + resource.getOwner());
+		}else{
+			throw new OperationRunningException("missing resource owner");
 		}
 		
 		// set uri
 		if (null == ResourceJsonObj.get("uri")) {
-			throw new OperationRunningException("missing resource");
+			throw new OperationRunningException("missing resource uri");
 		}
 		String uriString = ResourceJsonObj.get("uri").toString();
 		if (!uriString.equals("")) {
 			resource.setURI(uriString);
 		}else{
-			throw new OperationRunningException("missing resource");
+			throw new OperationRunningException("missing resource uri");
 		}
+		// TODO: add to logger
 		System.out.println("The resource uri:" + resource.getURI());
 
 		// ezserver will not be transported when using publish command
@@ -323,7 +335,6 @@ public class ServerOperationHandler {
 			// TODO: add to logger
 			System.out.println("The resource tags:" + "null");
 		}
-
 		return resource;
 	}
 }

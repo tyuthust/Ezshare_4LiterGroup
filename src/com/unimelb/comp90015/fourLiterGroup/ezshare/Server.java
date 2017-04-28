@@ -119,7 +119,7 @@ public class Server {
 						results = handlePublish(command, output);
 						// results = publish(command);
 					} else if (command.get("command").equals("QUERY")) {
-						results = handleQuery(command, output);
+						//results = handleQuery(command, output);
 						// results = query(command);
 					} else if (command.get("command").equals("REMOVE")) {
 						results = handleRemove(command, output);
@@ -149,6 +149,8 @@ public class Server {
 			Resource resource = ServerOperationHandler.publish(jsonObject);
 			if (resourceWarehouse.AddResource(resource)) {
 				results.put("response", "success");
+				//TODO: add to logger
+				resourceWarehouse.printResourceMap();
 			} else {
 				results.put("response", "error");
 				results.put("errorMessage", "invalid resource");
@@ -164,7 +166,7 @@ public class Server {
 		return results;
 	}
 
-	private JSONObject handleQuery(JSONObject jsonObject, DataOutputStream output) {
+	/*private JSONObject handleQuery(JSONObject jsonObject, DataOutputStream output) {
 		JSONObject results = new JSONObject();
 		ArrayList<Resource> resultResources = new ArrayList<>();
 		Boolean relayMode = DEFAULT_RELAY_MODE;
@@ -206,7 +208,7 @@ public class Server {
 			logger.info(results.toJSONString());
 		}
 		return results;
-	}
+	}*/
 
 		
 
@@ -335,7 +337,7 @@ public class Server {
 	private JSONObject handleRemove(JSONObject jsonObject, DataOutputStream output) {
 		JSONObject results = new JSONObject();
 		try {
-			IResourceTemplate resource = ServerOperationHandler.remove(jsonObject);
+			Resource resource = ServerOperationHandler.remove(jsonObject);
 			if (resourceWarehouse.RemoveResource(resource)) {
 				results.put("response", "success");
 			}else{

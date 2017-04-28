@@ -2,31 +2,38 @@ package com.unimelb.comp90015.fourLiterGroup.ezshare.serverOps;
 
 import com.unimelb.comp90015.fourLiterGroup.ezshare.utils.utils;
 
-public class Resource implements IResourceTemplate {
-	private String Name = "";
-	private String Description = "";
+public class Resource {
+	private String Name;
+	private String Description;
 	private String[] Tags = null;
-	private String URI = null;
-	private String Channel = "";
-	private String Owner = "";
+	private String URI;
+	private String Channel;
+	private String Owner;
 	private String[] EZserver = null;
-	private long resourceSize=0;
-	public Resource() {// Constructor
+	private long resourceSize;
+
+	public Resource() {
+		this.Name = null;
+		this.Description = null;
+		this.URI = null;
+		this.Channel = null;
+		this.Owner = null;
+		this.resourceSize = 0;
 	}
 
 	public void setName(String name) {
 		this.Name = name;
-		formatStringOfResource(this.Name);
+		//formatStringOfResource(this.Name);
 	}
 
 	public void setDescription(String description) {
 		this.Description = description;
-		formatStringOfResource(this.Description);
+		//formatStringOfResource(this.Description);
 	}
 
 	public void setTags(String[] tags) {
-		this.Tags=tags.clone();
-		if(null != this.Tags){
+		this.Tags = tags.clone();
+		if (null != this.Tags) {
 			for (String string : this.Tags) {
 				formatStringOfResource(string);
 			}
@@ -46,53 +53,54 @@ public class Resource implements IResourceTemplate {
 	public void setOwner(String owner) {
 		this.Owner = owner;
 		formatStringOfResource(this.Owner);
-		
+
 	}
 
 	public void setEZServer(String[] ezservers) {
 		this.EZserver = ezservers.clone();
-		if(null != this.EZserver){
+		if (null != this.EZserver) {
 			for (String string : this.EZserver) {
 				formatStringOfResource(string);
 			}
 		}
 	}
-	
-	public void setResourceSize(long size){
-		this.resourceSize=size;
+
+	public void setResourceSize(long size) {
+		this.resourceSize = size;
 	}
-	public String getName(){
+
+	public String getName() {
 		return this.Name;
 	}
-	
-	public String getDescription(){
+
+	public String getDescription() {
 		return this.Description;
 	}
-	
-	public String getChannel(){
+
+	public String getChannel() {
 		return this.Channel;
 	}
-	
-	public String getOwner(){
+
+	public String getOwner() {
 		return this.Owner;
 	}
-	
-	public String[] getEzserver(){
+
+	public String[] getEzserver() {
 		return this.EZserver;
 	}
-	
-	public String getURI(){
+
+	public String getURI() {
 		return this.URI;
 	}
-	
-	public String[] getTags(){
+
+	public String[] getTags() {
 		return this.Tags;
 	}
-	
-	public long getSize(){
+
+	public long getSize() {
 		return this.resourceSize;
 	}
-	
+
 	private static void formatStringOfResource(String unformatedString) {
 
 		// String values must not contain the "\0" character,

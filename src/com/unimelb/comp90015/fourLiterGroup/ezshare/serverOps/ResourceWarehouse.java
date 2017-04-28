@@ -79,6 +79,36 @@ public class ResourceWarehouse {
 		return success;
 	}
 
+	public boolean RemoveResource(Resource resource) {
+		boolean success = false;
+
+		if (resourceMap.containsKey(resource.getChannel())) {
+
+			if (resourceMap.get(resource.getChannel()).containsKey(resource.getURI())) {
+
+				if (resourceMap.get(resource.getChannel()).get(resource.getURI()).containsKey(resource.getOwner())) {
+					// same channel uri and owner
+					// remove
+					resourceMap.get(resource.getChannel()).get(resource.getURI()).remove(resource.getOwner());
+					success = true;
+
+					if (resourceMap.get(resource.getChannel()).get(resource.getURI()).isEmpty()) {
+						// check 2nd map is empty
+						// if is, remove
+						resourceMap.get(resource.getChannel()).remove(resource.getURI());
+
+						if (resourceMap.get(resource.getChannel()).isEmpty()) {
+							// check 1st map is empty
+							// if is, remove
+							resourceMap.remove(resource.getChannel());
+						}
+					}
+				}
+			}
+		}
+		return success;
+	}
+	
 	public int getSizeOfWarehourse() {
 		return resourceMap.size();
 	}
