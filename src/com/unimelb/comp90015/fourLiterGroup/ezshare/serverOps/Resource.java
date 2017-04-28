@@ -2,7 +2,7 @@ package com.unimelb.comp90015.fourLiterGroup.ezshare.serverOps;
 
 import com.unimelb.comp90015.fourLiterGroup.ezshare.utils.utils;
 
-public class Resource {
+public class Resource implements IResourceTemplate {
 	private String Name;
 	private String Description;
 	private String[] Tags = null;
