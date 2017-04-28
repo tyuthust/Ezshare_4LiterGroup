@@ -340,6 +340,7 @@ public class Server {
 			Resource resource = ServerOperationHandler.remove(jsonObject);
 			if (resourceWarehouse.RemoveResource(resource)) {
 				results.put("response", "success");
+				resourceWarehouse.printResourceMap();
 			}else{
 				results.put("response", "error");
 				results.put("errorMessage", "cannot remove resource");
