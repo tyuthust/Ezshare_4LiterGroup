@@ -22,6 +22,7 @@ public class ResourceWarehouse {
 				for (String string : owners) {
 					if (!string.equals(resource.getOwner())) {
 						success = false;
+						System.out.println("fail to add FIle because diff owner!");
 					}
 				}
 				// true => no different then overwrite
@@ -29,6 +30,7 @@ public class ResourceWarehouse {
 					resourceMap.get(resource.getChannel())
 					.get(resource.getURI())
 					.replace(resource.getOwner(),resource);
+					System.out.println("SuccessOverwriteFIle!");
 				}
 			} else {
 				// uri different => new one
@@ -36,6 +38,7 @@ public class ResourceWarehouse {
 				ownerResourceMap.put(resource.getOwner(), resource);
 
 				resourceMap.get(resource.getChannel()).put(resource.getURI(), ownerResourceMap);
+				System.out.println("SuccessAddFIle!");
 			}
 		} else {
 			HashMap<String, Resource> ownerResourceMap = new HashMap<String, Resource>();
@@ -44,7 +47,7 @@ public class ResourceWarehouse {
 			uriResourceMap.put(resource.getURI(), ownerResourceMap);
 
 			resourceMap.put(resource.getChannel(), uriResourceMap);
-
+			System.out.println("SuccessAddFIle!");
 		}
 
 		return success;

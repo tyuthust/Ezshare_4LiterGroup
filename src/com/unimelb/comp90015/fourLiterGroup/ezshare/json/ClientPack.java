@@ -103,7 +103,7 @@ public class ClientPack implements JSONPack {
 				}
 				// jsonMap.add(jsonobjectList);
 				jsonObject.put("serverList", jsonMap);
-			}else{
+			} else {
 				jsonObject.put("serverList", null);
 			}
 		}
@@ -111,7 +111,11 @@ public class ClientPack implements JSONPack {
 	}
 
 	private void putNameInJSONObj(JSONObject object, String name) {
-		object.put("name", name);
+		if(object != null){
+			object.put("name", name);
+		}else{
+			object.put("name", "");
+		}
 	}
 
 	private void putTagsInJSONObj(JSONObject object, String[] tags) {
@@ -130,19 +134,19 @@ public class ClientPack implements JSONPack {
 
 		if (null != description) {
 			object.put("description", description);
-		}else{
+		} else {
 			object.put("description", "");
 		}
 	}
 
 	private void putUriInJSONObj(JSONObject object, String uri) {
 
-		if(uri != null){
+		if (uri != null) {
 			object.put("uri", uri);
-		} else{
+		} else {
 			object.put("uri", "");
 		}
-		
+
 	}
 
 	private void putChannelInJSONObj(JSONObject object, String channel) {

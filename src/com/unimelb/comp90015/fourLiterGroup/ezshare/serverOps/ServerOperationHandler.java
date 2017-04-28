@@ -250,47 +250,79 @@ public class ServerOperationHandler {
 		Map map = new HashMap();
 		map = (Map) ResourceJsonObj.clone();
 		// TODO: whether name is needed when creating resource
-		if (map.get("channel") != null) {// otherwise, there is an exception
-			// when channel is null
-			resource.setChannel(ResourceJsonObj.get("channel").toString());
-		} else {
+		//channel
+		if(map.containsKey("channel")){
+			if (map.get("channel") != null) {// otherwise, there is an exception
+				// when channel is null
+				resource.setChannel(ResourceJsonObj.get("channel").toString());
+			}
+			else{
+				resource.setChannel("");
+			}
+		}
+		else {
 			throw new OperationRunningException("missing resource");
 		}
 		System.out.println("The resource channel:" + resource.getChannel());
 
-		resource.setDescription(ResourceJsonObj.get("description").toString());
+		//description
+		if(map.containsKey("description")){
+			if (map.get("description") != null) {// otherwise, there is an exception
+				// when channel is null
+				resource.setDescription(ResourceJsonObj.get("description").toString());
+			}
+			else{
+				resource.setDescription("");
+			}
+		}
+		else {
+			throw new OperationRunningException("missing resource");
+		}
 		System.out.println("The resource description:" + resource.getDescription());
 
+		//owner
 		if (map.containsKey("owner")) {
 			if(null != ResourceJsonObj.get("owner")){
 				resource.setOwner(ResourceJsonObj.get("owner").toString());
 			}
 			else {
-				resource.setOwner(ResourceJsonObj.get("owner").toString());
+				resource.setOwner("");
 			}
-
 		} else {
 			throw new OperationRunningException("missing resource");
 		}
 		System.out.println("The resource owner:" + resource.getOwner());
 
-		resource.setURI(ResourceJsonObj.get("uri").toString());
+		//uri
+		if (map.containsKey("uri")) {
+			if(null != ResourceJsonObj.get("uri")){
+				resource.setURI(ResourceJsonObj.get("uri").toString());
+			}
+			else {
+				resource.setURI("");
+			}
+		} else {
+			throw new OperationRunningException("missing resource");
+		}
 		System.out.println("The resource uri:" + resource.getURI());
 
 
-
+		//serverList
 		if (map.containsKey("ezserver")) {
 			JSONArray jsonArray = new JSONArray();
 			jsonArray = (JSONArray) ResourceJsonObj.get("ezserver");
+			String[] servers;
 			if(null!= jsonArray){
-				String[] servers = new String[jsonArray.size()];
+				servers = new String[jsonArray.size()];
 				for (int i = 0; i < jsonArray.size(); i++) {
 					String r = jsonArray.get(i).toString();
 					servers[i] = r;
 				}
-				resource.setEZServer(servers);
 			}
-
+			else{
+				servers = new String[0];
+			}
+			resource.setEZServer(servers);
 		} else {
 			throw new OperationRunningException("missing resource");
 		}
@@ -299,33 +331,26 @@ public class ServerOperationHandler {
 		if (map.containsKey("tags")) {
 			JSONArray jsonArray = new JSONArray();
 			jsonArray = (JSONArray) ResourceJsonObj.get("tags");
+			String[] tags;
 			if(null!= jsonArray){
-				String[] tags = new String[jsonArray.size()];
+				tags = new String[jsonArray.size()];
 				for (int i = 0; i < jsonArray.size(); i++) {
 					String r = jsonArray.get(i).toString();
 					tags[i] = r;
 				}
-				resource.setTags(tags);
-				List<String> tagList = new ArrayList<String>();
-				for (String string : resource.getTags()) {
-					tagList.add(string);
-				}
-				System.out.println("The resource:" + tagList.toString());
+//				List<String> tagList = new ArrayList<String>();
+//				for (String string : resource.getTags()) {
+//					tagList.add(string);
+//				}
+//				System.out.println("The resource tag:" + tagList.toString());
 			}
 			else{
-				System.out.println("The resource:" + null);
+				tags = new String[0];
 			}
-
+			resource.setTags(tags);
 		} else {
 			throw new OperationRunningException("missing resource");
 		}
-
-
-
-		// JSONObject result = new JSONObject();
-		// if (true) {
-		// result.put("response", "successful");
-		// }
 
 		return resource;
 	}

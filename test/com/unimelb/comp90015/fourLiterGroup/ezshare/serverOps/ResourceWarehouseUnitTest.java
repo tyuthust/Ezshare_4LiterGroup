@@ -113,13 +113,10 @@ public class ResourceWarehouseUnitTest {
 	@Test
 	public void printResourceTest() {
 		Resource resource1 = new Resource();
-		resource1.setChannel("channel");
 		resource1.setURI("http://www.bilibili.com");
-		resource1.setOwner("STB");
 		resource1.setName("ezsare_system1");
 
 		Resource resource2 = new Resource();
-		resource2.setChannel("channel");
 		resource2.setURI("http://www.bilibili.com");
 		resource2.setOwner("STB2");
 		resource2.setName("ezsare_system2");
@@ -129,9 +126,7 @@ public class ResourceWarehouseUnitTest {
 		resource3.setURI("http://www.bilibili.com");
 
 		Resource resource4 = new Resource();
-		resource4.setChannel("channel");
 		resource4.setURI("http://www.bilibili.com");
-		resource4.setOwner("STB");
 		resource4.setName("ezsare_system4");
 
 		ResourceWarehouse warehouse = new ResourceWarehouse();
@@ -145,13 +140,10 @@ public class ResourceWarehouseUnitTest {
 		warehouse.printResourceMap();
 
 		Resource resource = new Resource();
-		resource.setChannel("channel");
 		resource.setURI("http://www.bilibili.com");
-		resource.setOwner("STB");
 
 		warehouse.RemoveResource(resource);
 		System.out.println("Remove Function");
 		warehouse.printResourceMap();
-
 	}
 }
