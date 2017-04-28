@@ -5,8 +5,13 @@ import java.io.DataOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.RandomAccessFile;
+import java.net.DatagramPacket;
+import java.net.DatagramSocket;
+import java.net.InetAddress;
+import java.net.MulticastSocket;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -38,15 +43,18 @@ public class Server {
 	private static int resultSize = 1;
 	
 	public static boolean ServerDebugModel = false;
-
+	
+	public static InetAddress ServerHost;
+	
 	protected static Logger logger = Logger.getLogger(Server.class.getName());
 	// Resource Map
 	private ResourceWarehouse resourceWarehouse;
 	// Server List
 	private String[] Servers = null;
 
-	public Server(ServerCmds cmds) {
+	public Server(ServerCmds cmds) throws UnknownHostException {
 		ServerDebugModel = cmds.debug;
+		ServerHost =  InetAddress.getByName(cmds.advertisedhostname);
 		resourceWarehouse = new ResourceWarehouse();
 		this.cmds = cmds;
 		if (null == this.cmds.secret) {
@@ -122,6 +130,8 @@ public class Server {
 						// results = publish(command);
 					} else if (command.get("command").equals("QUERY")) {
 						results = handleQuery(command, output);
+						 
+						
 						// results = query(command);
 					} else if (command.get("command").equals("REMOVE")) {
 						results = handleRemove(command, output);
@@ -210,6 +220,24 @@ public class Server {
 		if (cmds.debug) {
 			logger.info(results.toJSONString());
 		}
+		//this try-catch to achieve multicast sending part.
+		try (DatagramSocket SendSocket = new DatagramSocket()) {
+            for (int i = 0; i < Servers.length; i++) {
+            	String msg="aa";
+                String[] addrAndPort=Servers[i].split(":");
+                InetAddress addr = InetAddress.getByName(addrAndPort[0]);
+                int PORT = Integer.parseInt(addrAndPort[1]);
+                // Create a packet that will contain the data
+                // (in the form of bytes) and send it.
+                DatagramPacket msgPacket = new DatagramPacket(msg.getBytes(),msg.getBytes().length, addr, PORT);
+                SendSocket.send(msgPacket);
+     
+                System.out.println("Server sent packet with msg: " +msg);
+                //Thread.sleep(200);
+            }
+        } catch (IOException ex) {
+            ex.printStackTrace();
+        }
 		return results;
 	}
 
@@ -380,6 +408,31 @@ public class Server {
 			logger.info(results.toJSONString());
 		}
 		return results;
+	}
+	private void receivemulticast() {
+		InetAddress address = ServerHost;
+        
+        // Create a buffer of bytes, which will be used to store
+        // the incoming bytes containing the information from the server.
+        byte[] buf = new byte[1024];
+        
+        // Create a new Multicast socket (that will allow other sockets/programs
+        // to join it as well.
+        try (MulticastSocket Socket = new MulticastSocket(cmds.port)){
+            //Joint the Multicast group.
+            Socket.joinGroup(address);
+     
+            while (true) {
+                // Receive the information and print it.
+                DatagramPacket msgPacket = new DatagramPacket(buf, buf.length);
+                Socket.receive(msgPacket);
+
+                String msg = new String(buf, 0, buf.length);
+                System.out.println("Socket 1 received msg: " + msg);
+            }
+        } catch (IOException ex) {
+            ex.printStackTrace();
+        }
 	}
 	
 }
