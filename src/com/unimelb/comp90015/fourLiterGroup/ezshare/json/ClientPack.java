@@ -2,27 +2,18 @@ package com.unimelb.comp90015.fourLiterGroup.ezshare.json;
 
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
-import org.json.simple.parser.JSONParser;
-import org.json.simple.parser.ParseException;
-
 import com.unimelb.comp90015.fourLiterGroup.ezshare.optionsInterpret.ClientCmds;
 import com.unimelb.comp90015.fourLiterGroup.ezshare.optionsInterpret.Cmds;
 
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.List;
 
 public class ClientPack implements JSONPack {
-
-	public static String MISSING_OR_INVALID_SERVER_LIST = "missing or invalid server list";
-
 	@Override
 	public JSONObject Pack(Cmds cmds) throws CommandInvalidException {
 		ClientCmds clientcmds = (ClientCmds) cmds;
 		JSONObject jsonObject = new JSONObject();
 
-		// TODO: check each essential element
 		// validation with throwable exception!
 		if (clientcmds.publish) {// pack publish command in json
 			JSONObject publishJsonObjectChild = new JSONObject();
@@ -99,22 +90,22 @@ public class ClientPack implements JSONPack {
 		} else if (clientcmds.exchange) {// pack exchange command in json
 			// List<JSONObject> jsonobjectList = new ArrayList<JSONObject>();
 			JSONArray jsonMap = new JSONArray();
-			if (clientcmds.servers.equals(null)) {
-				throw new CommandInvalidException(MISSING_OR_INVALID_SERVER_LIST);
-			}
-
-			for (String string : clientcmds.servers) {
-				String[] DomainAndPort = string.split(":");
-				JSONObject jsonObject2 = new JSONObject();
-				jsonObject2.put("hostname", DomainAndPort[0]);
-				jsonObject2.put("port", DomainAndPort[1]);
-				jsonMap.add(jsonObject2);
-				// jsonobjectList.add(jsonObject2);
-				// jsonObject1.put("serverList", jsonObject2);
-			}
-			// jsonMap.add(jsonobjectList);
-			jsonObject.put("serverList", jsonMap);
 			jsonObject.put("command", "EXCHANGE");
+			if (clientcmds.servers != null) {
+				for (String string : clientcmds.servers) {
+					String[] DomainAndPort = string.split(":");
+					JSONObject jsonObject2 = new JSONObject();
+					jsonObject2.put("hostname", DomainAndPort[0]);
+					jsonObject2.put("port", DomainAndPort[1]);
+					jsonMap.add(jsonObject2);
+					// jsonobjectList.add(jsonObject2);
+					// jsonObject1.put("serverList", jsonObject2);
+				}
+				// jsonMap.add(jsonobjectList);
+				jsonObject.put("serverList", jsonMap);
+			}else{
+				jsonObject.put("serverList", null);
+			}
 		}
 		return jsonObject;
 	}
@@ -139,12 +130,19 @@ public class ClientPack implements JSONPack {
 
 		if (!description.equals(null)) {
 			object.put("description", description);
+		}else{
+			object.put("description", "");
 		}
 	}
 
 	private void putUriInJSONObj(JSONObject object, String uri) {
 
-		object.put("uri", uri);
+		if(uri != null){
+			object.put("uri", uri);
+		} else{
+			object.put("uri", "");
+		}
+		
 	}
 
 	private void putChannelInJSONObj(JSONObject object, String channel) {

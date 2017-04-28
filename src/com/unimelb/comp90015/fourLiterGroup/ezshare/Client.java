@@ -13,16 +13,16 @@ import java.net.Socket;
 import java.net.UnknownHostException;
 import java.util.Arrays;
 
-import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
-
-
+import java.util.logging.*;
 
 public class Client {
 	private ClientCmds cmds;
-
+	
+	private static Logger logger = Logger.getLogger(Client.class.getName());
+	
 	public Client(ClientCmds cmds) {
 		this.cmds = cmds;
 	}
@@ -31,19 +31,22 @@ public class Client {
 		for (String string : cmds.servers) {
 			System.out.println("server: " + string);
 		}
-		
-		// System.out.println(cmds.host);
-		// System.out.println(cmds.port);
 	}
 
 	public void connect() throws IOException, CommandInvalidException {
+		logger.setLevel(Level.INFO);
+		if(cmds.debug){
+			logger.info("setting client debug on. "+"The port: " + cmds.port);
+		}
 		try (Socket socket = new Socket(this.cmds.host, this.cmds.port);) {
 			// Output and Input Stream
 			DataInputStream input = new DataInputStream(socket.getInputStream());
 			DataOutputStream output = new DataOutputStream(socket.getOutputStream());
 
 			output.writeUTF("I want to connect!");
-			System.out.println("I want to connect!");
+			if(cmds.debug){
+				logger.info("[sent] I want to connect!");
+			}
 			output.flush();
 
 			JSONPack jsonPack = new ClientPack();
@@ -53,7 +56,11 @@ public class Client {
 
 			// Send RMI to Server
 			try {
-				output.writeUTF(jsonPack.Pack(this.cmds).toJSONString());
+				String JsonCmdsString = jsonPack.Pack(this.cmds).toJSONString();
+				if(cmds.debug){	
+					logger.info("[sent] "+JsonCmdsString);
+				}
+				output.writeUTF(JsonCmdsString);
 				output.flush();
 				JSONParser parser = new JSONParser();
 	    		
@@ -68,18 +75,19 @@ public class Client {
 	    	    		
 
 	    	    		// Check the command name
-	    	    		if(command.containsKey("resource")){
-	    	    			JSONObject resource = (JSONObject) command.get("resource");
-	    	    			if(this.cmds.fetch){
+	    	    		if(command.containsKey("command_name")){
+	    	    			if(command.get("command_name").toString().equals("SENDING_FILE")){
 	    	    				
 	    	    				// The file location
-	    						String fileName = "client_folder/"+resource.get("name");
-	    						
+	    						String fileName = "client_files/"+command.get("file_name");
+	    						if(cmds.debug){	
+	    							logger.info("[sent] "+fileName);
+	    						}
 	    						// Create a RandomAccessFile to read and write the output file.
 	    						RandomAccessFile downloadingFile = new RandomAccessFile(fileName, "rw");
 	    						
 	    						// Find out how much size is remaining to get from the server.
-	    						long fileSizeRemaining = (Long) resource.get("resourceSize");
+	    						long fileSizeRemaining = (Long) command.get("file_size");
 	    						
 	    						int chunkSize = setChunkSize(fileSizeRemaining);
 	    						
