@@ -58,8 +58,8 @@ public class ServerOpHandlerTest {
 		//absolute
 		JSONObject jsonObject1=new JSONObject();
 		JSONObject jsonObject2=new JSONObject();
-		jsonObject2.put("channel","");
-		jsonObject2.put("owner","");
+		//jsonObject2.put("channel","");
+		//jsonObject2.put("owner","");
 		jsonObject2.put("uri","http://www.bilibili.com");
 		//jsonObject2.put("name", "ezshare_system");
 		jsonObject1.put("resource",jsonObject2);
@@ -137,9 +137,11 @@ public class ServerOpHandlerTest {
 		JSONObject jsonObject1=new JSONObject();
 		JSONObject jsonObject2=new JSONObject();
 		
-		jsonObject2.put("url","http://www.bilibili.com");
+		//jsonObject2.put("channel","");
+		//jsonObject2.put("owner","");
+		jsonObject2.put("uri","http://www.bilibili.com");
+		//jsonObject2.put("name", "ezshare_system");
 		jsonObject1.put("resource",jsonObject2);
-		
 		try{
 			ServerOperationHandler.publish(jsonObject1);
 		} catch (OperationRunningException e){
@@ -148,9 +150,16 @@ public class ServerOpHandlerTest {
 		
 		JSONObject jsonObject3=new JSONObject();
 		JSONObject jsonObject4=new JSONObject();
-		jsonObject3.put("url","http://www.bilibili.com");
+		jsonObject3.put("uri","http://www.bilibili.com");
+		jsonObject3.put("channel","");
+		jsonObject3.put("owner","");
 		jsonObject4.put("resource",jsonObject3);
 		
-		ServerOperationHandler.remove(jsonObject4);
+		try{
+			ServerOperationHandler.remove(jsonObject4);
+		}catch (OperationRunningException e){
+			System.out.println(e.toString());
+		}
+		
 	}
 }

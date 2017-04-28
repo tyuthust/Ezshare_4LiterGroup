@@ -118,12 +118,12 @@ public class ServerOperationHandler {
 		// If the resource field was not given or not of the correct type
 		System.out.println(removeResourceJsonObj);// TODO: add logger
 
-		if (removeResourceJsonObj.isEmpty()) {
+		if (!removeResourceJsonObj.isEmpty()) {
 			if (removeResourceJsonObj.get("uri") == null || removeResourceJsonObj.get("uri").equals("")) {
-				throw new OperationRunningException("invalide resource");
+				throw new OperationRunningException("invalide resource1");
 			}
 			if (removeResourceJsonObj.get("channel") == null || removeResourceJsonObj.get("owner") == null) {
-				throw new OperationRunningException("invalide resource");
+				throw new OperationRunningException("invalide resource2");
 			}
 			String uriString = removeResourceJsonObj.get("uri").toString();
 			URI resourceUri = URI.create(uriString);
@@ -283,7 +283,6 @@ public class ServerOperationHandler {
 			//TODO: add to logger
 			System.out.println("The resource owner:" + resource.getOwner());
 		}
-		System.out.println("The resource owner: ");
 		
 		// set uri
 		if (null == ResourceJsonObj.get("uri")) {
