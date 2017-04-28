@@ -6,8 +6,6 @@ import org.junit.*;
 
 import com.unimelb.comp90015.fourLiterGroup.ezshare.utils.utils;
 
-import jdk.nashorn.internal.ir.WithNode;
-
 public class ResourceWarehouseUnitTest {
 	  //Any method annotated with "@Before" will be executed before each test,
 	  //allowing the tester to set up some shared resources.

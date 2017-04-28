@@ -1,6 +1,5 @@
 package com.unimelb.comp90015.fourLiterGroup.ezshare.serverOps;
 
-import java.net.MalformedURLException;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -10,10 +9,7 @@ import java.util.Map;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 
-import com.sun.jndi.toolkit.url.Uri;
 import com.unimelb.comp90015.fourLiterGroup.ezshare.utils.utils;
-
-import jdk.internal.org.objectweb.asm.tree.analysis.Value;
 
 public class ServerOperationHandler {
 
@@ -71,7 +67,6 @@ public class ServerOperationHandler {
 
 		System.out.println("Exchange function");
 		// create a json object to save the map in resource
-		JSONObject exchangeStringObj = new JSONObject();
 		JSONArray jsonArray = new JSONArray();
 		jsonArray = (JSONArray) jsonObject.get("serverList");
 
@@ -106,51 +101,36 @@ public class ServerOperationHandler {
 	}
 	
 	public static Resource remove(JSONObject jsonObject) throws OperationRunningException {
-		System.out.println("Remove function");//TODO: change to logger
-		JSONObject result = new JSONObject();
-
-		// TODO: Check rules breaker
-
+		System.out.println("Remove function");//TODO: add logger
 		JSONObject removeResourceJsonObj = new JSONObject();
-		// If the resource field was not given or not of the correct type
-		if (null == jsonObject.get("resource") || null == jsonObject.get("secret")) {
-			throw new OperationRunningException("missing resource and/or secret");
-		}
 		removeResourceJsonObj.putAll((Map) jsonObject.get("resource"));
-		System.out.println(removeResourceJsonObj);
-
-		// check if the the json data break the rule
-
-		// The URI must be present, must be absolute and must be a file scheme.
-		String uriString = removeResourceJsonObj.get("uri").toString();
-
-		// URI The URI must be present
-		if (null == uriString || uriString.equals("")) {
-			throw new OperationRunningException("cannot share resource");
-		}
-		URI resourceUri = URI.create(uriString);
-
-		// must be absolute and must be a file scheme
-		if (resourceUri.isAbsolute()) {
-			if (!resourceUri.getScheme().contains("file")) {
-				throw new OperationRunningException("cannot share resource");
+		
+		// If the resource field was not given or not of the correct type
+		System.out.println(removeResourceJsonObj);//TODO: add logger
+		
+		if (removeResourceJsonObj.isEmpty()) {
+			if(removeResourceJsonObj.get("uri")==null || removeResourceJsonObj.get("uri").equals("")){
+				throw new OperationRunningException("invalide resource");
 			}
-		} else {
-			throw new OperationRunningException("cannot share resource");
+			if(removeResourceJsonObj.get("channel")==null || removeResourceJsonObj.get("owner")==null){
+				throw new OperationRunningException("invalide resource");
+			}
+			String uriString = removeResourceJsonObj.get("uri").toString();
+			URI resourceUri = URI.create(uriString);
+			// cannot be a file scheme and must be an absolute path
+			if (!resourceUri.isAbsolute()) {
+				throw new OperationRunningException("cannot publish resource");
+			}
+		} else{
+			throw new OperationRunningException("missing resource");
 		}
-
-		// The Owner field must not be the single character "*".
-		if (removeResourceJsonObj.get("owner").toString().equals("*")) {
-			throw new OperationRunningException("cannot share resource");
-		}
+		
 
 		return generatingResourceHandler(removeResourceJsonObj);
 	}
 	
 	public static Resource share(JSONObject jsonObject) throws OperationRunningException {
 		System.out.println("Share function");
-		JSONObject result = new JSONObject();
-
 		// TODO: Check rules breaker
 
 		JSONObject shareResourceJsonObj = new JSONObject();
@@ -191,7 +171,6 @@ public class ServerOperationHandler {
 	
 	public static Resource query(JSONObject jsonObject) throws OperationRunningException{
 		System.out.println("query function");
-		JSONObject result = new JSONObject();
 		
 		JSONObject queryResourceJsonObj = new JSONObject();
 
@@ -221,10 +200,8 @@ public class ServerOperationHandler {
 	
 	public static Resource fetch(JSONObject jsonObject) throws OperationRunningException {
 		System.out.println("fetch function");
-		JSONObject result = new JSONObject();
 
 		JSONObject fetchResourceJsonObj = new JSONObject();
-
 		fetchResourceJsonObj.putAll((Map) jsonObject.get("resourceTemplate"));
 
 		if (fetchResourceJsonObj.isEmpty()) {

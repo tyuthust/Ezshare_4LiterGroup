@@ -1,7 +1,5 @@
 package com.unimelb.comp90015.fourLiterGroup.ezshare.serverOps;
 
-import java.util.List;
-
 import com.unimelb.comp90015.fourLiterGroup.ezshare.utils.utils;
 
 public class Resource implements IResourceTemplate {

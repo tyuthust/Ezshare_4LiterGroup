@@ -2,21 +2,13 @@ package com.unimelb.comp90015.fourLiterGroup.ezshare.json;
 
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
-import org.json.simple.parser.JSONParser;
-import org.json.simple.parser.ParseException;
-
 import com.unimelb.comp90015.fourLiterGroup.ezshare.optionsInterpret.ClientCmds;
 import com.unimelb.comp90015.fourLiterGroup.ezshare.optionsInterpret.Cmds;
 
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.List;
 
 public class ClientPack implements JSONPack {
-
-	public static String MISSING_OR_INVALID_SERVER_LIST = "missing or invalid server list";
-
 	@Override
 	public JSONObject Pack(Cmds cmds) throws CommandInvalidException {
 		ClientCmds clientcmds = (ClientCmds) cmds;

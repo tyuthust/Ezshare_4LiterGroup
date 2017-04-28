@@ -9,23 +9,17 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import javax.net.ServerSocketFactory;
 
-import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 import java.util.logging.*;
 
-import com.sun.glass.ui.TouchInputSupport;
 import com.unimelb.comp90015.fourLiterGroup.ezshare.optionsInterpret.ServerCmds;
 import com.unimelb.comp90015.fourLiterGroup.ezshare.serverOps.IResourceTemplate;
 import com.unimelb.comp90015.fourLiterGroup.ezshare.serverOps.OperationRunningException;
@@ -125,15 +119,16 @@ public class Server {
 						results = handlePublish(command, output);
 						// results = publish(command);
 					} else if (command.get("command").equals("QUERY")) {
+						results = handleQuery(command, output);
 						// results = query(command);
 					} else if (command.get("command").equals("REMOVE")) {
+						results = handleRemove(command, output);
 						// results = remove(command);
 					} else if (command.get("command").equals("SHARE")) {
 						results = handleShare(command, output);
 						// results = share(command);
 					} else if (command.get("command").equals("FETCH")) {
 						results = handleFetch(command, output);
-
 						// results = fetch(command);
 					} else if (command.get("command").equals("EXCHANGE")) {
 						results = handleExchange(command, output);
@@ -336,7 +331,27 @@ public class Server {
 		return results;
 
 	}
-
+	
+	private JSONObject handleRemove(JSONObject jsonObject, DataOutputStream output) {
+		JSONObject results = new JSONObject();
+		try {
+			IResourceTemplate resource = ServerOperationHandler.remove(jsonObject);
+			if (resourceWarehouse.RemoveResource(resource)) {
+				results.put("response", "success");
+			}else{
+				results.put("response", "error");
+				results.put("errorMessage", "cannot remove resource");
+			}
+		} catch (OperationRunningException e) {
+			results.put("response", "error");
+			results.put("errorMessage", e.toString());
+		}
+		if (cmds.debug) {
+			logger.info(results.toJSONString());
+		}
+		return results;
+	}
+	
 	private JSONObject resourcePack(Resource resource) {
 		JSONObject results = new JSONObject();
 		results.put("name", resource.getName());
@@ -360,76 +375,4 @@ public class Server {
 		}
 		return results;
 	}
-	/*
-	 * private static JSONObject publish(JSONObject jsonObject) {// publish //
-	 * function: // need to be // achieved
-	 * System.out.println("Publish function");
-	 * 
-	 * // create a jsonobject to save the map in resource JSONObject jsonObject1
-	 * = new JSONObject(); jsonObject1.putAll((Map) jsonObject.get("resource"));
-	 * System.out.println(jsonObject1);
-	 * 
-	 * // create a new resource and set its value Resource resource = new
-	 * Resource(); resource.setName(jsonObject1.get("name").toString());
-	 * System.out.println("The resource name:" + resource.getName());
-	 * 
-	 * // clone the jsonobject to a hashmap Map map = new HashMap(); map = (Map)
-	 * jsonObject1.clone();
-	 * 
-	 * if (map.get("channel") != null) {// otherwise, there is an exception //
-	 * when channel is null
-	 * resource.setChannel(jsonObject1.get("channel").toString()); }
-	 * System.out.println("The resource channel:" + resource.getChannel());
-	 * 
-	 * resource.setDescription(jsonObject1.get("description").toString());
-	 * System.out.println("The resource description:" +
-	 * resource.getDescription());
-	 * 
-	 * if (map.get("owner") != null) {
-	 * resource.setOwner(jsonObject1.get("owner").toString()); }
-	 * System.out.println("The resource owner:" + resource.getOwner());
-	 * 
-	 * resource.setURI(jsonObject1.get("uri").toString());
-	 * System.out.println("The resource uri:" + resource.getURI());
-	 * 
-	 * // ezserver will not be transported when using publish command
-	 * System.out.println("The resource ezserver:" + "null");
-	 * 
-	 * if (map.get("tags") != null) { JSONArray jsonArray = new JSONArray();
-	 * jsonArray = (JSONArray) jsonObject1.get("tags"); String[] tags = new
-	 * String[jsonArray.size()]; for (int i = 0; i < jsonArray.size(); i++) {
-	 * String r = jsonArray.get(i).toString(); tags[i] = r; }
-	 * resource.setTags(tags); }
-	 * 
-	 * List<String> tagList = new ArrayList<String>(); for (String string :
-	 * resource.getTags()) { tagList.add(string); }
-	 * System.out.println("The resource:" + tagList.toString());
-	 * 
-	 * JSONObject result = new JSONObject(); if (true) { result.put("response",
-	 * "successful"); }
-	 * 
-	 * return result; }
-	 * 
-	 * 
-	 * private static JSONObject query(JSONObject jsonObject) {// query
-	 * function: // need to be // achieved JSONObject result = new JSONObject();
-	 * System.out.println("Query function"); if (true) { result.put("response",
-	 * "successful"); } return result; }
-	 * 
-	 * private static JSONObject remove(JSONObject jsonObject) {// remove
-	 * function: // need to be // achieved JSONObject result = new JSONObject();
-	 * System.out.println("Remove function"); if (true) { result.put("response",
-	 * "successful"); } return result; }
-	 * 
-	 * private static JSONObject share(JSONObject jsonObject) {// share
-	 * function: // need to be // achieved JSONObject result = new JSONObject();
-	 * System.out.println("Share function"); if (true) { result.put("response",
-	 * "successful"); } return result; }
-	 * 
-	 * private static JSONObject fetch(JSONObject jsonObject) {// share
-	 * function: // need to be // achieved JSONObject result = new JSONObject();
-	 * System.out.println("Fetch function"); if (true) { result.put("response",
-	 * "successful"); } return result; }
-	 * 
-	 */
 }

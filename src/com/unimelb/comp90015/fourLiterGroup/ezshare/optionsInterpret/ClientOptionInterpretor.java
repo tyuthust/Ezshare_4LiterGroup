@@ -9,10 +9,6 @@ import org.apache.commons.cli.DefaultParser;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 
-import com.sun.xml.internal.ws.wsdl.writer.document.Port;
-
-import jdk.nashorn.internal.runtime.regexp.joni.Regex;
-
 public class ClientOptionInterpretor implements OptionInterpretor {
 	
 	private static int MAX_PORT_VALUE = 65535;

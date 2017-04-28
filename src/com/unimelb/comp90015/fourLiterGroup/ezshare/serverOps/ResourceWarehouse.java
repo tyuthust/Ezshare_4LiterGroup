@@ -1,9 +1,7 @@
 package com.unimelb.comp90015.fourLiterGroup.ezshare.serverOps;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Set;
 
 public class ResourceWarehouse {
@@ -51,7 +49,7 @@ public class ResourceWarehouse {
 		return success;
 	}
 
-	public boolean RemoveResource(Resource resource) {
+	public boolean RemoveResource(IResourceTemplate resource) {
 		boolean success = false;
 
 		if (resourceMap.containsKey(resource.getChannel())) {
@@ -117,7 +115,6 @@ public class ResourceWarehouse {
 		boolean existResource = false;
 		if (resourceMap.containsKey(channel)) {
 			if (resourceMap.get(channel).containsKey(uri)) {
-				List<Resource> resList = new ArrayList<Resource>();
 				if (!resourceMap.get(channel).get(uri).isEmpty()) {
 					existResource = true;
 				}
