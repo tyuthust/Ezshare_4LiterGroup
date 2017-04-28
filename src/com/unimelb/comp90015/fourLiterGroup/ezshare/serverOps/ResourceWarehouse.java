@@ -131,10 +131,10 @@ public class ResourceWarehouse {
 		for(HashMap.Entry<String,HashMap<String,HashMap<String,Resource>>> entry:resourceMap.entrySet()){
 			channel=entry.getKey();
 			for(HashMap.Entry<String,HashMap<String, Resource>> entry1:entry.getValue().entrySet()){
-				uri=entry.getKey();
+				uri=entry1.getKey();
 				for(HashMap.Entry<String,Resource> entry2: entry1.getValue().entrySet()){
 					owner=entry2.getKey();
-					System.out.println("The primary key is " + channel + "," + uri + "," + owner);
+					System.out.println("The primary key is: " + channel + "," + uri + "," + owner);
 					System.out.println("The resource name is " + entry2.getValue().getName());
 				}
 			}

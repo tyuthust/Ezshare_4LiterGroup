@@ -3,12 +3,12 @@ package com.unimelb.comp90015.fourLiterGroup.ezshare.serverOps;
 import com.unimelb.comp90015.fourLiterGroup.ezshare.utils.utils;
 
 public class Resource implements IResourceTemplate {
-	private String Name = null;
-	private String Description = null;
+	private String Name = "";
+	private String Description = "";
 	private String[] Tags = null;
 	private String URI = null;
-	private String Channel = null;
-	private String Owner = null;
+	private String Channel = "";
+	private String Owner = "";
 	private String[] EZserver = null;
 	private long resourceSize=0;
 	public Resource() {// Constructor
