@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -259,7 +260,8 @@ public class Server {
 
 				// get filename from uri
 				String uri = resource.getURI();
-				String filename = uri.replaceFirst("file://", "");
+				URI resourceUri = URI.create(uri);
+				String filename = resourceUri.getPath().toString();
 
 				// String filename = "server_files/"+ resource.getName();
 				// String filename = "/Users/fangrisheng/Desktop/sauron.jpg";
