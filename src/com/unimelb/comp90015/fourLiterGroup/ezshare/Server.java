@@ -121,7 +121,7 @@ public class Server {
 						results = handlePublish(command, output);
 						// results = publish(command);
 					} else if (command.get("command").equals("QUERY")) {
-						//results = handleQuery(command, output);
+						results = handleQuery(command, output);
 						// results = query(command);
 					} else if (command.get("command").equals("REMOVE")) {
 						results = handleRemove(command, output);
@@ -168,7 +168,7 @@ public class Server {
 		return results;
 	}
 
-	/*private JSONObject handleQuery(JSONObject jsonObject, DataOutputStream output) {
+	private JSONObject handleQuery(JSONObject jsonObject, DataOutputStream output) {
 		JSONObject results = new JSONObject();
 		ArrayList<Resource> resultResources = new ArrayList<>();
 		Boolean relayMode = DEFAULT_RELAY_MODE;
@@ -204,13 +204,14 @@ public class Server {
 			
 		} catch (OperationRunningException e) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
+			results.put("response", "error");
+			results.put("errorMessage", e.toString());
 		}
 		if (cmds.debug) {
 			logger.info(results.toJSONString());
 		}
 		return results;
-	}*/
+	}
 
 		
 
