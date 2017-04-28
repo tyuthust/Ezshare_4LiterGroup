@@ -183,7 +183,7 @@ public class ServerOperationHandler {
 		// clone the jsonobject to a hashmap
 		Map map = new HashMap();
 		map = (Map) ResourceJsonObj.clone();
-
+		// TODO: whether name is needed when creating resource
 		if (map.get("channel") != null) {// otherwise, there is an exception
 			// when channel is null
 			resource.setChannel(ResourceJsonObj.get("channel").toString());

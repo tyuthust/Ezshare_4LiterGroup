@@ -17,17 +17,16 @@ public class ServerOpHandlerTest {
 	public void tearDown() throws Exception {
 	}
 	@Test(expected=com.unimelb.comp90015.fourLiterGroup.ezshare.serverOps.OperationRunningException.class)
-	public void publishTest1() throws Exception{
+	public void publishTest1() throws OperationRunningException {
 		//file scheme
 		JSONObject jsonObject1=new JSONObject();
 		JSONObject jsonObject2=new JSONObject();
-//		ServerOperationHandler serverOpHandler1=new ServerOperationHandler();
 		jsonObject2.put("channel","");
 		jsonObject2.put("owner","");
-		jsonObject2.put("url","file://www.bilibili.com");
+		jsonObject2.put("uri","file://www.bilibili.com");
+		//jsonObject2.put("name","Unimelb website");
 		jsonObject1.put("resource",jsonObject2);
 		ServerOperationHandler.publish(jsonObject1);
-		//assertEquals("cannot publish resource",serverOpHandler1.publish(jsonObject1));
 	}
 
 	@Test(expected=com.unimelb.comp90015.fourLiterGroup.ezshare.serverOps.OperationRunningException.class)
@@ -40,11 +39,13 @@ public class ServerOpHandlerTest {
 	
 	@Test(expected=com.unimelb.comp90015.fourLiterGroup.ezshare.serverOps.OperationRunningException.class)
 	public void publishTest3() throws Exception{
-		//file scheme
+		//absolute
 		JSONObject jsonObject1=new JSONObject();
 		JSONObject jsonObject2=new JSONObject();
+		jsonObject2.put("channel","");
 		jsonObject2.put("owner","");
-		jsonObject2.put("url","git\\Ezshare_4LiterGroup");
+		jsonObject2.put("uri","www.bilibili.com");
+		//jsonObject2.put("name","Unimelb website");
 		jsonObject1.put("resource",jsonObject2);
 		ServerOperationHandler.publish(jsonObject1);
 		//assertEquals("cannot publish resource",serverOpHandler1.publish(jsonObject1));
@@ -54,11 +55,10 @@ public class ServerOpHandlerTest {
 		//owner with *
 		JSONObject jsonObject1=new JSONObject();
 		JSONObject jsonObject2=new JSONObject();
-		jsonObject2.put("owner","four*liter");
-		jsonObject2.put("url","git\\Ezshare_4LiterGroup");
+		jsonObject2.put("owner","*");
+		jsonObject2.put("url","E:\\Melbourne\\Study\\2017 Semester1");
 		jsonObject1.put("resource",jsonObject2);
 		ServerOperationHandler.publish(jsonObject1);
-		//assertEquals("cannot publish resource",serverOpHandler1.publish(jsonObject1));
 	}
 	
 	@Test(expected=com.unimelb.comp90015.fourLiterGroup.ezshare.serverOps.OperationRunningException.class)
@@ -66,7 +66,6 @@ public class ServerOpHandlerTest {
 		//url==null
 		JSONObject jsonObject1=new JSONObject();
 		JSONObject jsonObject2=new JSONObject();
-		jsonObject2.put("owner","four*liter");
 		jsonObject1.put("resource",jsonObject2);
 		ServerOperationHandler.publish(jsonObject1);
 		//assertEquals("cannot publish resource",serverOpHandler1.publish(jsonObject1));
@@ -77,10 +76,20 @@ public class ServerOpHandlerTest {
 		//url is ""
 		JSONObject jsonObject1=new JSONObject();
 		JSONObject jsonObject2=new JSONObject();
-		jsonObject2.put("owner","four*liter");
 		jsonObject2.put("url","");
 		jsonObject1.put("resource",jsonObject2);
 		ServerOperationHandler.publish(jsonObject1);
 		//assertEquals("cannot publish resource",serverOpHandler1.publish(jsonObject1));
 	}
+	
+	/*@Test(expected=com.unimelb.comp90015.fourLiterGroup.ezshare.serverOps.OperationRunningException.class)
+	public void shareTest1() throws Exception{
+		//share uri file scheme
+		JSONObject jsonObject1=new JSONObject();
+		JSONObject jsonObject2=new JSONObject();
+		jsonObject2.put("secret","2Vy567");
+		jsonObject2.put("url","file://www.bilibili.com");
+		jsonObject1.put("resource",jsonObject2);
+		ServerOperationHandler.share(jsonObject1);
+	}*/
 }
