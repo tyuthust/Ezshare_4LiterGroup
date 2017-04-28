@@ -36,6 +36,8 @@ public class Server {
 	private static int counter = 0;
 
 	private static int resultSize = 1;
+	
+	public static boolean ServerDebugModel = false;
 
 	protected static Logger logger = Logger.getLogger(Server.class.getName());
 	// Resource Map
@@ -44,7 +46,7 @@ public class Server {
 	private String[] Servers = null;
 
 	public Server(ServerCmds cmds) {
-
+		ServerDebugModel = cmds.debug;
 		resourceWarehouse = new ResourceWarehouse();
 		this.cmds = cmds;
 		if (null == this.cmds.secret) {
@@ -149,7 +151,7 @@ public class Server {
 			Resource resource = ServerOperationHandler.publish(jsonObject);
 			if (resourceWarehouse.AddResource(resource)) {
 				results.put("response", "success");
-				//TODO: add to logger
+				
 				resourceWarehouse.printResourceMap();
 			} else {
 				results.put("response", "error");
