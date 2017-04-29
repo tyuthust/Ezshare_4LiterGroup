@@ -88,13 +88,11 @@ public class Server {
 			}
 			System.out.println("Waiting for client connection..");
 			// sending server list if it exist
-			if(Servers != null){
-				startTimer();
-			}
 			
 			// Wait for connections.
 			while (true) {
 				Socket client = server.accept();
+				//startTimer();
 				counter++;
 				System.out.println("Client " + counter + ": Applying for connection!");
 
@@ -416,54 +414,57 @@ public class Server {
 	}
 
 	private static void serverInteraction(String[] Servers) {
-		Random ran = new Random();
-		int index = ran.nextInt(Servers.length);
-		String selectedServer = Servers[index];
-		String[] IPandPort = selectedServer.split(":");
-		String addr = IPandPort[0];
-		int Port = Integer.parseInt(IPandPort[1]);
-		try (Socket socket = new Socket(addr, Port)) {
-			// Output and Input Stream
-			DataInputStream input = new DataInputStream(socket.getInputStream());
-			DataOutputStream output = new DataOutputStream(socket.getOutputStream());
+		if(Servers!=null){
+			Random ran = new Random();
+			int index = ran.nextInt(Servers.length);
+			String selectedServer = Servers[index];
+			String[] IPandPort = selectedServer.split(":");
+			String addr = IPandPort[0];
+			int Port = Integer.parseInt(IPandPort[1]);
+			try (Socket socket = new Socket(addr, Port)) {
+				// Output and Input Stream
+				DataInputStream input = new DataInputStream(socket.getInputStream());
+				DataOutputStream output = new DataOutputStream(socket.getOutputStream());
 
-    		JSONObject jsonObject = new JSONObject();
-    		JSONArray jsonMap = new JSONArray();
-			jsonObject.put("command", "EXCHANGE");
-			if (Servers != null) {
-				for (String string :Servers) {
-					String[] DomainAndPort = string.split(":");
-					JSONObject jsonObject2 = new JSONObject();
-					jsonObject2.put("hostname", DomainAndPort[0]);
-					jsonObject2.put("port", DomainAndPort[1]);
-					jsonMap.add(jsonObject2);
+	    		JSONObject jsonObject = new JSONObject();
+	    		JSONArray jsonMap = new JSONArray();
+				jsonObject.put("command", "EXCHANGE");
+				if (Servers != null) {
+					for (String string :Servers) {
+						String[] DomainAndPort = string.split(":");
+						JSONObject jsonObject2 = new JSONObject();
+						jsonObject2.put("hostname", DomainAndPort[0]);
+						jsonObject2.put("port", DomainAndPort[1]);
+						jsonMap.add(jsonObject2);
+					}
+					jsonObject.put("serverList", jsonMap);
+				} else {
+					jsonObject.put("serverList", null);
 				}
-				jsonObject.put("serverList", jsonMap);
-			} else {
-				jsonObject.put("serverList", null);
-			}
-    		
-    		//add to logger
-			System.out.println("Sending Exchange command is :"+jsonObject.toJSONString());
-    		
-    		// Read hello from server..
-    		String message = input.readUTF();
-    		System.out.println(message);
-    		
-    		// Send RMI to Server
-    		output.writeUTF(jsonObject.toJSONString());
-    		output.flush();
-    		
-    		// Print out results received from server..
-    		String result = input.readUTF();
-    		System.out.println("Received from server: "+result);
-    		
-		} catch (UnknownHostException e) {
-			e.printStackTrace();
-		} catch (IOException e) {
+	    		
+	    		//add to logger
+				System.out.println("Sending Exchange command is :"+jsonObject.toJSONString());
+	    		
+	    		// Read hello from server..
+	    		String message = input.readUTF();
+	    		System.out.println(message);
+	    		
+	    		// Send RMI to Server
+	    		output.writeUTF(jsonObject.toJSONString());
+	    		output.flush();
+	    		
+	    		// Print out results received from server..
+	    		String result = input.readUTF();
+	    		System.out.println("Received from server: "+result);
+	    		
+			} catch (UnknownHostException e) {
+				e.printStackTrace();
+			} catch (IOException e) {
 
-		}
-		
+			}
+		}else{
+			System.out.println("The server list is null !");
+		}	
 	}
 	
 	private static void startTimer(){
@@ -472,15 +473,16 @@ public class Server {
             public void run() {
                 System.out.println("task begin:"+getCurrentTime());
                 serverInteraction(Servers);
-                /*try {
+                try {
                     Thread.sleep(1000*3);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
-                }*/
+                }
+                System.out.println("task end:"+getCurrentTime());
             }
         };
         Timer timer = new Timer();
-        timer.schedule(task,0,1000*intervalTime);
+        timer.schedule(task,1000*5,1000*30);
     }
 	
     private static String getCurrentTime() {

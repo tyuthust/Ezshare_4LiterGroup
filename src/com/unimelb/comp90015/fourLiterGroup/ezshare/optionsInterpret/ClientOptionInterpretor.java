@@ -101,7 +101,8 @@ public class ClientOptionInterpretor implements OptionInterpretor {
 							
 						}
 						DomainAndPort[0] = refinedIP;
-						DomainAndPort[1] = DomainAndPort[1].replaceFirst("0+(?!$)", "");
+						//DomainAndPort[1] = DomainAndPort[1].replaceFirst("0+(?!$)", "");
+						DomainAndPort[1] = DomainAndPort[1].replaceAll("^(0+)", "");;
 					}
 					validServerArray.add(DomainAndPort[0]+":"+DomainAndPort[1]);
 				}
