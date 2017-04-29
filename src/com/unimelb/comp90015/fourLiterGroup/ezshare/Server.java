@@ -18,6 +18,8 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Random;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -54,7 +56,8 @@ public class Server {
 	// Resource Map
 	private ResourceWarehouse resourceWarehouse;
 	// Server List
-	private String[] Servers = null;
+	private static String[] Servers = null;
+	private static int intervalTime = 30;
 
 	public Server(ServerCmds cmds) throws UnknownHostException {
 		ServerDebugModel = cmds.debug;
@@ -64,6 +67,7 @@ public class Server {
 		if (null == this.cmds.secret) {
 			this.cmds.generateSecret();
 		}
+		intervalTime = cmds.exchangeinterval;
 	}
 
 	public void run() {
@@ -83,7 +87,11 @@ public class Server {
 				logger.info("The port: " + cmds.port);
 			}
 			System.out.println("Waiting for client connection..");
-
+			// sending server list if it exist
+			if(Servers != null){
+				startTimer();
+			}
+			
 			// Wait for connections.
 			while (true) {
 				Socket client = server.accept();
@@ -407,7 +415,7 @@ public class Server {
 		return results;
 	}
 
-	private void serverInteraction(String[] Servers) {
+	private static void serverInteraction(String[] Servers) {
 		Random ran = new Random();
 		int index = ran.nextInt(Servers.length);
 		String selectedServer = Servers[index];
@@ -436,7 +444,7 @@ public class Server {
 			}
     		
     		//add to logger
-			System.out.println(jsonObject.toJSONString());
+			System.out.println("Sending Exchange command is :"+jsonObject.toJSONString());
     		
     		// Read hello from server..
     		String message = input.readUTF();
@@ -457,6 +465,23 @@ public class Server {
 		}
 		
 	}
+	
+	private static void startTimer(){
+        TimerTask task = new TimerTask() {
+            @Override
+            public void run() {
+                System.out.println("task begin:"+getCurrentTime());
+                serverInteraction(Servers);
+                /*try {
+                    Thread.sleep(1000*3);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }*/
+            }
+        };
+        Timer timer = new Timer();
+        timer.schedule(task,0,1000*intervalTime);
+    }
 	
     private static String getCurrentTime() {
         Date date = new Date();
