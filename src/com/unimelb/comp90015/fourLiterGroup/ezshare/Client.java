@@ -5,6 +5,8 @@ import com.unimelb.comp90015.fourLiterGroup.ezshare.json.CommandInvalidException
 import com.unimelb.comp90015.fourLiterGroup.ezshare.json.JSONPack;
 import com.unimelb.comp90015.fourLiterGroup.ezshare.optionsInterpret.ClientCmds;
 
+import jdk.internal.dynalink.beans.StaticClass;
+
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -20,6 +22,8 @@ import java.util.logging.*;
 
 public class Client {
 	private ClientCmds cmds;
+	private static String DEFAULT_HOST = "127.0.0.1";
+	private static int DEFAULT_PORT = 3000;
 	
 	private static Logger logger = Logger.getLogger(Client.class.getName());
 	
@@ -37,6 +41,12 @@ public class Client {
 		logger.setLevel(Level.INFO);
 		if(cmds.debug){
 			logger.info("setting client debug on. "+"The port: " + cmds.port);
+		}
+		if(null == this.cmds.host|| this.cmds.host.isEmpty()){
+			this.cmds.host = DEFAULT_HOST;
+		}
+		if(-1 == this.cmds.port){
+			this.cmds.port = DEFAULT_PORT;
 		}
 		try (Socket socket = new Socket(this.cmds.host, this.cmds.port);) {
 			// Output and Input Stream

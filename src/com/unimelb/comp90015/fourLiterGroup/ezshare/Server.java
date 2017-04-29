@@ -44,6 +44,7 @@ import com.unimelb.comp90015.fourLiterGroup.ezshare.serverOps.ServerOperationHan
 public class Server {
 
 	public static boolean DEFAULT_RELAY_MODE = true;
+	public static int DEFAULT_PORT = 3000;
 
 	private ServerCmds cmds;
 	// Identifies the user number connected
@@ -67,6 +68,9 @@ public class Server {
 		ServerHost =  InetAddress.getByName(cmds.advertisedhostname);
 		resourceWarehouse = new ResourceWarehouse();
 		this.cmds = cmds;
+		if(-1 == this.cmds.port){
+			this.cmds.port = DEFAULT_PORT;
+		}
 		if (null == this.cmds.secret) {
 			this.cmds.generateSecret();
 		}
