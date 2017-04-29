@@ -15,9 +15,12 @@ import java.net.UnknownHostException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Random;
+import java.util.Set;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.ExecutorService;
@@ -56,7 +59,7 @@ public class Server {
 	// Resource Map
 	private ResourceWarehouse resourceWarehouse;
 	// Server List
-	private static String[] Servers = null;
+	private static Set<String> Servers = new HashSet();
 	private static int intervalTime = 30;
 
 	public Server(ServerCmds cmds) throws UnknownHostException {
@@ -349,13 +352,11 @@ public class Server {
 		int i =0;
 		try {
 			String[] serverlist = ServerOperationHandler.exchange(jsonObject).clone();
-			Servers = new String[serverlist.length];
+			Servers.add(cmds.advertisedhostname+":"+Integer.toString(cmds.port));
+			//Collection<String> sl = new Collection<Stirng>(serverlist);
+			//Servers.
 			for(String string: serverlist){
-				String[] IPandPort = string.split(":");
-				if(IPandPort[0]!=cmds.advertisedhostname || Integer.parseInt(IPandPort[1])!=cmds.port){
-					Servers[i]=IPandPort[0]+":"+ IPandPort[1];
-					i++;
-				}
+				Servers.add(string);
 			} 
 			if (cmds.debug) {
 				for (String string : Servers) {
@@ -486,7 +487,7 @@ public class Server {
             @Override
             public void run() {
                 System.out.println("task begin:"+getCurrentTime());
-                serverInteraction(Servers);
+                //serverInteraction(Servers);
                 try {
                     Thread.sleep(1000*3);
                 } catch (InterruptedException e) {
