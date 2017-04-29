@@ -424,63 +424,64 @@ public class Server {
 		return results;
 	}
 
-	private static void serverInteraction(HashSet<String> Servers) {
-		Random ran = new Random();
-		
-		// String selectedServer = Servers[index];
-		// TODO: add to logger
-		// System.out.println("The selected server is:" + selectedServer);
-		// String[] IPandPort = selectedServer.split(":");
-		// String addr = IPandPort[0];
-		// int Port = Integer.parseInt(IPandPort[1]);
-		String ip = "127.0.0.1";
-		int port = 3001;
-
-		try (Socket socket = new Socket(ip, port)) {
-			// Output and Input Stream
-
-			DataInputStream input = new DataInputStream(socket.getInputStream());
-			DataOutputStream output = new DataOutputStream(socket.getOutputStream());
-			System.out.println("exchange function!");
-			output.writeUTF("I want to connect!");
-			output.flush();
-
-			JSONObject jsonObject = new JSONObject();
-			JSONArray jsonMap = new JSONArray();
-
-			jsonObject.put("command", "EXCHANGE");
-			if (Servers != null) {
-				for (String string : Servers) {
-					String[] DomainAndPort = string.split(":");
-					JSONObject jsonObject2 = new JSONObject();
-					jsonObject2.put("hostname", DomainAndPort[0]);
-					jsonObject2.put("port", DomainAndPort[1]);
-					jsonMap.add(jsonObject2);
+	private static void serverInteraction(Set<String> Servers) {
+		if (Servers != null && Servers.size() > 1) {
+			Random ran = new Random();
+			int index = ran.nextInt(Servers.size());
+			String selectedServer = "";
+			for (int i = 0; i < index + 1; i++) {
+				if (Servers.iterator().hasNext()) {
+					selectedServer = Servers.iterator().next();
 				}
-				jsonObject.put("serverList", jsonMap);
 			}
-			// add to logger
-			System.out.println("Sending Exchange command is :" + jsonObject.toJSONString());
+			System.out.println("The selected server is:" + selectedServer);
+			String[] IPandPort = selectedServer.split(":");
+			String addr = IPandPort[0];
+			int Port = Integer.parseInt(IPandPort[1]);
+			try (Socket socket = new Socket(addr, Port)) {
+				// Output and Input Stream
 
-			// Read hello from server..
-			String message = input.readUTF();
-			System.out.println(message);
+				DataInputStream input = new DataInputStream(socket.getInputStream());
+				DataOutputStream output = new DataOutputStream(socket.getOutputStream());
+				System.out.println("exchange function!");
+				output.writeUTF("I want to connect!");
+				output.flush();
 
-			// Send RMI to Server
-			output.writeUTF(jsonObject.toJSONString());
-			output.flush();
+				JSONObject jsonObject = new JSONObject();
+				JSONArray jsonMap = new JSONArray();
 
-			// Print out results received from server..
-			String result = input.readUTF();
-			System.out.println("Received from server: " + result);
+				jsonObject.put("command", "EXCHANGE");
+				if (Servers != null) {
+					for (String string : Servers) {
+						String[] DomainAndPort = string.split(":");
+						JSONObject jsonObject2 = new JSONObject();
+						jsonObject2.put("hostname", DomainAndPort[0]);
+						jsonObject2.put("port", DomainAndPort[1]);
+						jsonMap.add(jsonObject2);
+					}
+					jsonObject.put("serverList", jsonMap);
 
-		} catch (UnknownHostException e) {
-		} catch (IOException e) {
+				}
+				// add to logger
+				System.out.println("Sending Exchange command is :" + jsonObject.toJSONString());
 
+				// Read hello from server..
+				String message = input.readUTF();
+				System.out.println(message);
+
+				// Send RMI to Server
+				output.writeUTF(jsonObject.toJSONString());
+				output.flush();
+
+				// Print out results received from server..
+				String result = input.readUTF();
+				System.out.println("Received from server: " + result);
+
+			} catch (UnknownHostException e) {
+			} catch (IOException e) {
+
+			}
 		}
-		// }else{
-		// System.out.println("The server list is null !");
-		// }
 	}
 
 	private static void startTimer() {
@@ -488,7 +489,7 @@ public class Server {
 			@Override
 			public void run() {
 				System.out.println("task begin:" + getCurrentTime());
-				serverInteraction();
+				serverInteraction(Servers);
 				try {
 					Thread.sleep(1000 * 3);
 				} catch (InterruptedException e) {
