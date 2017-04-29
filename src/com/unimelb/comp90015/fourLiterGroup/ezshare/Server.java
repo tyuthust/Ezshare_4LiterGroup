@@ -23,8 +23,14 @@ import java.util.Random;
 import java.util.Set;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.FutureTask;
+import java.util.concurrent.RunnableFuture;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 import javax.net.ServerSocketFactory;
 
@@ -45,6 +51,7 @@ public class Server {
 
 	public static boolean DEFAULT_RELAY_MODE = true;
 	public static int DEFAULT_PORT = 3000;
+	public static int DEFAULT_QUERY_TIMEOUT = 6000;
 
 	private ServerCmds cmds;
 	// Identifies the user number connected
@@ -221,6 +228,7 @@ public class Server {
 					resultResources.add(hitresource);
 				}
 			}
+			   queryOtherServers();
 
 			results.put("response", "success");
 			if (null != hitResources && hitResources.length > 0) {
@@ -239,29 +247,52 @@ public class Server {
 			results.put("response", "error");
 			results.put("errorMessage", e.toString());
 		}
-		if (cmds.debug) {
-			logger.info(results.toJSONString());
+		finally {
+			if (cmds.debug) {
+				logger.info(results.toJSONString());
+			}
+			return results;
 		}
-		// //this try-catch to achieve multicast sending part.
-		// try (DatagramSocket SendSocket = new DatagramSocket()) {
-		// for (int i = 0; i < Servers.length; i++) {
-		// String msg="aa";
-		// String[] addrAndPort=Servers[i].split(":");
-		// InetAddress addr = InetAddress.getByName(addrAndPort[0]);
-		// int PORT = Integer.parseInt(addrAndPort[1]);
-		// // Create a packet that will contain the data
-		// // (in the form of bytes) and send it.
-		// DatagramPacket msgPacket = new
-		// DatagramPacket(msg.getBytes(),msg.getBytes().length, addr, PORT);
-		// SendSocket.send(msgPacket);
-		//
-		// System.out.println("Server sent packet with msg: " +msg);
-		// //Thread.sleep(200);
-		// }
-		// } catch (IOException ex) {
-		// ex.printStackTrace();
-		// }
-		return results;
+
+
+
+	}
+
+	private ArrayList<Resource> queryOtherServers(JSONObject jsonObject,Set<String> serverList) {
+		Callable<ArrayList<Resource>> run = new Callable<ArrayList<Resource>>()
+		    {
+		        @Override
+		        public ArrayList<Resource> call() throws Exception
+		        {
+		            // your code to be timed
+		        	for (String string : serverList) {
+			        	queryRelay(jsonObject, string);
+					}
+
+		        	return null;
+		        }
+		    };
+
+		    RunnableFuture future = new FutureTask(run);
+		    ExecutorService service = Executors.newSingleThreadExecutor();
+		    service.execute(future);
+		    ArrayList<Resource> foundResources = null;
+		    try
+		    {
+		        try {
+		        	foundResources = (ArrayList<Resource>) future.get(DEFAULT_QUERY_TIMEOUT, TimeUnit.MILLISECONDS);
+				} catch (InterruptedException | ExecutionException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+		    }
+		    catch (TimeoutException ex)
+		    {
+		        // timed out. Try to stop the code if possible.
+		        future.cancel(true);
+		    }
+		    service.shutdown();
+		    return foundResources;
 	}
 
 	private JSONObject handleShare(JSONObject jsonObject, DataOutputStream output) {
