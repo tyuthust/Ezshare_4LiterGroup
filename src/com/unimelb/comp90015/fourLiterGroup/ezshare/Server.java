@@ -61,20 +61,22 @@ public class Server {
 	private ResourceWarehouse resourceWarehouse;
 	// Server List
 	private static Set<String> Servers;
-	private static int intervalTime = 30;
+	private static int intervalTime = 600;
 
 	public Server(ServerCmds cmds) throws UnknownHostException {
 		ServerDebugModel = cmds.debug;
 		ServerHost = InetAddress.getByName(cmds.advertisedhostname);
 		resourceWarehouse = new ResourceWarehouse();
 		this.cmds = cmds;
-		if(-1 == this.cmds.port){
+		if (-1 == this.cmds.port) {
 			this.cmds.port = DEFAULT_PORT;
 		}
 		if (null == this.cmds.secret) {
 			this.cmds.generateSecret();
 		}
-		intervalTime = cmds.exchangeinterval;
+		if (cmds.exchangeinterval > 0) {
+			intervalTime = cmds.exchangeinterval;
+		}
 		Servers = new HashSet() {
 			{
 				add(cmds.advertisedhostname + ":" + Integer.toString(cmds.port));
@@ -488,6 +490,50 @@ public class Server {
 		}
 	}
 
+	private static JSONObject queryRelay(JSONObject jsonObject, String server) throws ParseException {
+		String[] IPandPort = server.split(":");
+		String addr = IPandPort[0];
+		int Port = Integer.parseInt(IPandPort[1]);
+		JSONObject command = new JSONObject();
+		try (Socket socket = new Socket(addr, Port)) {
+			// Output and Input Stream
+
+			DataInputStream input = new DataInputStream(socket.getInputStream());
+			DataOutputStream output = new DataOutputStream(socket.getOutputStream());
+
+			System.out.println("query relay function!");
+			output.writeUTF("I want to connect!");
+			output.flush();
+
+			if (jsonObject.containsKey("relay")) {
+				jsonObject.replace("relay", "false");
+			}
+			// add to logger
+			System.out.println("Query Relay JSONPack:" + jsonObject.toJSONString());
+
+			// Read hello from server..
+			String message = input.readUTF();
+			System.out.println(message);
+
+			// Send RMI to Server
+			output.writeUTF(jsonObject.toJSONString());
+			output.flush();
+
+			// Print out results received from server..
+			JSONParser parser = new JSONParser();
+			while (true) {
+				if (input.available() > 0) {
+					String result = input.readUTF();
+					System.out.println("Received from server: " + result);
+					command = (JSONObject) parser.parse(result);
+				}
+			}
+		} catch (UnknownHostException e) {
+		} catch (IOException e) {
+		}
+		return command;
+	}
+
 	private static void startTimer() {
 		TimerTask task = new TimerTask() {
 			@Override
@@ -503,7 +549,7 @@ public class Server {
 			}
 		};
 		Timer timer = new Timer();
-		timer.schedule(task, 1000 * 5, 1000 * 30);
+		timer.schedule(task, 1000 * 5, intervalTime * 1000);
 	}
 
 	private static String getCurrentTime() {
