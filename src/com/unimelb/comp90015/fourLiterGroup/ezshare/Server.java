@@ -161,6 +161,7 @@ public class Server {
 				}
 			}
 		} catch (IOException | ParseException e) {
+			System.out.println(e.toString());
 			e.printStackTrace();
 		}
 	}
