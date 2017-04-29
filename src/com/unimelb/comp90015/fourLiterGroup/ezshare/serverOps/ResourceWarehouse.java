@@ -255,7 +255,7 @@ public class ResourceWarehouse {
 			return null;
 		}
 		else{
-			return (Resource[])(resources.toArray());
+			return resources.toArray(new Resource[0]);
 		}
 
 	}//end of func

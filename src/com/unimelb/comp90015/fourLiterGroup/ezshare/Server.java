@@ -224,24 +224,24 @@ public class Server {
 		if (cmds.debug) {
 			logger.info(results.toJSONString());
 		}
-		//this try-catch to achieve multicast sending part.
-		try (DatagramSocket SendSocket = new DatagramSocket()) {
-            for (int i = 0; i < Servers.length; i++) {
-            	String msg="aa";
-                String[] addrAndPort=Servers[i].split(":");
-                InetAddress addr = InetAddress.getByName(addrAndPort[0]);
-                int PORT = Integer.parseInt(addrAndPort[1]);
-                // Create a packet that will contain the data
-                // (in the form of bytes) and send it.
-                DatagramPacket msgPacket = new DatagramPacket(msg.getBytes(),msg.getBytes().length, addr, PORT);
-                SendSocket.send(msgPacket);
-     
-                System.out.println("Server sent packet with msg: " +msg);
-                //Thread.sleep(200);
-            }
-        } catch (IOException ex) {
-            ex.printStackTrace();
-        }
+//		//this try-catch to achieve multicast sending part.
+//		try (DatagramSocket SendSocket = new DatagramSocket()) {
+//            for (int i = 0; i < Servers.length; i++) {
+//            	String msg="aa";
+//                String[] addrAndPort=Servers[i].split(":");
+//                InetAddress addr = InetAddress.getByName(addrAndPort[0]);
+//                int PORT = Integer.parseInt(addrAndPort[1]);
+//                // Create a packet that will contain the data
+//                // (in the form of bytes) and send it.
+//                DatagramPacket msgPacket = new DatagramPacket(msg.getBytes(),msg.getBytes().length, addr, PORT);
+//                SendSocket.send(msgPacket);
+//     
+//                System.out.println("Server sent packet with msg: " +msg);
+//                //Thread.sleep(200);
+//            }
+//        } catch (IOException ex) {
+//            ex.printStackTrace();
+//        }
 		return results;
 	}
 
