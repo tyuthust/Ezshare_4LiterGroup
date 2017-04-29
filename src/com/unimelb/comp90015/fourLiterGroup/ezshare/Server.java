@@ -222,9 +222,11 @@ public class Server {
 
 			results.put("response", "success");
 			if (null != hitResources && hitResources.length > 0) {
+				JSONArray resourcesArray = new JSONArray();
 				for (Resource hitResource : hitResources) {
-					results.put("resource", resourcePack(hitResource));
+					resourcesArray.add(resourcePack(hitResource));
 				}
+				results.put("resource", resourcesArray);
 				results.put("resultSize", hitResources.length);
 			} else {
 				results.put("resultSize", 0);
