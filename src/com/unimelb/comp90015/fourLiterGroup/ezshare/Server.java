@@ -346,8 +346,17 @@ public class Server {
 
 	private JSONObject handleExchange(JSONObject jsonObject, DataOutputStream output) {
 		JSONObject results = new JSONObject();
+		int i =0;
 		try {
-			Servers = ServerOperationHandler.exchange(jsonObject).clone();
+			String[] serverlist = ServerOperationHandler.exchange(jsonObject).clone();
+			Servers = new String[serverlist.length];
+			for(String string: serverlist){
+				String[] IPandPort = string.split(":");
+				if(IPandPort[0]!=cmds.advertisedhostname || Integer.parseInt(IPandPort[1])!=cmds.port){
+					Servers[i]=IPandPort[0]+":"+ IPandPort[1];
+					i++;
+				}
+			} 
 			if (cmds.debug) {
 				for (String string : Servers) {
 					logger.info("Server list: " + string);
