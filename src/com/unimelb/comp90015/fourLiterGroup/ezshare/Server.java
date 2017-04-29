@@ -212,9 +212,11 @@ public class Server {
 			IResourceTemplate resource = ServerOperationHandler.query(jsonObject);
 			Resource[] hitResources = this.resourceWarehouse.FindReource(resource);
 			if (null != hitResources) {
+				String serverInfo = ServerHost.getHostAddress() +":"  + this.cmds.port;
 				for (Resource hitresource : hitResources) {
 					if (!hitresource.getOwner().equals(null) && !hitresource.getOwner().equals("")) {
 						hitresource.setOwner("*");
+						hitresource.setEZServer(serverInfo);
 					}
 					resultResources.add(hitresource);
 				}
