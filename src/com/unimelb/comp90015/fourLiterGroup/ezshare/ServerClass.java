@@ -41,7 +41,7 @@ import com.unimelb.comp90015.fourLiterGroup.ezshare.serverOps.Resource;
 import com.unimelb.comp90015.fourLiterGroup.ezshare.serverOps.ResourceWarehouse;
 import com.unimelb.comp90015.fourLiterGroup.ezshare.serverOps.ServerOperationHandler;
 
-public class Server {
+public class ServerClass {
 
 	public static boolean DEFAULT_RELAY_MODE = true;
 	public static int DEFAULT_PORT = 3000;
@@ -56,14 +56,14 @@ public class Server {
 
 	public static InetAddress ServerHost;
 
-	protected static Logger logger = Logger.getLogger(Server.class.getName());
+	protected static Logger logger = Logger.getLogger(ServerClass.class.getName());
 	// Resource Map
 	private ResourceWarehouse resourceWarehouse;
 	// Server List
 	private static Set<String> Servers;
 	private static int intervalTime = 600;
 
-	public Server(ServerCmds cmds) throws UnknownHostException {
+	public ServerClass(ServerCmds cmds) throws UnknownHostException {
 		ServerDebugModel = cmds.debug;
 		ServerHost = InetAddress.getByName(cmds.advertisedhostname);
 		resourceWarehouse = new ResourceWarehouse();

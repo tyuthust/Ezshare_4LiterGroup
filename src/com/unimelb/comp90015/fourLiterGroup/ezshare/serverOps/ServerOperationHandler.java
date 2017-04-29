@@ -11,14 +11,14 @@ import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 
 import com.unimelb.comp90015.fourLiterGroup.ezshare.utils.utils;
-import com.unimelb.comp90015.fourLiterGroup.ezshare.Server;
+import com.unimelb.comp90015.fourLiterGroup.ezshare.ServerClass;
 
 public class ServerOperationHandler {
 	private static Logger logger = Logger.getLogger(ServerOperationHandler.class.getName());
 	
 	public static Resource publish(JSONObject jsonObject) throws OperationRunningException {
 		
-		if(Server.ServerDebugModel){
+		if(ServerClass.ServerDebugModel){
 			logger.setLevel(Level.INFO);
 			logger.info("Publish function");
 		}
@@ -35,7 +35,7 @@ public class ServerOperationHandler {
 
 		Map shareResourceMap = new HashMap();
 		shareResourceMap = (Map) shareResourceJsonObj.clone();
-		if(Server.ServerDebugModel){
+		if(ServerClass.ServerDebugModel){
 			logger.setLevel(Level.INFO);
 			logger.info(shareResourceMap.toString());
 		}
@@ -82,7 +82,7 @@ public class ServerOperationHandler {
 	}
 
 	public static String[] exchange(JSONObject jsonObject) throws OperationRunningException {
-		if(Server.ServerDebugModel){
+		if(ServerClass.ServerDebugModel){
 			logger.setLevel(Level.INFO);
 			logger.info("Exchange function");
 		}
@@ -122,7 +122,7 @@ public class ServerOperationHandler {
 	}
 
 	public static Resource remove(JSONObject jsonObject) throws OperationRunningException {
-		if(Server.ServerDebugModel){
+		if(ServerClass.ServerDebugModel){
 			logger.setLevel(Level.INFO);
 			logger.info("Remove function");
 		}
@@ -131,7 +131,7 @@ public class ServerOperationHandler {
 		removeResourceJsonObj.putAll((Map) jsonObject.get("resource"));
 
 		// If the resource field was not given or not of the correct type
-		if(Server.ServerDebugModel){
+		if(ServerClass.ServerDebugModel){
 			logger.setLevel(Level.INFO);
 			logger.info(removeResourceJsonObj.toJSONString());
 		}
@@ -158,7 +158,7 @@ public class ServerOperationHandler {
 	}
 
 	public static Resource share(JSONObject jsonObject) throws OperationRunningException {
-		if(Server.ServerDebugModel){
+		if(ServerClass.ServerDebugModel){
 			logger.setLevel(Level.INFO);
 			logger.info("Share function");
 		}
@@ -201,7 +201,7 @@ public class ServerOperationHandler {
 	}
 
 	public static Resource query(JSONObject jsonObject) throws OperationRunningException {
-		if(Server.ServerDebugModel){
+		if(ServerClass.ServerDebugModel){
 			logger.setLevel(Level.INFO);
 			logger.info("query function");
 		}
@@ -231,7 +231,7 @@ public class ServerOperationHandler {
 	}
 
 	public static Resource fetch(JSONObject jsonObject) throws OperationRunningException {
-		if(Server.ServerDebugModel){
+		if(ServerClass.ServerDebugModel){
 			logger.setLevel(Level.INFO);
 			logger.info("fetch function");
 		}
@@ -274,7 +274,7 @@ public class ServerOperationHandler {
 			}else{
 				resource.setName("");
 			}
-			if(Server.ServerDebugModel){
+			if(ServerClass.ServerDebugModel){
 				logger.setLevel(Level.INFO);
 				logger.info("The resource name:" + resource.getName());
 			}
@@ -291,7 +291,7 @@ public class ServerOperationHandler {
 			}else{
 				resource.setChannel("");
 			}
-			if(Server.ServerDebugModel){
+			if(ServerClass.ServerDebugModel){
 				logger.setLevel(Level.INFO);
 				logger.info("The resource channel:" + resource.getChannel());
 			}
@@ -308,7 +308,7 @@ public class ServerOperationHandler {
 			}else{
 				resource.setDescription("");
 			}
-			if(Server.ServerDebugModel){
+			if(ServerClass.ServerDebugModel){
 				logger.setLevel(Level.INFO);
 				logger.info("The resource description:" + resource.getDescription());
 			}
@@ -325,7 +325,7 @@ public class ServerOperationHandler {
 			}else{
 				resource.setOwner("");
 			}
-			if(Server.ServerDebugModel){
+			if(ServerClass.ServerDebugModel){
 				logger.setLevel(Level.INFO);
 				logger.info("The resource owner:" + resource.getOwner());
 			}
@@ -343,7 +343,7 @@ public class ServerOperationHandler {
 			}else{
 				throw new OperationRunningException("missing resource uri");
 			}
-			if(Server.ServerDebugModel){
+			if(ServerClass.ServerDebugModel){
 				logger.setLevel(Level.INFO);
 				logger.info("The resource uri:" + resource.getURI());
 			}
@@ -353,7 +353,7 @@ public class ServerOperationHandler {
 		}
 		// ezserver will not be transported when using publish command
 		
-		if(Server.ServerDebugModel){
+		if(ServerClass.ServerDebugModel){
 			logger.setLevel(Level.WARNING);
 			logger.warning("The resource ezserver: null");
 		}
@@ -379,7 +379,7 @@ public class ServerOperationHandler {
 			for (String string : resource.getTags()) {
 				tagList.add(string);
 			}
-			if(Server.ServerDebugModel){
+			if(ServerClass.ServerDebugModel){
 				logger.setLevel(Level.INFO);
 				logger.info("The resource tags:" + tagList.toString());
 			}

@@ -20,14 +20,14 @@ import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 import java.util.logging.*;
 
-public class Client {
+public class ClientClass {
 	private ClientCmds cmds;
 	private static String DEFAULT_HOST = "127.0.0.1";
 	private static int DEFAULT_PORT = 3000;
 	
-	private static Logger logger = Logger.getLogger(Client.class.getName());
+	private static Logger logger = Logger.getLogger(ClientClass.class.getName());
 	
-	public Client(ClientCmds cmds) {
+	public ClientClass(ClientCmds cmds) {
 		this.cmds = cmds;
 	}
 
