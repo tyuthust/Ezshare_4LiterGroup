@@ -9,7 +9,7 @@ public class Resource implements IResourceTemplate {
 	private String URI;
 	private String Channel;
 	private String Owner;
-	private String[] EZserver = null;
+	private String EZserver = null;
 	private long resourceSize;
 
 	public Resource() {
@@ -56,13 +56,9 @@ public class Resource implements IResourceTemplate {
 
 	}
 
-	public void setEZServer(String[] ezservers) {
-		this.EZserver = ezservers.clone();
-		if (null != this.EZserver) {
-			for (String string : this.EZserver) {
-				formatStringOfResource(string);
-			}
-		}
+	public void setEZServer(String ezserver) {
+		this.EZserver = ezserver;
+
 	}
 
 	public void setResourceSize(long size) {
@@ -85,7 +81,7 @@ public class Resource implements IResourceTemplate {
 		return this.Owner;
 	}
 
-	public String[] getEzserver() {
+	public String getEzserver() {
 		return this.EZserver;
 	}
 
