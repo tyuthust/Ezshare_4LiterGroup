@@ -425,13 +425,14 @@ public class Server {
 		if(Servers != null&& Servers.size()>1){
 			Random ran = new Random();
 			int index = ran.nextInt(Servers.size());
+			String selectedServer = "";
 			for (int i = 0; i < index+1; i++) {
 				if(Servers.iterator().hasNext()){
-					Servers.iterator().next();
+					selectedServer = Servers.iterator().next();
 				}			
 			}
 
-			String selectedServer = "";
+			
 			//TODO: add to logger
 			System.out.println("The selected server is:" + selectedServer);
 			String[] IPandPort = selectedServer.split(":");
