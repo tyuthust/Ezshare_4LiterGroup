@@ -228,6 +228,7 @@ public class Server {
 					resultResources.add(hitresource);
 				}
 			}
+			   
 			   queryOtherServers(jsonObject, Servers);
 
 			results.put("response", "success");
