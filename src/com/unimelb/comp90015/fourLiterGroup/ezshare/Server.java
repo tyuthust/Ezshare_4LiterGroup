@@ -421,11 +421,17 @@ public class Server {
 		return results;
 	}
 
-	private static void serverInteraction(String[] Servers) {
-		if(Servers != null){
+	private static void serverInteraction(Set<String> Servers) {
+		if(Servers != null&& Servers.size()>1){
 			Random ran = new Random();
-			int index = ran.nextInt(Servers.length);
-			String selectedServer = Servers[index];
+			int index = ran.nextInt(Servers.size());
+			for (int i = 0; i < index+1; i++) {
+				if(Servers.iterator().hasNext()){
+					Servers.iterator().next();
+				}			
+			}
+
+			String selectedServer = "";
 			//TODO: add to logger
 			System.out.println("The selected server is:" + selectedServer);
 			String[] IPandPort = selectedServer.split(":");
@@ -487,7 +493,7 @@ public class Server {
             @Override
             public void run() {
                 System.out.println("task begin:"+getCurrentTime());
-                //serverInteraction(Servers);
+                serverInteraction(Servers);
                 try {
                     Thread.sleep(1000*3);
                 } catch (InterruptedException e) {
