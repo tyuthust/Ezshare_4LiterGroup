@@ -52,25 +52,30 @@ public class Server {
 	private static int resultSize = 1;
 
 	public static boolean ServerDebugModel = false;
-	
+
 	public static InetAddress ServerHost;
-	
+
 	protected static Logger logger = Logger.getLogger(Server.class.getName());
 	// Resource Map
 	private ResourceWarehouse resourceWarehouse;
 	// Server List
-	private static Set<String> Servers = new HashSet();
+	private static Set<String> Servers;
 	private static int intervalTime = 30;
 
 	public Server(ServerCmds cmds) throws UnknownHostException {
 		ServerDebugModel = cmds.debug;
-		ServerHost =  InetAddress.getByName(cmds.advertisedhostname);
+		ServerHost = InetAddress.getByName(cmds.advertisedhostname);
 		resourceWarehouse = new ResourceWarehouse();
 		this.cmds = cmds;
 		if (null == this.cmds.secret) {
 			this.cmds.generateSecret();
 		}
 		intervalTime = cmds.exchangeinterval;
+		Servers = new HashSet() {
+			{
+				add(cmds.advertisedhostname + ":" + Integer.toString(cmds.port));
+			}
+		};
 	}
 
 	public void run() {
@@ -80,7 +85,7 @@ public class Server {
 	public void setup() {
 		logger.setLevel(Level.INFO);
 		ServerSocketFactory factory = ServerSocketFactory.getDefault();
-		
+
 		// start a Thread Pool. Threads that have not been used for more than
 		// sixty seconds are terminated and removed from the cache.
 		ExecutorService ThreadPool = Executors.newCachedThreadPool();
@@ -95,7 +100,7 @@ public class Server {
 			startTimer();
 			// Wait for connections.
 			while (true) {
-				Socket client = server.accept();	
+				Socket client = server.accept();
 				counter++;
 				System.out.println("Client " + counter + ": Applying for connection!");
 
@@ -227,24 +232,25 @@ public class Server {
 		if (cmds.debug) {
 			logger.info(results.toJSONString());
 		}
-//		//this try-catch to achieve multicast sending part.
-//		try (DatagramSocket SendSocket = new DatagramSocket()) {
-//            for (int i = 0; i < Servers.length; i++) {
-//            	String msg="aa";
-//                String[] addrAndPort=Servers[i].split(":");
-//                InetAddress addr = InetAddress.getByName(addrAndPort[0]);
-//                int PORT = Integer.parseInt(addrAndPort[1]);
-//                // Create a packet that will contain the data
-//                // (in the form of bytes) and send it.
-//                DatagramPacket msgPacket = new DatagramPacket(msg.getBytes(),msg.getBytes().length, addr, PORT);
-//                SendSocket.send(msgPacket);
-//     
-//                System.out.println("Server sent packet with msg: " +msg);
-//                //Thread.sleep(200);
-//            }
-//        } catch (IOException ex) {
-//            ex.printStackTrace();
-//        }
+		// //this try-catch to achieve multicast sending part.
+		// try (DatagramSocket SendSocket = new DatagramSocket()) {
+		// for (int i = 0; i < Servers.length; i++) {
+		// String msg="aa";
+		// String[] addrAndPort=Servers[i].split(":");
+		// InetAddress addr = InetAddress.getByName(addrAndPort[0]);
+		// int PORT = Integer.parseInt(addrAndPort[1]);
+		// // Create a packet that will contain the data
+		// // (in the form of bytes) and send it.
+		// DatagramPacket msgPacket = new
+		// DatagramPacket(msg.getBytes(),msg.getBytes().length, addr, PORT);
+		// SendSocket.send(msgPacket);
+		//
+		// System.out.println("Server sent packet with msg: " +msg);
+		// //Thread.sleep(200);
+		// }
+		// } catch (IOException ex) {
+		// ex.printStackTrace();
+		// }
 		return results;
 	}
 
@@ -349,15 +355,12 @@ public class Server {
 
 	private JSONObject handleExchange(JSONObject jsonObject, DataOutputStream output) {
 		JSONObject results = new JSONObject();
-		int i =0;
+		int i = 0;
 		try {
-			String[] serverlist = ServerOperationHandler.exchange(jsonObject).clone();
-			Servers.add(cmds.advertisedhostname+":"+Integer.toString(cmds.port));
-			//Collection<String> sl = new Collection<Stirng>(serverlist);
-			//Servers.
-			for(String string: serverlist){
+			String[] serverlist = ServerOperationHandler.exchange(jsonObject);
+			for (String string : serverlist) {
 				Servers.add(string);
-			} 
+			}
 			if (cmds.debug) {
 				for (String string : Servers) {
 					logger.info("Server list: " + string);
@@ -421,94 +424,86 @@ public class Server {
 		return results;
 	}
 
-	private static void serverInteraction(Set<String> Servers) {
-		if(Servers != null&& Servers.size()>1){
-			Random ran = new Random();
-			int index = ran.nextInt(Servers.size());
-			for (int i = 0; i < index+1; i++) {
-				if(Servers.iterator().hasNext()){
-					Servers.iterator().next();
-				}			
-			}
+	private static void serverInteraction(HashSet<String> Servers) {
+		Random ran = new Random();
+		
+		// String selectedServer = Servers[index];
+		// TODO: add to logger
+		// System.out.println("The selected server is:" + selectedServer);
+		// String[] IPandPort = selectedServer.split(":");
+		// String addr = IPandPort[0];
+		// int Port = Integer.parseInt(IPandPort[1]);
+		String ip = "127.0.0.1";
+		int port = 3001;
 
-			String selectedServer = "";
-			//TODO: add to logger
-			System.out.println("The selected server is:" + selectedServer);
-			String[] IPandPort = selectedServer.split(":");
-			String addr = IPandPort[0];
-			int Port = Integer.parseInt(IPandPort[1]);
-		}
-			String ip = "10.0.0.1";
-			int port = 8081;
-			
-			try (Socket socket = new Socket(ip, port)) {
-				// Output and Input Stream
-				
-				DataInputStream input = new DataInputStream(socket.getInputStream());
-				DataOutputStream output = new DataOutputStream(socket.getOutputStream());
-				System.out.println("exchange function!");
-				output.writeUTF("I want to connect!");
-				output.flush();
-				
-	    		JSONObject jsonObject = new JSONObject();
-	    		JSONArray jsonMap = new JSONArray();
-	    		
-				jsonObject.put("command", "EXCHANGE");
-				if (Servers != null) {
-					for (String string :Servers) {
-						String[] DomainAndPort = string.split(":");
-						JSONObject jsonObject2 = new JSONObject();
-						jsonObject2.put("hostname", DomainAndPort[0]);
-						jsonObject2.put("port", DomainAndPort[1]);
-						jsonMap.add(jsonObject2);
-					}
-					jsonObject.put("serverList", jsonMap);
+		try (Socket socket = new Socket(ip, port)) {
+			// Output and Input Stream
+
+			DataInputStream input = new DataInputStream(socket.getInputStream());
+			DataOutputStream output = new DataOutputStream(socket.getOutputStream());
+			System.out.println("exchange function!");
+			output.writeUTF("I want to connect!");
+			output.flush();
+
+			JSONObject jsonObject = new JSONObject();
+			JSONArray jsonMap = new JSONArray();
+
+			jsonObject.put("command", "EXCHANGE");
+			if (Servers != null) {
+				for (String string : Servers) {
+					String[] DomainAndPort = string.split(":");
+					JSONObject jsonObject2 = new JSONObject();
+					jsonObject2.put("hostname", DomainAndPort[0]);
+					jsonObject2.put("port", DomainAndPort[1]);
+					jsonMap.add(jsonObject2);
 				}
-	    		//add to logger
-				System.out.println("Sending Exchange command is :"+jsonObject.toJSONString());
-	    		
-	    		// Read hello from server..
-	    		String message = input.readUTF();
-	    		System.out.println(message);
-	    		
-	    		// Send RMI to Server
-	    		output.writeUTF(jsonObject.toJSONString());
-	    		output.flush();
-	    		
-	    		// Print out results received from server..
-	    		String result = input.readUTF();
-	    		System.out.println("Received from server: "+result);
-	    		
-			} catch (UnknownHostException e) {
-			} catch (IOException e) {
-
+				jsonObject.put("serverList", jsonMap);
 			}
-		//}else{
-			//System.out.println("The server list is null !");
-		//}	
+			// add to logger
+			System.out.println("Sending Exchange command is :" + jsonObject.toJSONString());
+
+			// Read hello from server..
+			String message = input.readUTF();
+			System.out.println(message);
+
+			// Send RMI to Server
+			output.writeUTF(jsonObject.toJSONString());
+			output.flush();
+
+			// Print out results received from server..
+			String result = input.readUTF();
+			System.out.println("Received from server: " + result);
+
+		} catch (UnknownHostException e) {
+		} catch (IOException e) {
+
+		}
+		// }else{
+		// System.out.println("The server list is null !");
+		// }
 	}
-	
-	private static void startTimer(){
-        TimerTask task = new TimerTask() {
-            @Override
-            public void run() {
-                System.out.println("task begin:"+getCurrentTime());
-                serverInteraction(Servers);
-                try {
-                    Thread.sleep(1000*3);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-                System.out.println("task end:"+getCurrentTime());
-            }
-        };
-        Timer timer = new Timer();
-        timer.schedule(task,1000*5,1000*30);
-    }
-	
-    private static String getCurrentTime() {
-        Date date = new Date();
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-        return sdf.format(date);
-    }
+
+	private static void startTimer() {
+		TimerTask task = new TimerTask() {
+			@Override
+			public void run() {
+				System.out.println("task begin:" + getCurrentTime());
+				serverInteraction();
+				try {
+					Thread.sleep(1000 * 3);
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+				System.out.println("task end:" + getCurrentTime());
+			}
+		};
+		Timer timer = new Timer();
+		timer.schedule(task, 1000 * 5, 1000 * 30);
+	}
+
+	private static String getCurrentTime() {
+		Date date = new Date();
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+		return sdf.format(date);
+	}
 }
