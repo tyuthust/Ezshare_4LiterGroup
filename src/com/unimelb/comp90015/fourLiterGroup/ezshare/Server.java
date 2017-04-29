@@ -7,14 +7,19 @@ import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.net.UnknownHostException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
+import java.util.Random;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import javax.net.ServerSocketFactory;
 
+import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
@@ -36,7 +41,7 @@ public class Server {
 	private static int counter = 0;
 
 	private static int resultSize = 1;
-	
+
 	public static boolean ServerDebugModel = false;
 
 	protected static Logger logger = Logger.getLogger(Server.class.getName());
@@ -151,7 +156,7 @@ public class Server {
 			Resource resource = ServerOperationHandler.publish(jsonObject);
 			if (resourceWarehouse.AddResource(resource)) {
 				results.put("response", "success");
-				
+
 				resourceWarehouse.printResourceMap();
 			} else {
 				results.put("response", "error");
@@ -178,30 +183,25 @@ public class Server {
 		try {
 			IResourceTemplate resource = ServerOperationHandler.query(jsonObject);
 			Resource[] hitResources = this.resourceWarehouse.FindReource(resource);
-			if(null != hitResources){
+			if (null != hitResources) {
 				for (Resource hitresource : hitResources) {
-					if(!hitresource.getOwner().equals(null)&&!hitresource.getOwner().equals("")){
+					if (!hitresource.getOwner().equals(null) && !hitresource.getOwner().equals("")) {
 						hitresource.setOwner("*");
 					}
 					resultResources.add(hitresource);
 				}
 			}
-			
-			
-			
+
 			results.put("response", "success");
-			if(null!= hitResources&&hitResources.length>0 ){
+			if (null != hitResources && hitResources.length > 0) {
 				for (Resource hitResource : hitResources) {
 					results.put("resource", resourcePack(hitResource));
 				}
 				results.put("resultSize", hitResources.length);
-			}
-			else {
+			} else {
 				results.put("resultSize", 0);
 			}
 
-			
-			
 		} catch (OperationRunningException e) {
 			// TODO Auto-generated catch block
 			results.put("response", "error");
@@ -212,8 +212,6 @@ public class Server {
 		}
 		return results;
 	}
-
-		
 
 	private JSONObject handleShare(JSONObject jsonObject, DataOutputStream output) {
 		JSONObject results = new JSONObject();
@@ -336,7 +334,7 @@ public class Server {
 		return results;
 
 	}
-	
+
 	private JSONObject handleRemove(JSONObject jsonObject, DataOutputStream output) {
 		JSONObject results = new JSONObject();
 		try {
@@ -344,7 +342,7 @@ public class Server {
 			if (resourceWarehouse.RemoveResource(resource)) {
 				results.put("response", "success");
 				resourceWarehouse.printResourceMap();
-			}else{
+			} else {
 				results.put("response", "error");
 				results.put("errorMessage", "cannot remove resource");
 			}
@@ -357,7 +355,7 @@ public class Server {
 		}
 		return results;
 	}
-	
+
 	private JSONObject resourcePack(Resource resource) {
 		JSONObject results = new JSONObject();
 		results.put("name", resource.getName());
@@ -381,5 +379,61 @@ public class Server {
 		}
 		return results;
 	}
+
+	private void serverInteraction(String[] Servers) {
+		Random ran = new Random();
+		int index = ran.nextInt(Servers.length);
+		String selectedServer = Servers[index];
+		String[] IPandPort = selectedServer.split(":");
+		String addr = IPandPort[0];
+		int Port = Integer.parseInt(IPandPort[1]);
+		try (Socket socket = new Socket(addr, Port)) {
+			// Output and Input Stream
+			DataInputStream input = new DataInputStream(socket.getInputStream());
+			DataOutputStream output = new DataOutputStream(socket.getOutputStream());
+
+    		JSONObject jsonObject = new JSONObject();
+    		JSONArray jsonMap = new JSONArray();
+			jsonObject.put("command", "EXCHANGE");
+			if (Servers != null) {
+				for (String string :Servers) {
+					String[] DomainAndPort = string.split(":");
+					JSONObject jsonObject2 = new JSONObject();
+					jsonObject2.put("hostname", DomainAndPort[0]);
+					jsonObject2.put("port", DomainAndPort[1]);
+					jsonMap.add(jsonObject2);
+				}
+				jsonObject.put("serverList", jsonMap);
+			} else {
+				jsonObject.put("serverList", null);
+			}
+    		
+    		//add to logger
+			System.out.println(jsonObject.toJSONString());
+    		
+    		// Read hello from server..
+    		String message = input.readUTF();
+    		System.out.println(message);
+    		
+    		// Send RMI to Server
+    		output.writeUTF(jsonObject.toJSONString());
+    		output.flush();
+    		
+    		// Print out results received from server..
+    		String result = input.readUTF();
+    		System.out.println("Received from server: "+result);
+    		
+		} catch (UnknownHostException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+
+		}
+		
+	}
 	
+    private static String getCurrentTime() {
+        Date date = new Date();
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        return sdf.format(date);
+    }
 }

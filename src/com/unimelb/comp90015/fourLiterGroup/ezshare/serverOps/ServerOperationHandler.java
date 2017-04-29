@@ -331,6 +331,7 @@ public class ServerOperationHandler {
 			}
 			//System.out.println("The resource owner:" + resource.getOwner());
 		}else{
+			//TODO: need to debug
 			throw new OperationRunningException("missing resource owner");
 		}
 		
