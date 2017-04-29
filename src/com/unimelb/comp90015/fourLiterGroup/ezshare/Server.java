@@ -77,6 +77,7 @@ public class Server {
 	public void setup() {
 		logger.setLevel(Level.INFO);
 		ServerSocketFactory factory = ServerSocketFactory.getDefault();
+		
 		// start a Thread Pool. Threads that have not been used for more than
 		// sixty seconds are terminated and removed from the cache.
 		ExecutorService ThreadPool = Executors.newCachedThreadPool();
@@ -88,11 +89,10 @@ public class Server {
 			}
 			System.out.println("Waiting for client connection..");
 			// sending server list if it exist
-			
+			startTimer();
 			// Wait for connections.
 			while (true) {
-				Socket client = server.accept();
-				//startTimer();
+				Socket client = server.accept();	
 				counter++;
 				System.out.println("Client " + counter + ": Applying for connection!");
 
@@ -140,8 +140,6 @@ public class Server {
 						// results = publish(command);
 					} else if (command.get("command").equals("QUERY")) {
 						results = handleQuery(command, output);
-						 
-						
 						// results = query(command);
 					} else if (command.get("command").equals("REMOVE")) {
 						results = handleRemove(command, output);
@@ -354,7 +352,6 @@ public class Server {
 					logger.info("Server list: " + string);
 				}
 			}
-
 			results.put("response", "success");
 		} catch (OperationRunningException e) {
 			results.put("response", "error");
@@ -414,20 +411,31 @@ public class Server {
 	}
 
 	private static void serverInteraction(String[] Servers) {
-		if(Servers!=null){
+		if(Servers != null){
 			Random ran = new Random();
 			int index = ran.nextInt(Servers.length);
 			String selectedServer = Servers[index];
+			//TODO: add to logger
+			System.out.println("The selected server is:" + selectedServer);
 			String[] IPandPort = selectedServer.split(":");
 			String addr = IPandPort[0];
 			int Port = Integer.parseInt(IPandPort[1]);
-			try (Socket socket = new Socket(addr, Port)) {
+		}
+			String ip = "10.0.0.1";
+			int port = 8081;
+			
+			try (Socket socket = new Socket(ip, port)) {
 				// Output and Input Stream
+				
 				DataInputStream input = new DataInputStream(socket.getInputStream());
 				DataOutputStream output = new DataOutputStream(socket.getOutputStream());
-
+				System.out.println("exchange function!");
+				output.writeUTF("I want to connect!");
+				output.flush();
+				
 	    		JSONObject jsonObject = new JSONObject();
 	    		JSONArray jsonMap = new JSONArray();
+	    		
 				jsonObject.put("command", "EXCHANGE");
 				if (Servers != null) {
 					for (String string :Servers) {
@@ -438,10 +446,7 @@ public class Server {
 						jsonMap.add(jsonObject2);
 					}
 					jsonObject.put("serverList", jsonMap);
-				} else {
-					jsonObject.put("serverList", null);
 				}
-	    		
 	    		//add to logger
 				System.out.println("Sending Exchange command is :"+jsonObject.toJSONString());
 	    		
@@ -458,13 +463,12 @@ public class Server {
 	    		System.out.println("Received from server: "+result);
 	    		
 			} catch (UnknownHostException e) {
-				e.printStackTrace();
 			} catch (IOException e) {
 
 			}
-		}else{
-			System.out.println("The server list is null !");
-		}	
+		//}else{
+			//System.out.println("The server list is null !");
+		//}	
 	}
 	
 	private static void startTimer(){

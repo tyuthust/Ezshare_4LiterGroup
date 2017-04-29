@@ -90,4 +90,13 @@ public class UtilsTest {
 		String IP = "266.0.0.0";
 		assertEquals(utils.isAddress(IP),false);
 	}
+	
+	@Test
+	public void testOther(){
+		String[] strs = new String[0];
+		for(String str: strs){
+			System.out.println(str);
+		}
+		assertEquals(0,0);
+	}
 }
