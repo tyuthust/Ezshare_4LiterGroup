@@ -228,7 +228,6 @@ public class Server {
 					resultResources.add(hitresource);
 				}
 			}
-			   queryOtherServers();
 
 			results.put("response", "success");
 			if (null != hitResources && hitResources.length > 0) {
