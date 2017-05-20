@@ -55,6 +55,8 @@ public class ClientOptionInterpretor implements OptionInterpretor {
         	String hostpara = cmd.getOptionValue("host");
         	if(isStringDomain(hostpara)||isStringIPAddr(hostpara)){
         		clientCmds.host = hostpara;
+        	}else if (hostpara.equals("localhost")){
+        		clientCmds.host = hostpara;
         	}
         }
         if(cmd.hasOption("name"))

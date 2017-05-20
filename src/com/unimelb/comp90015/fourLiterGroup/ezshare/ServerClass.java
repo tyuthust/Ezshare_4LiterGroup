@@ -99,9 +99,9 @@ public class ServerClass {
 		try (ServerSocket server = factory.createServerSocket(this.cmds.port)) {
 			if (cmds.debug) {
 				logger.info("setting server debug on. ");
-				logger.info("The port: " + cmds.port);
+				logger.info("The IP:" + cmds.advertisedhostname + "\n" + "The port:" + cmds.port);
 			}
-			System.out.println("Sever set up successfully!");
+			
 			// sending server list if it exist
 			startTimer();
 			// Wait for connections.
