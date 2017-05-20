@@ -101,15 +101,12 @@ public class ServerClass {
 				logger.info("setting server debug on. ");
 				logger.info("The port: " + cmds.port);
 			}
-			System.out.println("Waiting for client connection..");
+			System.out.println("Sever set up successfully!");
 			// sending server list if it exist
 			startTimer();
 			// Wait for connections.
 			while (true) {
 				Socket client = server.accept();
-				counter++;
-				System.out.println("Client " + counter + ": Applying for connection!");
-
 				// Start a new thread for a connection in the thread pool
 				Thread t = new Thread(() -> serveClient(client));
 				ThreadPool.execute(t);
@@ -130,13 +127,6 @@ public class ServerClass {
 			DataInputStream input = new DataInputStream(clientSocket.getInputStream());
 			// Output Stream
 			DataOutputStream output = new DataOutputStream(clientSocket.getOutputStream());
-			System.out.println("CLIENT: " + input.readUTF());
-
-			if (cmds.debug) {
-				logger.info("[sent]" + "Server: Hi Client " + counter + " !!!");
-			}
-			output.writeUTF("Server: Hi Client " + counter + " !!!");
-			output.flush();
 
 			// Receive more data..
 			while (true) {
@@ -453,10 +443,7 @@ public class ServerClass {
 
 				DataInputStream input = new DataInputStream(socket.getInputStream());
 				DataOutputStream output = new DataOutputStream(socket.getOutputStream());
-				System.out.println("exchange function!");
-				output.writeUTF("I want to connect!");
-				output.flush();
-
+				System.out.println("Server Interaction");
 				JSONObject jsonObject = new JSONObject();
 				JSONArray jsonMap = new JSONArray();
 
@@ -466,7 +453,8 @@ public class ServerClass {
 						String[] DomainAndPort = string.split(":");
 						JSONObject jsonObject2 = new JSONObject();
 						jsonObject2.put("hostname", DomainAndPort[0]);
-						jsonObject2.put("port", DomainAndPort[1]);
+						int port = Integer.parseInt(DomainAndPort[1]);
+						jsonObject2.put("port", port);
 						jsonMap.add(jsonObject2);
 					}
 					jsonObject.put("serverList", jsonMap);
@@ -542,14 +530,14 @@ public class ServerClass {
 		TimerTask task = new TimerTask() {
 			@Override
 			public void run() {
-				System.out.println("task begin:" + getCurrentTime());
+				//System.out.println("task begin:" + getCurrentTime());
 				serverInteraction(Servers);
 				try {
 					Thread.sleep(1000 * 3);
 				} catch (InterruptedException e) {
 					e.printStackTrace();
 				}
-				System.out.println("task end:" + getCurrentTime());
+				//System.out.println("task end:" + getCurrentTime());
 			}
 		};
 		Timer timer = new Timer();

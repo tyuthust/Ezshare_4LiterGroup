@@ -6,11 +6,14 @@ import java.util.Set;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
+import com.sun.media.jfxmedia.logging.Logger;
+import com.unimelb.comp90015.fourLiterGroup.ezshare.ServerClass;
+
 public class ResourceWarehouse {
 
 	// Channel,<Uri,<Owner,Resource>>
 	private HashMap<String, HashMap<String, HashMap<String, Resource>>> resourceMap;
-
+	
 	public ResourceWarehouse() {
 		resourceMap = new HashMap<>();
 	}
@@ -44,6 +47,7 @@ public class ResourceWarehouse {
 					ownerResourceMap.put(resource.getOwner(), resource);
 
 					resourceMap.get(resource.getChannel()).put(resource.getURI(), ownerResourceMap);
+					//TODO: add debug mode
 					System.out.println("SuccessAddFIle!");
 				}
 			} else {
@@ -53,6 +57,7 @@ public class ResourceWarehouse {
 				uriResourceMap.put(resource.getURI(), ownerResourceMap);
 
 				resourceMap.put(resource.getChannel(), uriResourceMap);
+				//TODO: add debug mode
 				System.out.println("SuccessAddFIle!");
 				
 			}

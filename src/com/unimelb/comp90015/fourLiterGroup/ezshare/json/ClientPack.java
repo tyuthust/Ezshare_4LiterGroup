@@ -96,7 +96,8 @@ public class ClientPack implements JSONPack {
 					String[] DomainAndPort = string.split(":");
 					JSONObject jsonObject2 = new JSONObject();
 					jsonObject2.put("hostname", DomainAndPort[0]);
-					jsonObject2.put("port", DomainAndPort[1]);
+					int port = Integer.parseInt(DomainAndPort[1]);
+					jsonObject2.put("port", port);
 					jsonMap.add(jsonObject2);
 					// jsonobjectList.add(jsonObject2);
 					// jsonObject1.put("serverList", jsonObject2);
