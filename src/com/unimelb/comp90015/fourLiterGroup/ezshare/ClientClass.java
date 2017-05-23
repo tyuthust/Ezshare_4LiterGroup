@@ -25,7 +25,6 @@ public class ClientClass {
 	private static String DEFAULT_HOST = "127.0.0.1";
 	private static int DEFAULT_PORT = 3000;
 	private boolean flag = true;
-	private static String LOCAL_HOST = "localhost";
 	
 	private static Logger logger = Logger.getLogger(ClientClass.class.getName());
 
@@ -46,6 +45,9 @@ public class ClientClass {
 			logger.info("The IP:" + cmds.host + "\n" + "The port:" + cmds.port);
 		}
 		if (null == this.cmds.host || this.cmds.host.isEmpty()) {
+			this.cmds.host = DEFAULT_HOST;
+		}
+		if ("localhost" == this.cmds.host){
 			this.cmds.host = DEFAULT_HOST;
 		}
 		if (-1 == this.cmds.port) {
