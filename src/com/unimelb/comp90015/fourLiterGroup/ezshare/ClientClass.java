@@ -69,7 +69,8 @@ public class ClientClass {
 				output.writeUTF(JsonCmdsString);
 				output.flush();
 				JSONParser parser = new JSONParser();
-
+				
+				
 				// Print out results received from server..
 				while (true == flag) {
 					if (input.available() > 0) {
@@ -78,7 +79,22 @@ public class ClientClass {
 						System.out.println("Received from server: " + result);
 
 						JSONObject command = (JSONObject) parser.parse(result);
-
+						
+						//find the end of the connection
+						if (command.containsKey("response")){
+							if(command.get("response").toString().equals("success")
+									&& false == this.cmds.fetch 
+									&& false == this.cmds.query){
+								flag = false;
+							} else if(command.get("response").toString().equals("error")){
+								if (command.containsKey("errorMessage")){
+									flag = false;
+								}
+							}
+							
+						}
+						
+						
 						// Check the command name
 						if (command.containsKey("command_name")) {
 							if (command.get("command_name").toString().equals("SENDING_FILE")) {
@@ -123,6 +139,7 @@ public class ClientClass {
 										break;
 									}
 								}
+								flag = false;
 								System.out.println("File received!");
 								downloadingFile.close();
 							}
