@@ -15,6 +15,8 @@ import java.net.Socket;
 import java.net.UnknownHostException;
 import java.util.Arrays;
 import java.util.Scanner;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -26,11 +28,13 @@ public class ClientClass {
 	private static String DEFAULT_HOST = "127.0.0.1";
 	private static int DEFAULT_PORT = 3000;
 	private boolean flag = true;
+	private boolean subscribeFlag = false;
 	
 	private static Logger logger = Logger.getLogger(ClientClass.class.getName());
 
 	public ClientClass(ClientCmds cmds) {
 		this.cmds = cmds;
+		subscribeFlag = this.cmds.subscribe;
 	}
 
 	public void run() {
@@ -71,86 +75,102 @@ public class ClientClass {
 				output.flush();
 				JSONParser parser = new JSONParser();
 				
-				// Print out results received from server..
-				while (flag) {
-					if (input.available() > 0) {
-
-						String result = input.readUTF();
-						System.out.println("Received from server: " + result);
-
-						JSONObject command = (JSONObject) parser.parse(result);
-						
-						//find the end of the connection
-						if (command.containsKey("response")){
-							if(command.get("response").toString().equals("success")
-									&& false == this.cmds.fetch 
-									&& false == this.cmds.query){
-								flag = false;
-							} else if(command.get("response").toString().equals("error")){
-								if (command.containsKey("errorMessage")){
-									flag = false;
-								}
-							}
+				if (true == subscribeFlag){
+					this.startListen();
+					while (subscribeFlag) {
+						if (input.available() > 0) {
+							String result = input.readUTF();
+							System.out.println("Received from server: " + result);
+							JSONObject command = (JSONObject) parser.parse(result);
+							
+							System.out.println(subscribeFlag);
 						}
-						
-						
-						// Check the command name
-						if (command.containsKey("command_name")) {
-							if (command.get("command_name").toString().equals("SENDING_FILE")) {
+					}
+					System.out.println(subscribeFlag);
+				}else{
+					// Print out results received from server..
+					while (flag) {
+						if (input.available() > 0) {
 
-								// The file location
-								String fileName = "client_files/" + command.get("file_name");
-								if (cmds.debug) {
-									logger.info("[sent] " + fileName);
-								}
-								// Create a RandomAccessFile to read and write
-								// the output file.
-								RandomAccessFile downloadingFile = new RandomAccessFile(fileName, "rw");
+							String result = input.readUTF();
+							System.out.println("Received from server: " + result);
 
-								// Find out how much size is remaining to get
-								// from the server.
-								long fileSizeRemaining = (Long) command.get("file_size");
-
-								int chunkSize = setChunkSize(fileSizeRemaining);
-
-								// Represents the receiving buffer
-								byte[] receiveBuffer = new byte[chunkSize];
-
-								// Variable used to read if there are remaining
-								// size left to read.
-								int num;
-
-								System.out.println("Downloading " + fileName + " of size " + fileSizeRemaining);
-								while ((num = input.read(receiveBuffer)) > 0) {
-									// Write the received bytes into the
-									// RandomAccessFile
-									downloadingFile.write(Arrays.copyOf(receiveBuffer, num));
-
-									// Reduce the file size left to read..
-									fileSizeRemaining -= num;
-
-									// Set the chunkSize again
-									chunkSize = setChunkSize(fileSizeRemaining);
-									receiveBuffer = new byte[chunkSize];
-
-									// If you're done then break
-									if (fileSizeRemaining == 0) {
-										break;
+							JSONObject command = (JSONObject) parser.parse(result);
+							
+							//find the end of the connection
+							if (command.containsKey("response")){
+								if(command.get("response").toString().equals("success")
+										&& false == this.cmds.fetch 
+										&& false == this.cmds.query){
+									flag = false;
+								} else if(command.get("response").toString().equals("error")){
+									if (command.containsKey("errorMessage")){
+										flag = false;
 									}
 								}
-								flag = false;
-								System.out.println("File received!");
-								downloadingFile.close();
+							}
+							
+							// Check the command name
+							if (command.containsKey("command_name")) {
+								if (command.get("command_name").toString().equals("SENDING_FILE")) {
+
+									// The file location
+									String fileName = "client_files/" + command.get("file_name");
+									if (cmds.debug) {
+										logger.info("[sent] " + fileName);
+									}
+									// Create a RandomAccessFile to read and write
+									// the output file.
+									RandomAccessFile downloadingFile = new RandomAccessFile(fileName, "rw");
+
+									// Find out how much size is remaining to get
+									// from the server.
+									long fileSizeRemaining = (Long) command.get("file_size");
+
+									int chunkSize = setChunkSize(fileSizeRemaining);
+
+									// Represents the receiving buffer
+									byte[] receiveBuffer = new byte[chunkSize];
+
+									// Variable used to read if there are remaining
+									// size left to read.
+									int num;
+
+									System.out.println("Downloading " + fileName + " of size " + fileSizeRemaining);
+									while ((num = input.read(receiveBuffer)) > 0) {
+										// Write the received bytes into the
+										// RandomAccessFile
+										downloadingFile.write(Arrays.copyOf(receiveBuffer, num));
+
+										// Reduce the file size left to read..
+										fileSizeRemaining -= num;
+
+										// Set the chunkSize again
+										chunkSize = setChunkSize(fileSizeRemaining);
+										receiveBuffer = new byte[chunkSize];
+
+										
+										
+										// If you're done then break
+										if (fileSizeRemaining == 0) {
+											break;
+										}
+									}
+									flag = false;
+									System.out.println("File received!");
+									downloadingFile.close();
+								}
 							}
 						}
+						if(this.cmds.subscribe){
+							Scanner scanner =  new Scanner(System.in);
+							String Str = scanner.nextLine();
+							System.out.println(Str);
+						}
 					}
-					if(this.cmds.subscribe){
-						Scanner scanner =  new Scanner(System.in);
-						String Str = scanner.nextLine();
-						System.out.println(Str);
-					}
-				}
 
+				}
+				
 
 			} catch (UnknownHostException e) {
 				e.printStackTrace();
@@ -175,5 +195,20 @@ public class ClientClass {
 
 		return chunkSize;
 	}
+	
+	//Listen the enter from console
+	public void startListen(){
+		//create a specific thread to listen the consle input
+		Thread thread = new Thread(new Runnable() {
+			@Override
+			public void run(){
+				Scanner scanner = new Scanner(System.in);
+				scanner.nextLine();
+				subscribeFlag = false;
+			}
+		});
+		thread.start();
+	}
+	
 
 }
