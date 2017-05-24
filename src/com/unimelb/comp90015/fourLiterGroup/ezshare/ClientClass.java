@@ -14,6 +14,7 @@ import java.io.RandomAccessFile;
 import java.net.Socket;
 import java.net.UnknownHostException;
 import java.util.Arrays;
+import java.util.Scanner;
 
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -70,9 +71,8 @@ public class ClientClass {
 				output.flush();
 				JSONParser parser = new JSONParser();
 				
-				
 				// Print out results received from server..
-				while (true == flag) {
+				while (flag) {
 					if (input.available() > 0) {
 
 						String result = input.readUTF();
@@ -91,7 +91,6 @@ public class ClientClass {
 									flag = false;
 								}
 							}
-							
 						}
 						
 						
@@ -145,7 +144,13 @@ public class ClientClass {
 							}
 						}
 					}
+					if(this.cmds.subscribe){
+						Scanner scanner =  new Scanner(System.in);
+						String Str = scanner.nextLine();
+						System.out.println(Str);
+					}
 				}
+
 
 			} catch (UnknownHostException e) {
 				e.printStackTrace();

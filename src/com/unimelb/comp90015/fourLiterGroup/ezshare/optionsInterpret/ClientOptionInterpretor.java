@@ -28,6 +28,9 @@ public class ClientOptionInterpretor implements OptionInterpretor {
 		options.addOption("publish",false,"publish resource on server");
 		options.addOption("query",false,"query for resources from server");
 		options.addOption("remove",false,"remove resource from server");
+		options.addOption("subscribe", false, "subscribe resource");
+		options.addOption("unsubscribe", false, "unsubscribe resource");
+		options.addOption("id", true, "id of the client");
 		options.addOption("secret", true, "secret");
 		options.addOption("servers", true, "server list, host1:port1,host2:port2,...");
 		options.addOption("share",false,"share resource on server");
@@ -41,6 +44,18 @@ public class ClientOptionInterpretor implements OptionInterpretor {
 		cmd = parser.parse(options,args);
 
         ClientCmds clientCmds = new ClientCmds();
+        //Project2
+        if(cmd.hasOption("subscribe")){
+        	clientCmds.subscribe = true;
+        }
+        if(cmd.hasOption("unsubscribe")){
+        	clientCmds.unsubscribe = true;
+        }
+        if(cmd.hasOption("id")){
+        	clientCmds.id = cmd.getOptionValue("id");
+        }
+        
+        //Project1
         if(cmd.hasOption("channel"))
         	clientCmds.channel = cmd.getOptionValue("channel");
         if(cmd.hasOption("debug"))

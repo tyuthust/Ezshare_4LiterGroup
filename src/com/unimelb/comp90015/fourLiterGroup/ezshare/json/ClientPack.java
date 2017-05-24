@@ -107,7 +107,22 @@ public class ClientPack implements JSONPack {
 			} else {
 				jsonObject.put("serverList", null);
 			}
+		} else if (clientcmds.subscribe) {// pack query command in json
+			JSONObject queryJsonObjectChild = new JSONObject();
+
+			putNameInJSONObj(queryJsonObjectChild, clientcmds.name);
+			putTagsInJSONObj(queryJsonObjectChild, clientcmds.tags);
+			putDescriptionInJSONObj(queryJsonObjectChild, clientcmds.description);
+			putUriInJSONObj(queryJsonObjectChild, clientcmds.uri);
+			putChannelInJSONObj(queryJsonObjectChild, clientcmds.channel);
+			putOwnerInJSONObj(queryJsonObjectChild, clientcmds.owner);
+			putEzserverInJSONObj(queryJsonObjectChild, clientcmds.servers);
+
+			jsonObject.put("resourceTemplate", queryJsonObjectChild);
+			jsonObject.put("relay", "true");
+			jsonObject.put("command", "subsribe");
 		}
+		
 		return jsonObject;
 	}
 

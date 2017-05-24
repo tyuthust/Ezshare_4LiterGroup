@@ -39,8 +39,8 @@ public class ClientCmds extends Cmds {
 	public String[] tags = null;	// each element in tags means one tag
 	public String uri = null;
 	
-	
-	
-
-
+	// Project2 
+	public String id;
+	public boolean subscribe = false;
+	public boolean unsubscribe = false;
 }
