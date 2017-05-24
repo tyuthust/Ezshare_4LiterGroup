@@ -53,6 +53,7 @@ public class ServerClass {
 	private static int resultSize = 1;
 
 	public static boolean ServerDebugModel = false;
+	private static boolean flag = true;
 
 	public static InetAddress ServerHost;
 
@@ -106,6 +107,7 @@ public class ServerClass {
 			startTimer();
 			// Wait for connections.
 			while (true) {
+				flag = true;
 				Socket client = server.accept();
 				// Start a new thread for a connection in the thread pool
 				Thread t = new Thread(() -> serveClient(client));
@@ -129,7 +131,7 @@ public class ServerClass {
 			DataOutputStream output = new DataOutputStream(clientSocket.getOutputStream());
 
 			// Receive more data..
-			while (true) {
+			while (flag) {
 				if (input.available() > 0) {
 					// Attempt to convert read data to JSON
 					JSONObject command = (JSONObject) parser.parse(input.readUTF());
@@ -157,11 +159,17 @@ public class ServerClass {
 					} else if (command.get("command").equals("EXCHANGE")) {
 						results = handleExchange(command, output);
 						// results = exchange(command);
+					} else if (command.get("command").equals("SUBSCRIBE")){
+						//TODO: address subscribe function
+						flag = !flag;
 					}
 					output.writeUTF(results.toJSONString());
 					output.flush();
+					flag = !flag;
 				}
 			}
+			clientSocket.close();
+			System.out.println("close the clientSocket");
 		} catch (IOException | ParseException e) {
 			System.out.println(e.toString());
 			e.printStackTrace();

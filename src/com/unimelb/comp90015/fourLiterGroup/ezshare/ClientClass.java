@@ -82,11 +82,12 @@ public class ClientClass {
 							String result = input.readUTF();
 							System.out.println("Received from server: " + result);
 							JSONObject command = (JSONObject) parser.parse(result);
-							
-							System.out.println(subscribeFlag);
+
 						}
 					}
-					System.out.println(subscribeFlag);
+					
+					socket.close();
+					System.out.println("close the socket");
 				}else{
 					// Print out results received from server..
 					while (flag) {
@@ -162,11 +163,8 @@ public class ClientClass {
 								}
 							}
 						}
-						if(this.cmds.subscribe){
-							Scanner scanner =  new Scanner(System.in);
-							String Str = scanner.nextLine();
-							System.out.println(Str);
-						}
+						socket.close();
+						System.out.println("close the socket");
 					}
 
 				}
@@ -205,6 +203,7 @@ public class ClientClass {
 				Scanner scanner = new Scanner(System.in);
 				scanner.nextLine();
 				subscribeFlag = false;
+				scanner.close();
 			}
 		});
 		thread.start();
