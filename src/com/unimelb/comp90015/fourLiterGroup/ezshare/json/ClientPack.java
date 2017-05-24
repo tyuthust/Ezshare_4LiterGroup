@@ -119,8 +119,12 @@ public class ClientPack implements JSONPack {
 			putEzserverInJSONObj(queryJsonObjectChild, clientcmds.servers);
 
 			jsonObject.put("resourceTemplate", queryJsonObjectChild);
+			jsonObject.put("id", clientcmds.id);
 			jsonObject.put("relay", "true");
-			jsonObject.put("command", "subsribe");
+			jsonObject.put("command", "SUBSCRIBE");
+		} else if (clientcmds.unsubscribe){
+			jsonObject.put("id", clientcmds.id);
+			jsonObject.put("command", "UNSUBSCRIBE");
 		}
 		
 		return jsonObject;
