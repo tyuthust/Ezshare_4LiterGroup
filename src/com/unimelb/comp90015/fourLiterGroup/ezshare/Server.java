@@ -213,7 +213,10 @@ public class Server {
 		ArrayList<Resource> resultResources = new ArrayList<>();
 		Boolean relayMode = DEFAULT_RELAY_MODE;
 		if (null != jsonObject.get("relay")) {
-			relayMode = jsonObject.get("relay") == "false" ? false : true;
+			relayMode = 
+					//false;
+					(jsonObject.get("relay").equals("true")) ? true:false;
+			System.out.println("Query Relay"+ (relayMode?"On":"Off"));
 		}
 		try {
 			IResourceTemplate resource = ServerOperationHandler.query(jsonObject);
@@ -221,24 +224,31 @@ public class Server {
 			if (null != hitResources) {
 				String serverInfo = ServerHost.getHostAddress() +":"  + this.cmds.port;
 				for (Resource hitresource : hitResources) {
-					if (!hitresource.getOwner().equals(null) && !hitresource.getOwner().equals("")) {
+//					if (!hitresource.getOwner().equals(null) && !hitresource.getOwner().equals("")) {
 						hitresource.setOwner("*");
 						hitresource.setEZServer(serverInfo);
-					}
+//					}
 					resultResources.add(hitresource);
 				}
 			}
-			   
-			   queryOtherServers(jsonObject, Servers);
+			if(relayMode){
+				JSONObject relayjsonObject = (JSONObject) jsonObject.clone();
+				relayjsonObject.replace("relay", "false");
+				ArrayList<Resource> relayResources = queryOtherServers(jsonObject, Servers);
+				logger.setLevel(Level.INFO);
+				logger.info("relayResources Total Number: " + relayResources.size());
+				resultResources.addAll(relayResources);
+			}
+
 
 			results.put("response", "success");
-			if (null != hitResources && hitResources.length > 0) {
+			if (null != resultResources && resultResources.size() > 0) {
 				JSONArray resourcesArray = new JSONArray();
-				for (Resource hitResource : hitResources) {
-					resourcesArray.add(resourcePack(hitResource));
+				for (Resource resultResource : resultResources) {
+					resourcesArray.add(resourcePack(resultResource));
 				}
 				results.put("resource", resourcesArray);
-				results.put("resultSize", hitResources.length);
+				results.put("resultSize", resultResources.size());
 			} else {
 				results.put("resultSize", 0);
 			}
@@ -265,12 +275,36 @@ public class Server {
 		        @Override
 		        public ArrayList<Resource> call() throws Exception
 		        {
-		            // your code to be timed
+		        	ArrayList<Resource> relayQueryResources = new ArrayList<>();
+		            
+		        	// your code to be timed
+		        	
 		        	for (String string : serverList) {
-			        	queryRelay(jsonObject, string);
-					}
+		        		//not query the server self
+		        		System.out.println("Check server"+ string);
+		        		if(!string.equals(ServerHost.getHostAddress()+":"+cmds.port)){
+		        			System.out.println("Query server "+ string);
+				        	JSONObject queryResult = queryRelay(jsonObject, string);
+				        	System.out.println(queryResult.toString());
+				        	JSONArray resourceArray = new JSONArray();
+				        	if(queryResult.containsKey("resource")){
+					        	resourceArray = (JSONArray) queryResult.get("resource");
+					        	for (int i = 0; i < resourceArray.size(); i++) {
+					        		
+									relayQueryResources.add(
+											ServerOperationHandler.convertJSONOBjectResourceToResource(
+													(JSONObject)resourceArray.get(i)
+													)
+											);
+									
+								}
+				        	}
 
-		        	return null;
+		        		}
+					}
+		        	logger.setLevel(Level.INFO);
+		        	logger.info("Total Hit Query From Relay: " + relayQueryResources.size());
+		        	return relayQueryResources;
 		        }
 		    };
 
@@ -293,6 +327,8 @@ public class Server {
 		        future.cancel(true);
 		    }
 		    service.shutdown();
+		    logger.setLevel(Level.INFO);
+		    logger.info("queryOtherServers success with " + foundResources.size() + " Resosurces");
 		    return foundResources;
 	}
 
@@ -557,11 +593,13 @@ public class Server {
 
 			// Print out results received from server..
 			JSONParser parser = new JSONParser();
-			while (true) {
+			boolean unfinish = true;
+			while (unfinish) {
 				if (input.available() > 0) {
 					String result = input.readUTF();
 					System.out.println("Received from server: " + result);
 					command = (JSONObject) parser.parse(result);
+					unfinish = false;
 				}
 			}
 		} catch (UnknownHostException e) {

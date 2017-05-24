@@ -271,7 +271,7 @@ public class ResourceWarehouse {
 							}
 							for (Resource resource : candidateResourceList) {
 								//check all targetTags in the resource
-								if (checkStringArrayContainsAllListedString(resource.getTags(), targetTags)) {
+								if (!checkStringArrayContainsAllListedString(resource.getTags(), targetTags)) {
 									candidateResourceList.remove(resource);
 								}
 							}
