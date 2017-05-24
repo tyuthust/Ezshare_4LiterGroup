@@ -412,7 +412,7 @@ public class ServerOperationHandler {
 			}else{
 				resource.setName("");
 			}
-			if(Server.ServerDebugModel){
+			if(ServerClass.ServerDebugModel){
 				logger.setLevel(Level.INFO);
 				logger.info("The resource name:" + resource.getName());
 			}
@@ -429,7 +429,7 @@ public class ServerOperationHandler {
 			}else{
 				resource.setChannel("");
 			}
-			if(Server.ServerDebugModel){
+			if(ServerClass.ServerDebugModel){
 				logger.setLevel(Level.INFO);
 				logger.info("The resource channel:" + resource.getChannel());
 			}
@@ -446,7 +446,7 @@ public class ServerOperationHandler {
 			}else{
 				resource.setDescription("");
 			}
-			if(Server.ServerDebugModel){
+			if(ServerClass.ServerDebugModel){
 				logger.setLevel(Level.INFO);
 				logger.info("The resource description:" + resource.getDescription());
 			}
@@ -463,7 +463,7 @@ public class ServerOperationHandler {
 			}else{
 				resource.setOwner("");
 			}
-			if(Server.ServerDebugModel){
+			if(ServerClass.ServerDebugModel){
 				logger.setLevel(Level.INFO);
 				logger.info("The resource owner:" + resource.getOwner());
 			}
@@ -481,7 +481,7 @@ public class ServerOperationHandler {
 			}else{
 				throw new OperationRunningException("missing resource uri");
 			}
-			if(Server.ServerDebugModel){
+			if(ServerClass.ServerDebugModel){
 				logger.setLevel(Level.INFO);
 				logger.info("The resource uri:" + resource.getURI());
 			}
@@ -510,7 +510,7 @@ public class ServerOperationHandler {
 			for (String string : resource.getTags()) {
 				tagList.add(string);
 			}
-			if(Server.ServerDebugModel){
+			if(ServerClass.ServerDebugModel){
 				logger.setLevel(Level.INFO);
 				logger.info("The resource tags:" + tagList.toString());
 			}
@@ -533,7 +533,7 @@ public class ServerOperationHandler {
 			} else {
 				throw new OperationRunningException("missing resource ezserver");
 			}
-			if (Server.ServerDebugModel) {
+			if (ServerClass.ServerDebugModel) {
 				logger.setLevel(Level.INFO);
 				logger.info("The resource server:" + resource.getEzserver());
 			}

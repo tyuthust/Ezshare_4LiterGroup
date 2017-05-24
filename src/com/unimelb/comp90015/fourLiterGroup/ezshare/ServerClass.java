@@ -206,7 +206,7 @@ public class ServerClass {
 			relayMode = 
 					//false;
 					(jsonObject.get("relay").equals("true")) ? true:false;
-			System.out.println("Query Relay"+ (relayMode?"On":"Off"));
+			System.out.println("Query Relay "+ (relayMode?"On":"Off"));
 		}
 		try {
 			IResourceTemplate resource = ServerOperationHandler.query(jsonObject);
@@ -224,9 +224,16 @@ public class ServerClass {
 			if(relayMode){
 				JSONObject relayjsonObject = (JSONObject) jsonObject.clone();
 				relayjsonObject.replace("relay", "false");
+				if(ServerDebugModel){
+					logger.setLevel(Level.INFO);
+					logger.info("Start Realy");
+				}
 				ArrayList<Resource> relayResources = queryOtherServers(jsonObject, Servers);
-				logger.setLevel(Level.INFO);
-				logger.info("relayResources Total Number: " + relayResources.size());
+				if(ServerDebugModel){
+					logger.setLevel(Level.INFO);
+					logger.info("relayResources Total Number: " + relayResources.size());
+					logger.info("End Relay");
+				}
 				resultResources.addAll(relayResources);
 			}
 
@@ -249,7 +256,7 @@ public class ServerClass {
 			results.put("errorMessage", e.toString());
 		}
 		finally {
-			if (cmds.debug) {
+			if (ServerDebugModel) {
 				logger.info(results.toJSONString());
 			}
 			return results;
@@ -271,9 +278,8 @@ public class ServerClass {
 		        	
 		        	for (String string : serverList) {
 		        		//not query the server self
-		        		System.out.println("Check server"+ string);
 		        		if(!string.equals(ServerHost.getHostAddress()+":"+cmds.port)){
-		        			System.out.println("Query server "+ string);
+		        			System.out.println("Query server: "+ string);
 				        	JSONObject queryResult = queryRelay(jsonObject, string);
 				        	System.out.println(queryResult.toString());
 				        	JSONArray resourceArray = new JSONArray();
@@ -292,8 +298,10 @@ public class ServerClass {
 
 		        		}
 					}
-		        	logger.setLevel(Level.INFO);
-		        	logger.info("Total Hit Query From Relay: " + relayQueryResources.size());
+		        	if(ServerDebugModel){
+		        		logger.setLevel(Level.INFO);
+			        	logger.info("Total Hit Query From Relay: " + relayQueryResources.size());
+		        	}
 		        	return relayQueryResources;
 		        }
 		    };
@@ -317,8 +325,6 @@ public class ServerClass {
 		        future.cancel(true);
 		    }
 		    service.shutdown();
-		    logger.setLevel(Level.INFO);
-		    logger.info("queryOtherServers success with " + foundResources.size() + " Resosurces");
 		    return foundResources;
 	}
 
@@ -562,18 +568,12 @@ public class ServerClass {
 			DataOutputStream output = new DataOutputStream(socket.getOutputStream());
 
 			System.out.println("query relay function!");
-			output.writeUTF("I want to connect!");
-			output.flush();
 
 			if (jsonObject.containsKey("relay")) {
 				jsonObject.replace("relay", "false");
 			}
 			// add to logger
 			System.out.println("Query Relay JSONPack:" + jsonObject.toJSONString());
-
-			// Read hello from server..
-			String message = input.readUTF();
-			System.out.println(message);
 
 			// Send RMI to Server
 			output.writeUTF(jsonObject.toJSONString());
