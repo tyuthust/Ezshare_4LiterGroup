@@ -19,7 +19,9 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
 import java.util.Set;
 import java.util.Timer;
@@ -209,6 +211,7 @@ public class ServerClass {
 		try {
 			IResourceTemplate resource = ServerOperationHandler.subscribe(jsonObject);
 			subscribeList.put(id, resource);
+			printSubList(subscribeList);
 			if (!jsonObject.containsKey("resourceTemplate")) {
 				results.put("response", "error");
 				results.put("errorMessage", "missing resourceTemplate");
@@ -226,7 +229,8 @@ public class ServerClass {
 
 	private JSONObject handleUnsubscribe(JSONObject jsonObject, DataOutputStream output) {
 		String id = jsonObject.get("id").toString();
-
+		int size = getSubListSize(subscribeList);
+		System.out.println("the current size =" + size);
 		// remove id and resource into the subscribeList
 		subscribeList.remove(id);
 		JSONObject results = new JSONObject();
@@ -661,6 +665,26 @@ public class ServerClass {
 		timer.schedule(task, 1000 * 5, intervalTime * 1000);
 	}
 
+	private static void printSubList(HashMap<String, IResourceTemplate> subscribeList){
+		Map<String, IResourceTemplate> map = subscribeList;
+		Iterator<Map.Entry<String, IResourceTemplate>> entries = map.entrySet().iterator();
+		while (entries.hasNext()){
+			Map.Entry<String, IResourceTemplate> entry = entries.next();
+			System.out.println("id: " + entry.getKey());
+			System.out.println("ResourceTemplate's uri: " + entry.getValue().getURI().toString());
+		}
+	}
+	
+	private static int getSubListSize(HashMap<String, IResourceTemplate> subscribeList){
+		int counter = 0;
+		Map<String, IResourceTemplate> map = subscribeList;
+		Iterator<Map.Entry<String, IResourceTemplate>> entries = map.entrySet().iterator();
+		while (entries.hasNext()){
+			counter++;
+		}
+		return counter;
+	}
+	
 	private static String getCurrentTime() {
 		Date date = new Date();
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
