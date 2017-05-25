@@ -15,8 +15,6 @@ import java.net.Socket;
 import java.net.UnknownHostException;
 import java.util.Arrays;
 import java.util.Scanner;
-import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
 
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;

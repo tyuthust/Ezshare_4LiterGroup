@@ -49,14 +49,14 @@ public class ServerClass {
 
 	private ServerCmds cmds;
 	private static int resultSize = 1;
-	
+
 	// A list to save client subscribed info
-	private HashMap<String,Resource> subscribeList = new HashMap<String,Resource>();
-	
+	private HashMap<String, Resource> subscribeList = new HashMap<String, Resource>();
+
 	public static boolean ServerDebugModel = false;
 	// A flag to judge the while loop in socket.accept function
 	private static boolean flag = true;
-	
+
 	// A flag to judge the subscribeModel
 	private static boolean subscribeModel = false;
 
@@ -107,13 +107,14 @@ public class ServerClass {
 				logger.info("setting server debug on. ");
 				logger.info("The IP:" + cmds.advertisedhostname + "\n" + "The port:" + cmds.port);
 			}
-			
-			// sending server list if it exist
-			startTimer();
+
+			// serverInteraction function
+			// startTimer();
 			// Wait for connections.
 			while (true) {
 				flag = true;
 				Socket client = server.accept();
+
 				// Start a new thread for a connection in the thread pool
 				Thread t = new Thread(() -> serveClient(client));
 				ThreadPool.execute(t);
@@ -126,6 +127,8 @@ public class ServerClass {
 	}
 
 	private void serveClient(Socket client) {
+		boolean subflag = false;
+		String id = null;
 		try (Socket clientSocket = client) {
 
 			// The JSON Parser
@@ -164,19 +167,26 @@ public class ServerClass {
 					} else if (command.get("command").equals("EXCHANGE")) {
 						results = handleExchange(command, output);
 						// results = exchange(command);
-					} else if (command.get("command").equals("SUBSCRIBE")){
-						results = handleSubscribe(command,output);
-					} else if (command.get("command").equals("UNSUBSCRIBE")){
-						results = handleUnsubscribe(command,output);
+					} else if (command.get("command").equals("SUBSCRIBE")) {
+						results = handleSubscribe(command, output);
+					} else if (command.get("command").equals("UNSUBSCRIBE")) {
+						results = handleUnsubscribe(command, output);
 					}
-					
+
 					output.writeUTF(results.toJSONString());
 					output.flush();
-					
-					if(subscribeModel){
+
+					// judge whether the subcribeList contains
+					// the id of the client in this thread
+					// if no, close the clientsocket and close the thread
+					if (command.containsKey("id")) {
+						id = command.get("id").toString();
+						subflag = subscribeList.containsKey(id);
+					}
+					if (subflag) {
 						flag = !flag;
 					}
-					flag = ! flag;
+					flag = !flag;
 				}
 			}
 			clientSocket.close();
@@ -186,25 +196,24 @@ public class ServerClass {
 		}
 	}
 
-	private JSONObject handleSubscribe(JSONObject jsonObject, DataOutputStream output){
-		//TODO: address subscribe function
+	private JSONObject handleSubscribe(JSONObject jsonObject, DataOutputStream output) {
+		// TODO: address subscribe function
 		subscribeModel = true;
 		System.out.println("subscribe function");
 		JSONObject results = new JSONObject();
 		results.put("response", "success");
 		return results;
 	}
-	
-	private JSONObject handleUnsubscribe(JSONObject jsonObject, DataOutputStream output){
-		//TODO: address unsubscribe function
+
+	private JSONObject handleUnsubscribe(JSONObject jsonObject, DataOutputStream output) {
+		// TODO: address unsubscribe function
 		subscribeModel = false;
 		System.out.println("unsubscribe function");
 		JSONObject results = new JSONObject();
 		results.put("response", "success");
 		return results;
 	}
-	
-	
+
 	private JSONObject handlePublish(JSONObject jsonObject, DataOutputStream output) {
 		JSONObject results = new JSONObject();
 		try {
@@ -239,7 +248,7 @@ public class ServerClass {
 			IResourceTemplate resource = ServerOperationHandler.query(jsonObject);
 			Resource[] hitResources = this.resourceWarehouse.FindReource(resource);
 			if (null != hitResources) {
-				String serverInfo = ServerHost.getHostAddress() +":"  + this.cmds.port;
+				String serverInfo = ServerHost.getHostAddress() + ":" + this.cmds.port;
 				for (Resource hitresource : hitResources) {
 					if (!hitresource.getOwner().equals(null) && !hitresource.getOwner().equals("")) {
 						hitresource.setOwner("*");
@@ -567,14 +576,14 @@ public class ServerClass {
 		TimerTask task = new TimerTask() {
 			@Override
 			public void run() {
-				//System.out.println("task begin:" + getCurrentTime());
+				// System.out.println("task begin:" + getCurrentTime());
 				serverInteraction(Servers);
 				try {
 					Thread.sleep(1000 * 3);
 				} catch (InterruptedException e) {
 					e.printStackTrace();
 				}
-				//System.out.println("task end:" + getCurrentTime());
+				// System.out.println("task end:" + getCurrentTime());
 			}
 		};
 		Timer timer = new Timer();
