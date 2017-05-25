@@ -57,9 +57,6 @@ public class ServerClass {
 	// A flag to judge the while loop in socket.accept function
 	private static boolean flag = true;
 
-	// A flag to judge the subscribeModel
-	private static boolean subscribeModel = false;
-
 	public static InetAddress ServerHost;
 
 	protected static Logger logger = Logger.getLogger(ServerClass.class.getName());
@@ -179,11 +176,12 @@ public class ServerClass {
 					// judge whether the subcribeList contains
 					// the id of the client in this thread
 					// if no, close the clientsocket and close the thread
-					if (command.containsKey("id")) {
+					
+					if(command.containsKey("id")){
 						id = command.get("id").toString();
 						subflag = subscribeList.containsKey(id);
 					}
-					if (subflag) {
+					if(subflag){
 						flag = !flag;
 					}
 					flag = !flag;
@@ -196,18 +194,17 @@ public class ServerClass {
 		}
 	}
 
-	private JSONObject handleSubscribe(JSONObject jsonObject, DataOutputStream output) {
-		// TODO: address subscribe function
-		subscribeModel = true;
+
+	private JSONObject handleSubscribe(JSONObject jsonObject, DataOutputStream output){
+		//TODO: address subscribe function
 		System.out.println("subscribe function");
 		JSONObject results = new JSONObject();
 		results.put("response", "success");
 		return results;
 	}
 
-	private JSONObject handleUnsubscribe(JSONObject jsonObject, DataOutputStream output) {
-		// TODO: address unsubscribe function
-		subscribeModel = false;
+	private JSONObject handleUnsubscribe(JSONObject jsonObject, DataOutputStream output){
+		//TODO: address unsubscribe function
 		System.out.println("unsubscribe function");
 		JSONObject results = new JSONObject();
 		results.put("response", "success");
