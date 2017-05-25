@@ -10,9 +10,9 @@ EZShare.Client -query -debug  -port 3000
 
 :
 EZShare.Client -publish -host 127.0.0.1 -port 3000 -name "Unimelb website" -tags web,html -description "The main page for the University of Melbourne" -uri http://www.bilibili.com -channel My_private_channel -secret 749481
-EZShare.Client -publish -host 127.0.0.1 -port 3000 -name "Unimelb website" -tags assignment,DS -description ��Too much assignments�� -uri http://www.google.com -channel My_public_channel -secret 749481
-EZShare.Client -publish -host 127.0.0.1 -port 3000 -name ��Ezshare�� -tags assignment,DS -description ��Too much assignments�� -uri http://www.bilibili.com -channel My_public_channel -secret 749481 -owner Gary
-EZShare.Client -publish -host 127.0.0.1 -port 3000 -tags assignment,DS -description ��Too much assignments�� -uri http://www.bilibili.com -channel My_public_channel -secret 749481 -owner Gary
+EZShare.Client -publish -host 127.0.0.1 -port 3000 -name "Unimelb website" -tags assignment,DS -description "Too much assignments" -uri http://www.google.com -channel My_public_channel -secret 749481
+EZShare.Client -publish -host 127.0.0.1 -port 3000 -name "Ezshare" -tags assignment,DS -description "Too much assignments" -uri http://www.bilibili.com -channel My_public_channel -secret 749481 -owner Gary
+EZShare.Client -publish -host 127.0.0.1 -port 3000 -tags assignment,DS -description "Too much assignments" -uri http://www.bilibili.com -channel My_public_channel -secret 749481 -owner Gary
 EZShare.Server -advertisedhostname 127.0.0.1 -port 3000 -secret 749481 -debug
 EZShare.Client -query -host 127.0.0.1 -port 3000 -name "Unimelb website" -uri http://www.bilibili.com -channel My_public_channel
 

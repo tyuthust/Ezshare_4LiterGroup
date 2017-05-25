@@ -24,8 +24,14 @@ import java.util.Random;
 import java.util.Set;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.FutureTask;
+import java.util.concurrent.RunnableFuture;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 import javax.net.ServerSocketFactory;
 
@@ -46,6 +52,7 @@ public class ServerClass {
 
 	public static boolean DEFAULT_RELAY_MODE = true;
 	public static int DEFAULT_PORT = 3000;
+	public static int DEFAULT_QUERY_TIMEOUT = 6000;
 
 	private ServerCmds cmds;
 	private static int resultSize = 1;
@@ -239,7 +246,10 @@ public class ServerClass {
 		ArrayList<Resource> resultResources = new ArrayList<>();
 		Boolean relayMode = DEFAULT_RELAY_MODE;
 		if (null != jsonObject.get("relay")) {
-			relayMode = jsonObject.get("relay") == "false" ? false : true;
+			relayMode = 
+					//false;
+					(jsonObject.get("relay").equals("true")) ? true:false;
+			System.out.println("Query Relay "+ (relayMode?"On":"Off"));
 		}
 		try {
 			IResourceTemplate resource = ServerOperationHandler.query(jsonObject);
@@ -247,22 +257,38 @@ public class ServerClass {
 			if (null != hitResources) {
 				String serverInfo = ServerHost.getHostAddress() + ":" + this.cmds.port;
 				for (Resource hitresource : hitResources) {
-					if (!hitresource.getOwner().equals(null) && !hitresource.getOwner().equals("")) {
+//					if (!hitresource.getOwner().equals(null) && !hitresource.getOwner().equals("")) {
 						hitresource.setOwner("*");
 						hitresource.setEZServer(serverInfo);
-					}
+//					}
 					resultResources.add(hitresource);
 				}
 			}
+			if(relayMode){
+				JSONObject relayjsonObject = (JSONObject) jsonObject.clone();
+				relayjsonObject.replace("relay", "false");
+				if(ServerDebugModel){
+					logger.setLevel(Level.INFO);
+					logger.info("Start Realy");
+				}
+				ArrayList<Resource> relayResources = queryOtherServers(jsonObject, Servers);
+				if(ServerDebugModel){
+					logger.setLevel(Level.INFO);
+					logger.info("relayResources Total Number: " + relayResources.size());
+					logger.info("End Relay");
+				}
+				resultResources.addAll(relayResources);
+			}
+
 
 			results.put("response", "success");
-			if (null != hitResources && hitResources.length > 0) {
+			if (null != resultResources && resultResources.size() > 0) {
 				JSONArray resourcesArray = new JSONArray();
-				for (Resource hitResource : hitResources) {
-					resourcesArray.add(resourcePack(hitResource));
+				for (Resource resultResource : resultResources) {
+					resourcesArray.add(resourcePack(resultResource));
 				}
 				results.put("resource", resourcesArray);
-				results.put("resultSize", hitResources.length);
+				results.put("resultSize", resultResources.size());
 			} else {
 				results.put("resultSize", 0);
 			}
@@ -272,29 +298,77 @@ public class ServerClass {
 			results.put("response", "error");
 			results.put("errorMessage", e.toString());
 		}
-		if (cmds.debug) {
-			logger.info(results.toJSONString());
+		finally {
+			if (ServerDebugModel) {
+				logger.info(results.toJSONString());
+			}
+			return results;
 		}
-		// //this try-catch to achieve multicast sending part.
-		// try (DatagramSocket SendSocket = new DatagramSocket()) {
-		// for (int i = 0; i < Servers.length; i++) {
-		// String msg="aa";
-		// String[] addrAndPort=Servers[i].split(":");
-		// InetAddress addr = InetAddress.getByName(addrAndPort[0]);
-		// int PORT = Integer.parseInt(addrAndPort[1]);
-		// // Create a packet that will contain the data
-		// // (in the form of bytes) and send it.
-		// DatagramPacket msgPacket = new
-		// DatagramPacket(msg.getBytes(),msg.getBytes().length, addr, PORT);
-		// SendSocket.send(msgPacket);
-		//
-		// System.out.println("Server sent packet with msg: " +msg);
-		// //Thread.sleep(200);
-		// }
-		// } catch (IOException ex) {
-		// ex.printStackTrace();
-		// }
-		return results;
+
+
+
+	}
+
+	private ArrayList<Resource> queryOtherServers(JSONObject jsonObject,Set<String> serverList) {
+		Callable<ArrayList<Resource>> run = new Callable<ArrayList<Resource>>()
+		    {
+		        @Override
+		        public ArrayList<Resource> call() throws Exception
+		        {
+		        	ArrayList<Resource> relayQueryResources = new ArrayList<>();
+		            
+		        	// your code to be timed
+		        	
+		        	for (String string : serverList) {
+		        		//not query the server self
+		        		if(!string.equals(ServerHost.getHostAddress()+":"+cmds.port)){
+		        			System.out.println("Query server: "+ string);
+				        	JSONObject queryResult = queryRelay(jsonObject, string);
+				        	System.out.println(queryResult.toString());
+				        	JSONArray resourceArray = new JSONArray();
+				        	if(queryResult.containsKey("resource")){
+					        	resourceArray = (JSONArray) queryResult.get("resource");
+					        	for (int i = 0; i < resourceArray.size(); i++) {
+					        		
+									relayQueryResources.add(
+											ServerOperationHandler.convertJSONOBjectResourceToResource(
+													(JSONObject)resourceArray.get(i)
+													)
+											);
+									
+								}
+				        	}
+
+		        		}
+					}
+		        	if(ServerDebugModel){
+		        		logger.setLevel(Level.INFO);
+			        	logger.info("Total Hit Query From Relay: " + relayQueryResources.size());
+		        	}
+		        	return relayQueryResources;
+		        }
+		    };
+
+		    RunnableFuture future = new FutureTask(run);
+		    ExecutorService service = Executors.newSingleThreadExecutor();
+		    service.execute(future);
+		    ArrayList<Resource> foundResources = null;
+		    try
+		    {
+		        try {
+		        	foundResources = (ArrayList<Resource>) future.get(DEFAULT_QUERY_TIMEOUT, TimeUnit.MILLISECONDS);
+				} catch (InterruptedException | ExecutionException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+		    }
+		    catch (TimeoutException ex)
+		    {
+		        // timed out. Try to stop the code if possible.
+		        future.cancel(true);
+		    }
+		    service.shutdown();
+		    return foundResources;
 	}
 
 	private JSONObject handleShare(JSONObject jsonObject, DataOutputStream output) {
@@ -537,8 +611,6 @@ public class ServerClass {
 			DataOutputStream output = new DataOutputStream(socket.getOutputStream());
 
 			System.out.println("query relay function!");
-			output.writeUTF("I want to connect!");
-			output.flush();
 
 			if (jsonObject.containsKey("relay")) {
 				jsonObject.replace("relay", "false");
@@ -546,21 +618,19 @@ public class ServerClass {
 			// add to logger
 			System.out.println("Query Relay JSONPack:" + jsonObject.toJSONString());
 
-			// Read hello from server..
-			String message = input.readUTF();
-			System.out.println(message);
-
 			// Send RMI to Server
 			output.writeUTF(jsonObject.toJSONString());
 			output.flush();
 
 			// Print out results received from server..
 			JSONParser parser = new JSONParser();
-			while (true) {
+			boolean unfinish = true;
+			while (unfinish) {
 				if (input.available() > 0) {
 					String result = input.readUTF();
 					System.out.println("Received from server: " + result);
 					command = (JSONObject) parser.parse(result);
+					unfinish = false;
 				}
 			}
 		} catch (UnknownHostException e) {
