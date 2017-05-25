@@ -58,7 +58,7 @@ public class ServerClass {
 	private static int resultSize = 1;
 
 	// A list to save client subscribed info
-	private HashMap<String, Resource> subscribeList = new HashMap<String, Resource>();
+	private HashMap<String, IResourceTemplate> subscribeList = new HashMap<String, IResourceTemplate>();
 
 	public static boolean ServerDebugModel = false;
 	// A flag to judge the while loop in socket.accept function
@@ -183,12 +183,12 @@ public class ServerClass {
 					// judge whether the subcribeList contains
 					// the id of the client in this thread
 					// if no, close the clientsocket and close the thread
-					
-					if(command.containsKey("id")){
+
+					if (command.containsKey("id")) {
 						id = command.get("id").toString();
 						subflag = subscribeList.containsKey(id);
 					}
-					if(subflag){
+					if (subflag) {
 						flag = !flag;
 					}
 					flag = !flag;
@@ -201,20 +201,35 @@ public class ServerClass {
 		}
 	}
 
-
-	private JSONObject handleSubscribe(JSONObject jsonObject, DataOutputStream output){
-		//TODO: address subscribe function
-		System.out.println("subscribe function");
+	private JSONObject handleSubscribe(JSONObject jsonObject, DataOutputStream output) {
+		String id = jsonObject.get("id").toString();
 		JSONObject results = new JSONObject();
-		results.put("response", "success");
+
+		// TODO: to judge the valid of the jsonObject
+		try {
+			IResourceTemplate resource = ServerOperationHandler.subscribe(jsonObject);
+			subscribeList.put(id, resource);
+			if (!jsonObject.containsKey("resourceTemplate")) {
+				results.put("response", "error");
+				results.put("errorMessage", "missing resourceTemplate");
+			} else {
+				// TODO: add id and resource into the subscribeList
+				results.put("response", "success");
+				results.put("id", id);
+			}
+		} catch (OperationRunningException e) {
+			results.put("response", "error");
+			results.put("errorMessage", e.toString());
+		}
 		return results;
 	}
 
-	private JSONObject handleUnsubscribe(JSONObject jsonObject, DataOutputStream output){
-		//TODO: address unsubscribe function
-		System.out.println("unsubscribe function");
+	private JSONObject handleUnsubscribe(JSONObject jsonObject, DataOutputStream output) {
+		String id = jsonObject.get("id").toString();
+
+		// remove id and resource into the subscribeList
+		subscribeList.remove(id);
 		JSONObject results = new JSONObject();
-		results.put("response", "success");
 		return results;
 	}
 
@@ -246,10 +261,10 @@ public class ServerClass {
 		ArrayList<Resource> resultResources = new ArrayList<>();
 		Boolean relayMode = DEFAULT_RELAY_MODE;
 		if (null != jsonObject.get("relay")) {
-			relayMode = 
-					//false;
-					(jsonObject.get("relay").equals("true")) ? true:false;
-			System.out.println("Query Relay "+ (relayMode?"On":"Off"));
+			relayMode =
+					// false;
+					(jsonObject.get("relay").equals("true")) ? true : false;
+			System.out.println("Query Relay " + (relayMode ? "On" : "Off"));
 		}
 		try {
 			IResourceTemplate resource = ServerOperationHandler.query(jsonObject);
@@ -257,29 +272,29 @@ public class ServerClass {
 			if (null != hitResources) {
 				String serverInfo = ServerHost.getHostAddress() + ":" + this.cmds.port;
 				for (Resource hitresource : hitResources) {
-//					if (!hitresource.getOwner().equals(null) && !hitresource.getOwner().equals("")) {
-						hitresource.setOwner("*");
-						hitresource.setEZServer(serverInfo);
-//					}
+					// if (!hitresource.getOwner().equals(null) &&
+					// !hitresource.getOwner().equals("")) {
+					hitresource.setOwner("*");
+					hitresource.setEZServer(serverInfo);
+					// }
 					resultResources.add(hitresource);
 				}
 			}
-			if(relayMode){
+			if (relayMode) {
 				JSONObject relayjsonObject = (JSONObject) jsonObject.clone();
 				relayjsonObject.replace("relay", "false");
-				if(ServerDebugModel){
+				if (ServerDebugModel) {
 					logger.setLevel(Level.INFO);
 					logger.info("Start Realy");
 				}
 				ArrayList<Resource> relayResources = queryOtherServers(jsonObject, Servers);
-				if(ServerDebugModel){
+				if (ServerDebugModel) {
 					logger.setLevel(Level.INFO);
 					logger.info("relayResources Total Number: " + relayResources.size());
 					logger.info("End Relay");
 				}
 				resultResources.addAll(relayResources);
 			}
-
 
 			results.put("response", "success");
 			if (null != resultResources && resultResources.size() > 0) {
@@ -297,78 +312,67 @@ public class ServerClass {
 			// TODO Auto-generated catch block
 			results.put("response", "error");
 			results.put("errorMessage", e.toString());
-		}
-		finally {
+		} finally {
 			if (ServerDebugModel) {
 				logger.info(results.toJSONString());
 			}
 			return results;
 		}
 
-
-
 	}
 
-	private ArrayList<Resource> queryOtherServers(JSONObject jsonObject,Set<String> serverList) {
-		Callable<ArrayList<Resource>> run = new Callable<ArrayList<Resource>>()
-		    {
-		        @Override
-		        public ArrayList<Resource> call() throws Exception
-		        {
-		        	ArrayList<Resource> relayQueryResources = new ArrayList<>();
-		            
-		        	// your code to be timed
-		        	
-		        	for (String string : serverList) {
-		        		//not query the server self
-		        		if(!string.equals(ServerHost.getHostAddress()+":"+cmds.port)){
-		        			System.out.println("Query server: "+ string);
-				        	JSONObject queryResult = queryRelay(jsonObject, string);
-				        	System.out.println(queryResult.toString());
-				        	JSONArray resourceArray = new JSONArray();
-				        	if(queryResult.containsKey("resource")){
-					        	resourceArray = (JSONArray) queryResult.get("resource");
-					        	for (int i = 0; i < resourceArray.size(); i++) {
-					        		
-									relayQueryResources.add(
-											ServerOperationHandler.convertJSONOBjectResourceToResource(
-													(JSONObject)resourceArray.get(i)
-													)
-											);
-									
-								}
-				        	}
+	private ArrayList<Resource> queryOtherServers(JSONObject jsonObject, Set<String> serverList) {
+		Callable<ArrayList<Resource>> run = new Callable<ArrayList<Resource>>() {
+			@Override
+			public ArrayList<Resource> call() throws Exception {
+				ArrayList<Resource> relayQueryResources = new ArrayList<>();
 
-		        		}
+				// your code to be timed
+
+				for (String string : serverList) {
+					// not query the server self
+					if (!string.equals(ServerHost.getHostAddress() + ":" + cmds.port)) {
+						System.out.println("Query server: " + string);
+						JSONObject queryResult = queryRelay(jsonObject, string);
+						System.out.println(queryResult.toString());
+						JSONArray resourceArray = new JSONArray();
+						if (queryResult.containsKey("resource")) {
+							resourceArray = (JSONArray) queryResult.get("resource");
+							for (int i = 0; i < resourceArray.size(); i++) {
+
+								relayQueryResources.add(ServerOperationHandler
+										.convertJSONOBjectResourceToResource((JSONObject) resourceArray.get(i)));
+
+							}
+						}
+
 					}
-		        	if(ServerDebugModel){
-		        		logger.setLevel(Level.INFO);
-			        	logger.info("Total Hit Query From Relay: " + relayQueryResources.size());
-		        	}
-		        	return relayQueryResources;
-		        }
-		    };
-
-		    RunnableFuture future = new FutureTask(run);
-		    ExecutorService service = Executors.newSingleThreadExecutor();
-		    service.execute(future);
-		    ArrayList<Resource> foundResources = null;
-		    try
-		    {
-		        try {
-		        	foundResources = (ArrayList<Resource>) future.get(DEFAULT_QUERY_TIMEOUT, TimeUnit.MILLISECONDS);
-				} catch (InterruptedException | ExecutionException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
 				}
-		    }
-		    catch (TimeoutException ex)
-		    {
-		        // timed out. Try to stop the code if possible.
-		        future.cancel(true);
-		    }
-		    service.shutdown();
-		    return foundResources;
+				if (ServerDebugModel) {
+					logger.setLevel(Level.INFO);
+					logger.info("Total Hit Query From Relay: " + relayQueryResources.size());
+				}
+				return relayQueryResources;
+			}
+		};
+
+		RunnableFuture future = new FutureTask(run);
+		ExecutorService service = Executors.newSingleThreadExecutor();
+		service.execute(future);
+		ArrayList<Resource> foundResources = null;
+		try {
+			try {
+				foundResources = (ArrayList<Resource>) future.get(DEFAULT_QUERY_TIMEOUT, TimeUnit.MILLISECONDS);
+			} catch (InterruptedException | ExecutionException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		} catch (TimeoutException ex) {
+			// timed out. Try to stop the code if possible.
+			future.cancel(true);
+		}
+		service.shutdown();
+		return foundResources;
 	}
 
 	private JSONObject handleShare(JSONObject jsonObject, DataOutputStream output) {

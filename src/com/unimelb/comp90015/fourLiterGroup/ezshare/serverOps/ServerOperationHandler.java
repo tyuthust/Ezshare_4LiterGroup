@@ -15,14 +15,14 @@ import com.unimelb.comp90015.fourLiterGroup.ezshare.ServerClass;
 
 public class ServerOperationHandler {
 	private static Logger logger = Logger.getLogger(ServerOperationHandler.class.getName());
-	
+
 	public static Resource publish(JSONObject jsonObject) throws OperationRunningException {
-		
-		if(ServerClass.ServerDebugModel){
+
+		if (ServerClass.ServerDebugModel) {
 			logger.setLevel(Level.INFO);
 			logger.info("Publish function");
 		}
-		//System.out.println("Publish function");
+		// System.out.println("Publish function");
 
 		// create a json object to save the map in resource
 		JSONObject shareResourceJsonObj = new JSONObject();
@@ -35,11 +35,11 @@ public class ServerOperationHandler {
 
 		Map shareResourceMap = new HashMap();
 		shareResourceMap = (Map) shareResourceJsonObj.clone();
-		if(ServerClass.ServerDebugModel){
+		if (ServerClass.ServerDebugModel) {
 			logger.setLevel(Level.INFO);
 			logger.info(shareResourceMap.toString());
 		}
-		//System.out.println(shareResourceMap);
+		// System.out.println(shareResourceMap);
 
 		// check if the the json data break the rule
 		// The URI must be present, must be absolute and cannot be a file
@@ -82,11 +82,11 @@ public class ServerOperationHandler {
 	}
 
 	public static String[] exchange(JSONObject jsonObject) throws OperationRunningException {
-		if(ServerClass.ServerDebugModel){
+		if (ServerClass.ServerDebugModel) {
 			logger.setLevel(Level.INFO);
 			logger.info("Exchange function");
 		}
-		//System.out.println("Exchange function");
+		// System.out.println("Exchange function");
 		// create a json object to save the map in resource
 		JSONArray jsonArray = new JSONArray();
 		jsonArray = (JSONArray) jsonObject.get("serverList");
@@ -122,20 +122,20 @@ public class ServerOperationHandler {
 	}
 
 	public static Resource remove(JSONObject jsonObject) throws OperationRunningException {
-		if(ServerClass.ServerDebugModel){
+		if (ServerClass.ServerDebugModel) {
 			logger.setLevel(Level.INFO);
 			logger.info("Remove function");
 		}
-		//System.out.println("Remove function");
+		// System.out.println("Remove function");
 		JSONObject removeResourceJsonObj = new JSONObject();
 		removeResourceJsonObj.putAll((Map) jsonObject.get("resource"));
 
 		// If the resource field was not given or not of the correct type
-		if(ServerClass.ServerDebugModel){
+		if (ServerClass.ServerDebugModel) {
 			logger.setLevel(Level.INFO);
 			logger.info(removeResourceJsonObj.toJSONString());
 		}
-		//System.out.println(removeResourceJsonObj);
+		// System.out.println(removeResourceJsonObj);
 
 		if (!removeResourceJsonObj.isEmpty()) {
 			if (removeResourceJsonObj.get("uri") == null || removeResourceJsonObj.get("uri").equals("")) {
@@ -158,11 +158,11 @@ public class ServerOperationHandler {
 	}
 
 	public static Resource share(JSONObject jsonObject) throws OperationRunningException {
-		if(ServerClass.ServerDebugModel){
+		if (ServerClass.ServerDebugModel) {
 			logger.setLevel(Level.INFO);
 			logger.info("Share function");
 		}
-		//System.out.println("Share function");
+		// System.out.println("Share function");
 
 		JSONObject shareResourceJsonObj = new JSONObject();
 		// If the resource field was not given or not of the correct type
@@ -200,12 +200,51 @@ public class ServerOperationHandler {
 		return generatingResourceHandler(shareResourceJsonObj);
 	}
 
-	public static Resource query(JSONObject jsonObject) throws OperationRunningException {
-		if(ServerClass.ServerDebugModel){
+	/*
+	public static Resource subscribe(JSONObject jsonObject) throws OperationRunningException {
+		if (ServerClass.ServerDebugModel) {
+			logger.setLevel(Level.INFO);
+			logger.info("subscribe function");
+		}
+
+		
+	}
+	*/
+
+	public static Resource subscribe(JSONObject jsonObject) throws OperationRunningException {
+		if (ServerClass.ServerDebugModel) {
 			logger.setLevel(Level.INFO);
 			logger.info("query function");
 		}
-		//System.out.println("query function");
+
+		JSONObject subscribeResourceJsonObj = new JSONObject();
+
+		subscribeResourceJsonObj.putAll((Map) jsonObject.get("resourceTemplate"));
+
+		if (subscribeResourceJsonObj.isEmpty()) {
+			throw new OperationRunningException("missing resourceTemplate");
+		}
+
+		// there are other stuff for checking
+		// The URI must be present, must be absolute and must be a file scheme.
+		String uriString = subscribeResourceJsonObj.get("uri").toString();
+		String chanString = subscribeResourceJsonObj.get("channel").toString();
+
+		// URI The URI must be present
+		if (null == uriString) {
+			throw new OperationRunningException("invalid resourceTemplate");
+		}
+		if (null == chanString) {
+			throw new OperationRunningException("invalid resourceTemplate");
+		}
+		return generatingResourceHandler(subscribeResourceJsonObj);
+	}
+	
+	public static Resource query(JSONObject jsonObject) throws OperationRunningException {
+		if (ServerClass.ServerDebugModel) {
+			logger.setLevel(Level.INFO);
+			logger.info("query function");
+		}
 
 		JSONObject queryResourceJsonObj = new JSONObject();
 
@@ -231,11 +270,11 @@ public class ServerOperationHandler {
 	}
 
 	public static Resource fetch(JSONObject jsonObject) throws OperationRunningException {
-		if(ServerClass.ServerDebugModel){
+		if (ServerClass.ServerDebugModel) {
 			logger.setLevel(Level.INFO);
 			logger.info("fetch function");
 		}
-		//System.out.println("fetch function");
+		// System.out.println("fetch function");
 
 		JSONObject fetchResourceJsonObj = new JSONObject();
 		fetchResourceJsonObj.putAll((Map) jsonObject.get("resourceTemplate"));
@@ -263,105 +302,106 @@ public class ServerOperationHandler {
 		// create a new resource and set its value
 		Resource resource = new Resource();
 
-		if(null == ResourceJsonObj){
+		if (null == ResourceJsonObj) {
 			throw new OperationRunningException("missing resource");
 		}
 		// set name
 		if (ResourceJsonObj.containsKey("name")) {
 
-			if (null !=ResourceJsonObj.get("name")) {
+			if (null != ResourceJsonObj.get("name")) {
 				resource.setName(ResourceJsonObj.get("name").toString());
-			}else{
+			} else {
 				resource.setName("");
 			}
-			if(ServerClass.ServerDebugModel){
+			if (ServerClass.ServerDebugModel) {
 				logger.setLevel(Level.INFO);
 				logger.info("The resource name:" + resource.getName());
 			}
-			//System.out.println("The resource name:" + resource.getName());
-		}else{
+			// System.out.println("The resource name:" + resource.getName());
+		} else {
 			throw new OperationRunningException("missing resource name");
 		}
-		
+
 		// set channel
 		if (ResourceJsonObj.containsKey("channel")) {
 			String chanString = ResourceJsonObj.get("channel").toString();
-			if (null !=chanString) {
+			if (null != chanString) {
 				resource.setChannel(chanString);
-			}else{
+			} else {
 				resource.setChannel("");
 			}
-			if(ServerClass.ServerDebugModel){
+			if (ServerClass.ServerDebugModel) {
 				logger.setLevel(Level.INFO);
 				logger.info("The resource channel:" + resource.getChannel());
 			}
-			//System.out.println("The resource channel:" + resource.getChannel());
-		}else{
+			// System.out.println("The resource channel:" +
+			// resource.getChannel());
+		} else {
 			throw new OperationRunningException("missing resource channel");
 		}
-															
+
 		// set description
 		if (ResourceJsonObj.containsKey("description")) {
 			String desString = ResourceJsonObj.get("description").toString();
-			if (null !=desString) {
+			if (null != desString) {
 				resource.setDescription(desString);
-			}else{
+			} else {
 				resource.setDescription("");
 			}
-			if(ServerClass.ServerDebugModel){
+			if (ServerClass.ServerDebugModel) {
 				logger.setLevel(Level.INFO);
 				logger.info("The resource description:" + resource.getDescription());
 			}
-			//System.out.println("The resource description:" + resource.getDescription());
-		} else{
+			// System.out.println("The resource description:" +
+			// resource.getDescription());
+		} else {
 			throw new OperationRunningException("missing resource description");
 		}
 
 		// set owner
 		if (ResourceJsonObj.containsKey("owner")) {
 			String ownerString = ResourceJsonObj.get("owner").toString();
-			if (null !=ownerString) {
+			if (null != ownerString) {
 				resource.setOwner(ownerString);
-			}else{
+			} else {
 				resource.setOwner("");
 			}
-			if(ServerClass.ServerDebugModel){
+			if (ServerClass.ServerDebugModel) {
 				logger.setLevel(Level.INFO);
 				logger.info("The resource owner:" + resource.getOwner());
 			}
-			//System.out.println("The resource owner:" + resource.getOwner());
-		}else{
-			//TODO: need to debug
+			// System.out.println("The resource owner:" + resource.getOwner());
+		} else {
+			// TODO: need to debug
 			throw new OperationRunningException("missing resource owner");
 		}
-		
+
 		// set uri
 		if (ResourceJsonObj.containsKey("uri")) {
 			String uriString = ResourceJsonObj.get("uri").toString();
-			if (null !=uriString) {
+			if (null != uriString) {
 				resource.setURI(uriString);
-			}else{
+			} else {
 				throw new OperationRunningException("missing resource uri");
 			}
-			if(ServerClass.ServerDebugModel){
+			if (ServerClass.ServerDebugModel) {
 				logger.setLevel(Level.INFO);
 				logger.info("The resource uri:" + resource.getURI());
 			}
-		}
-		else{
+		} else {
 			throw new OperationRunningException("missing resource uri");
 		}
 		// ezserver will not be transported when using publish command
-		
-		if(ServerClass.ServerDebugModel){
+
+		if (ServerClass.ServerDebugModel) {
 			logger.setLevel(Level.WARNING);
 			logger.warning("The resource ezserver: null");
 		}
-		//System.out.println("The resource ezserver: null");
+		// System.out.println("The resource ezserver: null");
 
 		// set tags
 		if (ResourceJsonObj.containsKey("tags")) {
-			if(null!=ResourceJsonObj.get("tags")){
+			if (null != ResourceJsonObj.get("tags")) {
 				JSONArray jsonArray = new JSONArray();
 				jsonArray = (JSONArray) ResourceJsonObj.get("tags");
 				String[] tags = new String[jsonArray.size()];
@@ -370,129 +410,130 @@ public class ServerOperationHandler {
 					tags[i] = r;
 				}
 				resource.setTags(tags);
-			}
-			else{
+			} else {
 				resource.setTags(new String[0]);
 			}
-			
+
 			List<String> tagList = new ArrayList<String>();
 			for (String string : resource.getTags()) {
 				tagList.add(string);
 			}
-			if(ServerClass.ServerDebugModel){
+			if (ServerClass.ServerDebugModel) {
 				logger.setLevel(Level.INFO);
 				logger.info("The resource tags:" + tagList.toString());
 			}
 
-			//System.out.println("The resource tags:" + tagList.toString());
-		}else{
+			// System.out.println("The resource tags:" + tagList.toString());
+		} else {
 			throw new OperationRunningException("missing resource owner");
-//			if(Server.ServerDebugModel){
-//				logger.setLevel(Level.WARNING);
-//				logger.warning("The resource tags:" + "null");
-//			}
-			//System.out.println("The resource tags:" + "null");
+			// if(Server.ServerDebugModel){
+			// logger.setLevel(Level.WARNING);
+			// logger.warning("The resource tags:" + "null");
+			// }
+			// System.out.println("The resource tags:" + "null");
 		}
 		return resource;
 	}
 
-	public static Resource convertJSONOBjectResourceToResource(JSONObject ResourceJsonObj) throws OperationRunningException {
+	public static Resource convertJSONOBjectResourceToResource(JSONObject ResourceJsonObj)
+			throws OperationRunningException {
 
 		// create a new resource and set its value
 		Resource resource = new Resource();
 
-		if(null == ResourceJsonObj){
+		if (null == ResourceJsonObj) {
 			throw new OperationRunningException("missing resource");
 		}
 		// set name
 		if (ResourceJsonObj.containsKey("name")) {
 
-			if (null !=ResourceJsonObj.get("name")) {
+			if (null != ResourceJsonObj.get("name")) {
 				resource.setName(ResourceJsonObj.get("name").toString());
-			}else{
+			} else {
 				resource.setName("");
 			}
-			if(ServerClass.ServerDebugModel){
+			if (ServerClass.ServerDebugModel) {
 				logger.setLevel(Level.INFO);
 				logger.info("The resource name:" + resource.getName());
 			}
-			//System.out.println("The resource name:" + resource.getName());
-		}else{
+			// System.out.println("The resource name:" + resource.getName());
+		} else {
 			throw new OperationRunningException("missing resource name");
 		}
-		
+
 		// set channel
 		if (ResourceJsonObj.containsKey("channel")) {
 			String chanString = ResourceJsonObj.get("channel").toString();
-			if (null !=chanString) {
+			if (null != chanString) {
 				resource.setChannel(chanString);
-			}else{
+			} else {
 				resource.setChannel("");
 			}
-			if(ServerClass.ServerDebugModel){
+			if (ServerClass.ServerDebugModel) {
 				logger.setLevel(Level.INFO);
 				logger.info("The resource channel:" + resource.getChannel());
 			}
-			//System.out.println("The resource channel:" + resource.getChannel());
-		}else{
+			// System.out.println("The resource channel:" +
+			// resource.getChannel());
+		} else {
 			throw new OperationRunningException("missing resource channel");
 		}
-															
+
 		// set description
 		if (ResourceJsonObj.containsKey("description")) {
 			String desString = ResourceJsonObj.get("description").toString();
-			if (null !=desString) {
+			if (null != desString) {
 				resource.setDescription(desString);
-			}else{
+			} else {
 				resource.setDescription("");
 			}
-			if(ServerClass.ServerDebugModel){
+			if (ServerClass.ServerDebugModel) {
 				logger.setLevel(Level.INFO);
 				logger.info("The resource description:" + resource.getDescription());
 			}
-			//System.out.println("The resource description:" + resource.getDescription());
-		} else{
+			// System.out.println("The resource description:" +
+			// resource.getDescription());
+		} else {
 			throw new OperationRunningException("missing resource description");
 		}
 
 		// set owner
 		if (ResourceJsonObj.containsKey("owner")) {
 			String ownerString = ResourceJsonObj.get("owner").toString();
-			if (null !=ownerString) {
+			if (null != ownerString) {
 				resource.setOwner(ownerString);
-			}else{
+			} else {
 				resource.setOwner("");
 			}
-			if(ServerClass.ServerDebugModel){
+			if (ServerClass.ServerDebugModel) {
 				logger.setLevel(Level.INFO);
 				logger.info("The resource owner:" + resource.getOwner());
 			}
-			//System.out.println("The resource owner:" + resource.getOwner());
-		}else{
-			//TODO: need to debug
+			// System.out.println("The resource owner:" + resource.getOwner());
+		} else {
+			// TODO: need to debug
 			throw new OperationRunningException("missing resource owner");
 		}
-		
+
 		// set uri
 		if (ResourceJsonObj.containsKey("uri")) {
 			String uriString = ResourceJsonObj.get("uri").toString();
-			if (null !=uriString) {
+			if (null != uriString) {
 				resource.setURI(uriString);
-			}else{
+			} else {
 				throw new OperationRunningException("missing resource uri");
 			}
-			if(ServerClass.ServerDebugModel){
+			if (ServerClass.ServerDebugModel) {
 				logger.setLevel(Level.INFO);
 				logger.info("The resource uri:" + resource.getURI());
 			}
-		}
-		else{
+		} else {
 			throw new OperationRunningException("missing resource uri");
 		}
 
 		// set tags
 		if (ResourceJsonObj.containsKey("tags")) {
-			if(null!=ResourceJsonObj.get("tags")){
+			if (null != ResourceJsonObj.get("tags")) {
 				JSONArray jsonArray = new JSONArray();
 				jsonArray = (JSONArray) ResourceJsonObj.get("tags");
 				String[] tags = new String[jsonArray.size()];
@@ -501,31 +542,30 @@ public class ServerOperationHandler {
 					tags[i] = r;
 				}
 				resource.setTags(tags);
-			}
-			else{
+			} else {
 				resource.setTags(new String[0]);
 			}
-			
+
 			List<String> tagList = new ArrayList<String>();
 			for (String string : resource.getTags()) {
 				tagList.add(string);
 			}
-			if(ServerClass.ServerDebugModel){
+			if (ServerClass.ServerDebugModel) {
 				logger.setLevel(Level.INFO);
 				logger.info("The resource tags:" + tagList.toString());
 			}
 
-			//System.out.println("The resource tags:" + tagList.toString());
-		}else{
+			// System.out.println("The resource tags:" + tagList.toString());
+		} else {
 			throw new OperationRunningException("missing resource owner");
-//			if(Server.ServerDebugModel){
-//				logger.setLevel(Level.WARNING);
-//				logger.warning("The resource tags:" + "null");
-//			}
-			//System.out.println("The resource tags:" + "null");
+			// if(Server.ServerDebugModel){
+			// logger.setLevel(Level.WARNING);
+			// logger.warning("The resource tags:" + "null");
+			// }
+			// System.out.println("The resource tags:" + "null");
 		}
-		
-		//set ezserver
+
+		// set ezserver
 		if (ResourceJsonObj.containsKey("ezserver")) {
 			String serverString = ResourceJsonObj.get("ezserver").toString();
 			if (null != serverString) {
@@ -540,12 +580,8 @@ public class ServerOperationHandler {
 		} else {
 			throw new OperationRunningException("missing resource uri");
 		}
-				
 
 		return resource;
 	}
 
-
 }
-
-
