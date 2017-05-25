@@ -136,14 +136,14 @@ public class ServerClass {
 		boolean subflag = false;
 		String id = null;
 		try (Socket clientSocket = client) {
-
+			
 			// The JSON Parser
 			JSONParser parser = new JSONParser();
 			// Input stream
 			DataInputStream input = new DataInputStream(clientSocket.getInputStream());
 			// Output Stream
 			DataOutputStream output = new DataOutputStream(clientSocket.getOutputStream());
-
+			
 			// Receive more data..
 			while (flag) {
 				if (input.available() > 0) {
@@ -197,6 +197,7 @@ public class ServerClass {
 				}
 			}
 			clientSocket.close();
+			System.out.println(id + " has beeb closed");
 		} catch (IOException | ParseException e) {
 			System.out.println(e.toString());
 			e.printStackTrace();
@@ -228,12 +229,17 @@ public class ServerClass {
 	}
 
 	private JSONObject handleUnsubscribe(JSONObject jsonObject, DataOutputStream output) {
+		JSONObject results = new JSONObject();
 		String id = jsonObject.get("id").toString();
-		int size = getSubListSize(subscribeList);
-		System.out.println("the current size =" + size);
 		// remove id and resource into the subscribeList
 		subscribeList.remove(id);
-		JSONObject results = new JSONObject();
+		int size = getSubListSize(subscribeList);
+		System.out.println("the current size =" + size);
+		//TODO: get resultsize
+		int resultSize = 0;
+		if(size==0){
+			results.put("resultSize", resultSize);
+		}
 		return results;
 	}
 
@@ -676,13 +682,8 @@ public class ServerClass {
 	}
 	
 	private static int getSubListSize(HashMap<String, IResourceTemplate> subscribeList){
-		int counter = 0;
 		Map<String, IResourceTemplate> map = subscribeList;
-		Iterator<Map.Entry<String, IResourceTemplate>> entries = map.entrySet().iterator();
-		while (entries.hasNext()){
-			counter++;
-		}
-		return counter;
+		return map.size();
 	}
 	
 	private static String getCurrentTime() {
