@@ -1,6 +1,6 @@
 EZShare.Server -advertisedhostname 127.0.0.1 -port 30000 -secret 749486
 
-EZShare.Server -advertisedhostname 10.0.0.1 -port 30000 -secret 749486
+EZShare.Server -advertisedhostname 127.0.0.1 -port 3000 -secret 749486
 
 EZShare.Client -exchange -host 127.0.0.1 -port 30000 -servers 10.0.0.1:8081,127.10.10.2:5000
 EZShare.Client -publish -host 127.0.0.1 -port 30000 -name "Unimelb website" -tags web,html -description "The main page for the University of Melbourne" -uri "http://www.unimelb.edu.au"
@@ -8,12 +8,13 @@ EZShare.Client -share -host 127.0.0.1 -port 30000 -name "Unimelb website" -tags 
 EZShare.Client -fetch -host 127.0.0.1 -port 30000 -name "1.jpg" -tags web,html -description "The main page for the University of Melbourne" -uri "file:///C:/Users/rishe/Desktop/1.jpg" -channel "My_private_channel" 
 EZShare.Client -query -debug  -port 3000
 
-:
+EZShare.Server -advertisedhostname 127.0.0.1 -port 3000 -secret 749481 -debug
+
 EZShare.Client -publish -host 127.0.0.1 -port 3000 -name "Unimelb website" -tags web,html -description "The main page for the University of Melbourne" -uri http://www.bilibili.com -channel My_private_channel -secret 749481
 EZShare.Client -publish -host 127.0.0.1 -port 3000 -name "Unimelb website" -tags assignment,DS -description "Too much assignments" -uri http://www.google.com -channel My_public_channel -secret 749481
 EZShare.Client -publish -host 127.0.0.1 -port 3000 -name "Ezshare" -tags assignment,DS -description "Too much assignments" -uri http://www.bilibili.com -channel My_public_channel -secret 749481 -owner Gary
 EZShare.Client -publish -host 127.0.0.1 -port 3000 -tags assignment,DS -description "Too much assignments" -uri http://www.bilibili.com -channel My_public_channel -secret 749481 -owner Gary
-EZShare.Server -advertisedhostname 127.0.0.1 -port 3000 -secret 749481 -debug
+
 EZShare.Client -query -host 127.0.0.1 -port 3000 -name "Unimelb website" -uri http://www.bilibili.com -channel My_public_channel
 
 EZShare.Server -advertisedhostname 124.23.4.6 -port 3001 -secret 749486 -debug

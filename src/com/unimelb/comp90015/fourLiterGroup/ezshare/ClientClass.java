@@ -42,6 +42,8 @@ public class ClientClass {
 	}
 
 	public void connect() throws IOException, CommandInvalidException {
+		String id = this.cmds.id;
+		
 		logger.setLevel(Level.INFO);
 		if (cmds.debug) {
 			logger.info("setting client debug on. ");
@@ -80,13 +82,17 @@ public class ClientClass {
 							String result = input.readUTF();
 							System.out.println("Received from server: " + result);
 							JSONObject command = (JSONObject) parser.parse(result);
-
 						}
 					}
-					
+					/*
+					JSONObject jsonObject = new JSONObject();
+					jsonObject.put("command", "UNSUBSCRIBE");
+					jsonObject.put("id", id);
+					output.writeUTF(jsonObject.toJSONString());
+					output.flush();
+					*/
 					socket.close();			
 				}else{
-					
 					// Print out results received from server..
 					while (flag) {
 						if (input.available() > 0) {
@@ -163,9 +169,7 @@ public class ClientClass {
 						}
 					}
 					socket.close();
-				}
-				
-
+				}	
 			} catch (UnknownHostException e) {
 				e.printStackTrace();
 			} catch (IOException e) {
