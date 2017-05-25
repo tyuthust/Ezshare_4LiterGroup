@@ -56,9 +56,6 @@ public class ServerClass {
 	public static boolean ServerDebugModel = false;
 	// A flag to judge the while loop in socket.accept function
 	private static boolean flag = true;
-	
-	// A flag to judge the subscribeModel
-	private static boolean subscribeModel = false;
 
 	public static InetAddress ServerHost;
 
@@ -108,8 +105,8 @@ public class ServerClass {
 				logger.info("The IP:" + cmds.advertisedhostname + "\n" + "The port:" + cmds.port);
 			}
 			
-			// sending server list if it exist
-			startTimer();
+			// Server Interaction function
+			// startTimer();
 			// Wait for connections.
 			while (true) {
 				flag = true;
@@ -126,6 +123,8 @@ public class ServerClass {
 	}
 
 	private void serveClient(Socket client) {
+		boolean subflag = false;
+		String id = null;
 		try (Socket clientSocket = client) {
 
 			// The JSON Parser
@@ -173,7 +172,11 @@ public class ServerClass {
 					output.writeUTF(results.toJSONString());
 					output.flush();
 					
-					if(subscribeModel){
+					if(command.containsKey("id")){
+						id = command.get("id").toString();
+						subflag = subscribeList.containsKey(id);
+					}
+					if(subflag){
 						flag = !flag;
 					}
 					flag = ! flag;
@@ -188,7 +191,6 @@ public class ServerClass {
 
 	private JSONObject handleSubscribe(JSONObject jsonObject, DataOutputStream output){
 		//TODO: address subscribe function
-		subscribeModel = true;
 		System.out.println("subscribe function");
 		JSONObject results = new JSONObject();
 		results.put("response", "success");
@@ -197,7 +199,6 @@ public class ServerClass {
 	
 	private JSONObject handleUnsubscribe(JSONObject jsonObject, DataOutputStream output){
 		//TODO: address unsubscribe function
-		subscribeModel = false;
 		System.out.println("unsubscribe function");
 		JSONObject results = new JSONObject();
 		results.put("response", "success");
