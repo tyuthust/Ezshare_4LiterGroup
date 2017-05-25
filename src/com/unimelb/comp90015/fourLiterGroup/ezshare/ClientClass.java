@@ -86,9 +86,9 @@ public class ClientClass {
 						}
 					}
 					
-					socket.close();
-					System.out.println("close the socket");
+					socket.close();			
 				}else{
+					
 					// Print out results received from server..
 					while (flag) {
 						if (input.available() > 0) {
@@ -103,10 +103,10 @@ public class ClientClass {
 								if(command.get("response").toString().equals("success")
 										&& false == this.cmds.fetch 
 										&& false == this.cmds.query){
-									flag = false;
+									flag = ! flag;
 								} else if(command.get("response").toString().equals("error")){
 									if (command.containsKey("errorMessage")){
-										flag = false;
+										flag = ! flag;
 									}
 								}
 							}
@@ -163,10 +163,8 @@ public class ClientClass {
 								}
 							}
 						}
-						socket.close();
-						System.out.println("close the socket");
 					}
-
+					socket.close();
 				}
 				
 

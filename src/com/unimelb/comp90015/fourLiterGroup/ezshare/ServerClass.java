@@ -17,6 +17,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Random;
@@ -47,13 +48,17 @@ public class ServerClass {
 	public static int DEFAULT_PORT = 3000;
 
 	private ServerCmds cmds;
-	// Identifies the user number connected
-	private static int counter = 0;
-
 	private static int resultSize = 1;
-
+	
+	// A list to save client subscribed info
+	private HashMap<String,Resource> subscribeList = new HashMap<String,Resource>();
+	
 	public static boolean ServerDebugModel = false;
+	// A flag to judge the while loop in socket.accept function
 	private static boolean flag = true;
+	
+	// A flag to judge the subscribeModel
+	private static boolean subscribeModel = false;
 
 	public static InetAddress ServerHost;
 
@@ -160,22 +165,46 @@ public class ServerClass {
 						results = handleExchange(command, output);
 						// results = exchange(command);
 					} else if (command.get("command").equals("SUBSCRIBE")){
-						//TODO: address subscribe function
-						flag = !flag;
+						results = handleSubscribe(command,output);
+					} else if (command.get("command").equals("UNSUBSCRIBE")){
+						results = handleUnsubscribe(command,output);
 					}
+					
 					output.writeUTF(results.toJSONString());
 					output.flush();
-					flag = !flag;
+					
+					if(subscribeModel){
+						flag = !flag;
+					}
+					flag = ! flag;
 				}
 			}
 			clientSocket.close();
-			System.out.println("close the clientSocket");
 		} catch (IOException | ParseException e) {
 			System.out.println(e.toString());
 			e.printStackTrace();
 		}
 	}
 
+	private JSONObject handleSubscribe(JSONObject jsonObject, DataOutputStream output){
+		//TODO: address subscribe function
+		subscribeModel = true;
+		System.out.println("subscribe function");
+		JSONObject results = new JSONObject();
+		results.put("response", "success");
+		return results;
+	}
+	
+	private JSONObject handleUnsubscribe(JSONObject jsonObject, DataOutputStream output){
+		//TODO: address unsubscribe function
+		subscribeModel = false;
+		System.out.println("unsubscribe function");
+		JSONObject results = new JSONObject();
+		results.put("response", "success");
+		return results;
+	}
+	
+	
 	private JSONObject handlePublish(JSONObject jsonObject, DataOutputStream output) {
 		JSONObject results = new JSONObject();
 		try {
