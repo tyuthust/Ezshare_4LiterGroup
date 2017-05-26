@@ -27,7 +27,7 @@ public class ClientClass {
 	private static int DEFAULT_PORT = 3000;
 	private boolean endWhileLoopFlag = true;
 	private boolean pressEnterFlag = false;
-	
+
 	private static Logger logger = Logger.getLogger(ClientClass.class.getName());
 
 	public ClientClass(ClientCmds cmds) {
@@ -42,7 +42,7 @@ public class ClientClass {
 
 	public void connect() throws IOException, CommandInvalidException {
 		String id = this.cmds.id;
-		
+
 		logger.setLevel(Level.INFO);
 		if (cmds.debug) {
 			logger.info("setting client debug on. ");
@@ -51,7 +51,7 @@ public class ClientClass {
 		if (null == this.cmds.host || this.cmds.host.isEmpty()) {
 			this.cmds.host = DEFAULT_HOST;
 		}
-		if ("localhost" == this.cmds.host){
+		if ("localhost" == this.cmds.host) {
 			this.cmds.host = DEFAULT_HOST;
 		}
 		if (-1 == this.cmds.port) {
@@ -73,8 +73,8 @@ public class ClientClass {
 				output.writeUTF(JsonCmdsString);
 				output.flush();
 				JSONParser parser = new JSONParser();
-				
-				if (true == this.cmds.subscribe){
+
+				if (this.cmds.subscribe) {
 					this.startListen();
 					while (pressEnterFlag) {
 						if (input.available() > 0) {
@@ -84,14 +84,14 @@ public class ClientClass {
 						}
 					}
 					/*
-					JSONObject jsonObject = new JSONObject();
-					jsonObject.put("command", "UNSUBSCRIBE");
-					jsonObject.put("id", id);
-					output.writeUTF(jsonObject.toJSONString());
-					output.flush();
-					*/
-					socket.close();			
-				}else{
+					 * JSONObject jsonObject = new JSONObject();
+					 * jsonObject.put("command", "UNSUBSCRIBE");
+					 * jsonObject.put("id", id);
+					 * output.writeUTF(jsonObject.toJSONString());
+					 * output.flush();
+					 */
+					socket.close();
+				} else {
 					// Print out results received from server..
 					while (endWhileLoopFlag) {
 						if (input.available() > 0) {
@@ -100,22 +100,21 @@ public class ClientClass {
 							System.out.println("Received from server: " + result);
 
 							JSONObject command = (JSONObject) parser.parse(result);
-							
-							//find the end of the connection
-							if (command.containsKey("response")){
-								if(command.get("response").toString().equals("success")
-										&& false == this.cmds.fetch 
-										&& false == this.cmds.query){
-									endWhileLoopFlag = ! endWhileLoopFlag;
-								} else if(command.get("response").toString().equals("error")){
-									if (command.containsKey("errorMessage")){
-										endWhileLoopFlag = ! endWhileLoopFlag;
+
+							// find the end of the connection
+							if (command.containsKey("response")) {
+								if (command.get("response").toString().equals("success") && !this.cmds.fetch
+										&& !this.cmds.query) {
+									endWhileLoopFlag = !endWhileLoopFlag;
+								} else if (command.get("response").toString().equals("error")) {
+									if (command.containsKey("errorMessage")) {
+										endWhileLoopFlag = !endWhileLoopFlag;
 									}
 								}
-							} else if (command.containsKey("resultSize") && this.cmds.unsubscribe) {
-								endWhileLoopFlag = ! endWhileLoopFlag;
+							} else if (command.containsKey("resultSize") && (this.cmds.unsubscribe || this.cmds.query)) {
+								endWhileLoopFlag = !endWhileLoopFlag;
 							}
-							
+
 							// Check the command name
 							if (command.containsKey("command_name")) {
 								if (command.get("command_name").toString().equals("SENDING_FILE")) {
@@ -125,11 +124,13 @@ public class ClientClass {
 									if (cmds.debug) {
 										logger.info("[sent] " + fileName);
 									}
-									// Create a RandomAccessFile to read and write
+									// Create a RandomAccessFile to read and
+									// write
 									// the output file.
 									RandomAccessFile downloadingFile = new RandomAccessFile(fileName, "rw");
 
-									// Find out how much size is remaining to get
+									// Find out how much size is remaining to
+									// get
 									// from the server.
 									long fileSizeRemaining = (Long) command.get("file_size");
 
@@ -138,7 +139,8 @@ public class ClientClass {
 									// Represents the receiving buffer
 									byte[] receiveBuffer = new byte[chunkSize];
 
-									// Variable used to read if there are remaining
+									// Variable used to read if there are
+									// remaining
 									// size left to read.
 									int num;
 
@@ -155,8 +157,6 @@ public class ClientClass {
 										chunkSize = setChunkSize(fileSizeRemaining);
 										receiveBuffer = new byte[chunkSize];
 
-										
-										
 										// If you're done then break
 										if (fileSizeRemaining == 0) {
 											break;
@@ -170,7 +170,7 @@ public class ClientClass {
 						}
 					}
 					socket.close();
-				}	
+				}
 			} catch (UnknownHostException e) {
 				e.printStackTrace();
 			} catch (IOException e) {
@@ -194,13 +194,13 @@ public class ClientClass {
 
 		return chunkSize;
 	}
-	
-	//Listen the enter from console
-	public void startListen(){
-		//create a specific thread to listen the consle input
+
+	// Listen the enter from console
+	public void startListen() {
+		// create a specific thread to listen the consle input
 		Thread thread = new Thread(new Runnable() {
 			@Override
-			public void run(){
+			public void run() {
 				Scanner scanner = new Scanner(System.in);
 				scanner.nextLine();
 				pressEnterFlag = false;
@@ -209,6 +209,5 @@ public class ClientClass {
 		});
 		thread.start();
 	}
-	
 
 }

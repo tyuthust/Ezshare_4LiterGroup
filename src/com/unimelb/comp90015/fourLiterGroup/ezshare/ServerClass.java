@@ -208,24 +208,28 @@ public class ServerClass {
 	}
 
 	private JSONObject handleSubscribe(JSONObject jsonObject, DataOutputStream output) {
-		String id = jsonObject.get("id").toString();
 		JSONObject results = new JSONObject();
-
-		// TODO: to judge the valid of the jsonObject
-		try {
-			IResourceTemplate resource = ServerOperationHandler.subscribe(jsonObject);
-			subscribeList.put(id, resource);
-			if (!jsonObject.containsKey("resourceTemplate")) {
+		if(jsonObject.get("id") != null && !jsonObject.get("id").equals("")){
+			String id = jsonObject.get("id").toString();
+			// TODO: to judge the valid of the jsonObject
+			try {
+				IResourceTemplate resource = ServerOperationHandler.subscribe(jsonObject);
+				subscribeList.put(id, resource);
+				if (!jsonObject.containsKey("resourceTemplate")) {
+					results.put("response", "error");
+					results.put("errorMessage", "missing resourceTemplate");
+				} else {
+					// TODO: add id and resource into the subscribeList
+					results.put("response", "success");
+					results.put("id", id);
+				}
+			} catch (OperationRunningException e) {
 				results.put("response", "error");
-				results.put("errorMessage", "missing resourceTemplate");
-			} else {
-				// TODO: add id and resource into the subscribeList
-				results.put("response", "success");
-				results.put("id", id);
+				results.put("errorMessage", e.toString());
 			}
-		} catch (OperationRunningException e) {
+		}else{
 			results.put("response", "error");
-			results.put("errorMessage", e.toString());
+			results.put("errorMessage", "missing id");
 		}
 		return results;
 	}
