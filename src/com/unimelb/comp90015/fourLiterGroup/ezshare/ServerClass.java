@@ -203,7 +203,7 @@ public class ServerClass {
 						results = new JSONObject();
 						results = handleExchange(command, output);
 					} else if (command.get("command").equals("SUBSCRIBE")) {
-						results = new JSONObject();
+						results = new ArrayList<JSONObject>();
 						results = handleSubscribe(command, output);
 					} else if (command.get("command").equals("UNSUBSCRIBE")) {
 						results = new JSONObject();
@@ -227,9 +227,11 @@ public class ServerClass {
 						output.flush();
 						unfinishFlag = false;
 					} else if (command.get("command").equals("QUERY") | command.get("command").equals("SUBSCRIBE")) {
-						@SuppressWarnings("unchecked")
 						ArrayList<JSONObject> resultArrayList = (ArrayList<JSONObject>) results;
-						
+						if (ServerDebugModel) {
+							logger.setLevel(Level.INFO);
+							logger.info("MSG count:" + resultArrayList.size());
+						}
 						if(command.get("command").equals("QUERY")){
 							//define resource count
 							//if arrayList size <2(only one json msg)
@@ -258,6 +260,7 @@ public class ServerClass {
 							output.writeUTF(jsonMsg.toJSONString());
 							output.flush();
 							if(jsonMsg.containsKey("resultSize")){
+								System.out.println("End by size read");
 								unfinishFlag = false;
 							}
 						}

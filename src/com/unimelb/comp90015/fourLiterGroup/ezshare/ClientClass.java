@@ -205,6 +205,7 @@ public class ClientClass {
 				Scanner scanner = new Scanner(System.in);
 				scanner.nextLine();
 				pressEnterFlag = false;
+				System.out.println("subscribe end in client");
 				scanner.close();
 			}
 		});
