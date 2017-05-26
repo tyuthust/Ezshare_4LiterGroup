@@ -43,6 +43,7 @@ import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 import java.util.logging.*;
 
+import com.sun.org.apache.bcel.internal.generic.INSTANCEOF;
 import com.unimelb.comp90015.fourLiterGroup.ezshare.optionsInterpret.ServerCmds;
 import com.unimelb.comp90015.fourLiterGroup.ezshare.serverOps.IResourceTemplate;
 import com.unimelb.comp90015.fourLiterGroup.ezshare.serverOps.OperationRunningException;
@@ -153,35 +154,55 @@ public class ServerClass {
 					if (cmds.debug) {
 						logger.info("COMMAND RECEIVED: " + command.toJSONString());
 					}
-					JSONObject results = new JSONObject();// return json pack
+					Object results = null;// return json pack
 
 					// TODO: change to ServerOperationHandler
 					if (command.get("command").equals("PUBLISH")) {
+						results = new JSONObject();
 						results = handlePublish(command, output);
-						// results = publish(command);
+
 					} else if (command.get("command").equals("QUERY")) {
+						results = new ArrayList<JSONObject>();
 						results = handleQuery(command, output);
-						// results = query(command);
 					} else if (command.get("command").equals("REMOVE")) {
+						results = new JSONObject();
 						results = handleRemove(command, output);
-						// results = remove(command);
 					} else if (command.get("command").equals("SHARE")) {
+						results = new JSONObject();
 						results = handleShare(command, output);
-						// results = share(command);
 					} else if (command.get("command").equals("FETCH")) {
+						results = new JSONObject();
 						results = handleFetch(command, output);
-						// results = fetch(command);
 					} else if (command.get("command").equals("EXCHANGE")) {
+						results = new JSONObject();
 						results = handleExchange(command, output);
-						// results = exchange(command);
 					} else if (command.get("command").equals("SUBSCRIBE")) {
+						results = new JSONObject();
 						results = handleSubscribe(command, output);
 					} else if (command.get("command").equals("UNSUBSCRIBE")) {
+						results = new JSONObject();
 						results = handleUnsubscribe(command, output);
+					}else{
+						// Unrecognized command
+						// jump out
+						break;
+					}
+					
+					if(results.getClass().isInstance(JSONObject.class)){
+						output.writeUTF(((JSONObject)results).toJSONString());
+						output.flush();
+					}
+					else if(results.getClass().isInstance(ArrayList.class)){
+						@SuppressWarnings("unchecked")
+						ArrayList<JSONObject> resultArrayList = (ArrayList<JSONObject>)results;
+						for (Iterator<JSONObject> iterator = resultArrayList.iterator(); iterator.hasNext();) {
+							output.writeUTF(iterator.next().toJSONString());
+							output.flush();
+						}
+
 					}
 
-					output.writeUTF(results.toJSONString());
-					output.flush();
+
 
 					// judge whether the subcribeList contains
 					// the id of the client in this thread
@@ -272,8 +293,8 @@ public class ServerClass {
 		return results;
 	}
 
-	private JSONObject handleQuery(JSONObject jsonObject, DataOutputStream output) {
-		JSONObject results = new JSONObject();
+	private ArrayList<JSONObject> handleQuery(JSONObject jsonObject, DataOutputStream output) {
+		ArrayList<JSONObject> results = new ArrayList<>();
 		ArrayList<Resource> resultResources = new ArrayList<>();
 		Boolean relayMode = DEFAULT_RELAY_MODE;
 		if (null != jsonObject.get("relay")) {
@@ -311,26 +332,32 @@ public class ServerClass {
 				}
 				resultResources.addAll(relayResources);
 			}
-
-			results.put("response", "success");
+			JSONObject successHead = new JSONObject();
+			successHead.put("response", "success");
+			results.add(successHead);
 			if (null != resultResources && resultResources.size() > 0) {
-				JSONArray resourcesArray = new JSONArray();
 				for (Resource resultResource : resultResources) {
-					resourcesArray.add(resourcePack(resultResource));
+					results.add(resourcePack(resultResource));
 				}
-				results.put("resource", resourcesArray);
-				results.put("resultSize", resultResources.size());
+				JSONObject sizeEnd = new JSONObject();
+				sizeEnd.put("resultSize", resultResources.size());
+				results.add(sizeEnd);
 			} else {
-				results.put("resultSize", 0);
+				JSONObject sizeEnd = new JSONObject();
+				sizeEnd.put("resultSize", 0);
+				results.add(sizeEnd);
+
 			}
 
 		} catch (OperationRunningException e) {
+			JSONObject errorResponse = new JSONObject();
 			// TODO Auto-generated catch block
-			results.put("response", "error");
-			results.put("errorMessage", e.toString());
+			errorResponse.put("response", "error");
+			errorResponse.put("errorMessage", e.toString());
+			results.add(errorResponse);
 		} finally {
 			if (ServerDebugModel) {
-				logger.info(results.toJSONString());
+				logger.info(results.get(0).toJSONString());
 			}
 			return results;
 		}
