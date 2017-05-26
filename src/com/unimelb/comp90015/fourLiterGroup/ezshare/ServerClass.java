@@ -64,7 +64,7 @@ public class ServerClass {
 
 	public static boolean ServerDebugModel = false;
 	// A flag to judge the while loop in socket.accept function
-	private static boolean flag = true;
+	private static boolean endWhileLoopFlag = true;
 
 	public static InetAddress ServerHost;
 
@@ -118,7 +118,7 @@ public class ServerClass {
 			// startTimer();
 			// Wait for connections.
 			while (true) {
-				flag = true;
+				endWhileLoopFlag = true;
 				Socket client = server.accept();
 
 				// Start a new thread for a connection in the thread pool
@@ -145,7 +145,7 @@ public class ServerClass {
 			DataOutputStream output = new DataOutputStream(clientSocket.getOutputStream());
 			
 			// Receive more data..
-			while (flag) {
+			while (endWhileLoopFlag) {
 				if (input.available() > 0) {
 					// Attempt to convert read data to JSON
 					JSONObject command = (JSONObject) parser.parse(input.readUTF());
@@ -191,13 +191,13 @@ public class ServerClass {
 						subflag = subscribeList.containsKey(id);
 					}
 					if (subflag) {
-						flag = !flag;
+						endWhileLoopFlag = !endWhileLoopFlag;
 					}
-					flag = !flag;
+					endWhileLoopFlag = !endWhileLoopFlag;
 				}
 			}
 			clientSocket.close();
-			System.out.println(id + " has beeb closed");
+			System.out.println(id + " has been closed");
 		} catch (IOException | ParseException e) {
 			System.out.println(e.toString());
 			e.printStackTrace();

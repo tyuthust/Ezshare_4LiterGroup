@@ -25,7 +25,7 @@ public class ClientClass {
 	private ClientCmds cmds;
 	private static String DEFAULT_HOST = "127.0.0.1";
 	private static int DEFAULT_PORT = 3000;
-	private boolean flag = true;
+	private boolean endWhileLoopFlag = true;
 	private boolean subscribeFlag = false;
 	
 	private static Logger logger = Logger.getLogger(ClientClass.class.getName());
@@ -94,7 +94,7 @@ public class ClientClass {
 					socket.close();			
 				}else{
 					// Print out results received from server..
-					while (flag) {
+					while (endWhileLoopFlag) {
 						if (input.available() > 0) {
 
 							String result = input.readUTF();
@@ -107,10 +107,10 @@ public class ClientClass {
 								if(command.get("response").toString().equals("success")
 										&& false == this.cmds.fetch 
 										&& false == this.cmds.query){
-									flag = ! flag;
+									endWhileLoopFlag = ! endWhileLoopFlag;
 								} else if(command.get("response").toString().equals("error")){
 									if (command.containsKey("errorMessage")){
-										flag = ! flag;
+										endWhileLoopFlag = ! endWhileLoopFlag;
 									}
 								}
 							}
@@ -161,7 +161,7 @@ public class ClientClass {
 											break;
 										}
 									}
-									flag = false;
+									endWhileLoopFlag = false;
 									System.out.println("File received!");
 									downloadingFile.close();
 								}
