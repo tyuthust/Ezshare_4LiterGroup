@@ -247,30 +247,36 @@ public class ServerClass {
 	}
 
 	private ArrayList<JSONObject> handleSubscribe(JSONObject jsonObject, DataOutputStream output) {
-		String id = jsonObject.get("id").toString();
 		ArrayList<JSONObject> results = new ArrayList<>();
-
-		// TODO: to judge the valid of the jsonObject
-		try {
-			IResourceTemplate resource = ServerOperationHandler.subscribe(jsonObject);
-			subscribeList.put(id, resource);
-			if (!jsonObject.containsKey("resourceTemplate")) {
-				JSONObject response = new JSONObject();
-				response.put("response", "error");
-				response.put("errorMessage", "missing resourceTemplate");
-				results.add(response);
-			} else {
-				JSONObject response = new JSONObject();
-				response.put("response", "success");
-				response.put("id", id);
-				results.add(response);
-				//TODO: query resource
+		if(jsonObject.get("id") != null && !jsonObject.get("id").equals("")){
+			String id = jsonObject.get("id").toString();
+			// TODO: to judge the valid of the jsonObject
+			try {
+				IResourceTemplate resource = ServerOperationHandler.subscribe(jsonObject);
+				subscribeList.put(id, resource);
+				if (!jsonObject.containsKey("resourceTemplate")) {
+					JSONObject responseMsg = new JSONObject();
+					responseMsg.put("response", "error");
+					responseMsg.put("errorMessage", "missing resourceTemplate");
+					results.add(responseMsg);
+				} else {
+					// TODO: add id and resource into the subscribeList
+					JSONObject responseMsg = new JSONObject();
+					responseMsg.put("response", "success");
+					responseMsg.put("id", id);
+					results.add(responseMsg);
+				}
+			} catch (OperationRunningException e) {
+				JSONObject responseMsg = new JSONObject();
+				responseMsg.put("response", "error");
+				responseMsg.put("errorMessage", e.toString());
+				results.add(responseMsg);
 			}
-		} catch (OperationRunningException e) {
-			JSONObject response = new JSONObject();
-			response.put("response", "error");
-			response.put("errorMessage", e.toString());
-			results.add(response);
+		}else{
+			JSONObject responseMsg = new JSONObject();
+			responseMsg.put("response", "error");
+			responseMsg.put("errorMessage", "missing id");
+			results.add(responseMsg);
 		}
 		
 		return results;
