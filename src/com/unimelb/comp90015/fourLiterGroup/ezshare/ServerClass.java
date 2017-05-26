@@ -52,6 +52,18 @@ import com.unimelb.comp90015.fourLiterGroup.ezshare.serverOps.ResourceWarehouse;
 import com.unimelb.comp90015.fourLiterGroup.ezshare.serverOps.ServerOperationHandler;
 
 public class ServerClass {
+	class connectedClient {
+		String id = null;
+		ArrayList<Resource> resources = new ArrayList<Resource>();
+
+		public connectedClient(String id) {
+			this.id = id;
+		}
+
+		public void addResource(Resource resource) {
+			resources.add(resource);
+		}
+	}
 
 	public static boolean DEFAULT_RELAY_MODE = true;
 	public static int DEFAULT_PORT = 3000;
@@ -63,8 +75,8 @@ public class ServerClass {
 	// A list to save client subscribed info
 	private HashMap<String, IResourceTemplate> subscribeList = new HashMap<String, IResourceTemplate>();
 	// A list to save a list
-	private HashMap<String, Resource> notifyList = new HashMap<String, Resource>(); 
-	
+	private HashMap<String, Resource> notifyList = new HashMap<String, Resource>();
+
 	public static boolean ServerDebugModel = false;
 
 	public static InetAddress ServerHost;
@@ -97,10 +109,6 @@ public class ServerClass {
 		};
 	}
 
-	public void run() {
-		System.out.println(cmds.port);
-	}
-
 	public void setup() {
 		logger.setLevel(Level.INFO);
 		ServerSocketFactory factory = ServerSocketFactory.getDefault();
@@ -108,15 +116,14 @@ public class ServerClass {
 		// start a Thread Pool. Threads that have not been used for more than
 		// sixty seconds are terminated and removed from the cache.
 		ExecutorService ThreadPool = Executors.newCachedThreadPool();
-
+		// serverInteraction function
+		startTimer();
 		try (ServerSocket server = factory.createServerSocket(this.cmds.port)) {
 			if (cmds.debug) {
 				logger.info("setting server debug on. ");
 				logger.info("The IP:" + cmds.advertisedhostname + "\n" + "The port:" + cmds.port);
 			}
 
-			// serverInteraction function
-			// startTimer();
 			// Wait for connections.
 			while (true) {
 				Socket client = server.accept();
@@ -134,18 +141,19 @@ public class ServerClass {
 
 	private void serveClient(Socket client) {
 		// A flag to judge the while loop in socket.accept function
+		connectedClient cclient;
 		boolean endWhileLoopFlag = true;
 		boolean subflag = false;
 		String id = null;
 		try (Socket clientSocket = client) {
-			
+
 			// The JSON Parser
 			JSONParser parser = new JSONParser();
 			// Input stream
 			DataInputStream input = new DataInputStream(clientSocket.getInputStream());
 			// Output Stream
 			DataOutputStream output = new DataOutputStream(clientSocket.getOutputStream());
-			
+
 			// Receive more data..
 			while (endWhileLoopFlag) {
 				if (input.available() > 0) {
@@ -182,19 +190,18 @@ public class ServerClass {
 					} else if (command.get("command").equals("UNSUBSCRIBE")) {
 						results = new JSONObject();
 						results = handleUnsubscribe(command, output);
-					}else{
+					} else {
 						// Unrecognized command
 						// jump out
 						break;
 					}
-					
-					if(results.getClass().isInstance(JSONObject.class)){
-						output.writeUTF(((JSONObject)results).toJSONString());
+
+					if (results.getClass().isInstance(JSONObject.class)) {
+						output.writeUTF(((JSONObject) results).toJSONString());
 						output.flush();
-					}
-					else if(results.getClass().isInstance(ArrayList.class)){
+					} else if (results.getClass().isInstance(ArrayList.class)) {
 						@SuppressWarnings("unchecked")
-						ArrayList<JSONObject> resultArrayList = (ArrayList<JSONObject>)results;
+						ArrayList<JSONObject> resultArrayList = (ArrayList<JSONObject>) results;
 						for (Iterator<JSONObject> iterator = resultArrayList.iterator(); iterator.hasNext();) {
 							output.writeUTF(iterator.next().toJSONString());
 							output.flush();
@@ -202,18 +209,20 @@ public class ServerClass {
 
 					}
 
-
-
 					// judge whether the subcribeList contains
 					// the id of the client in this thread
 					// if no, close the clientsocket and close the thread
 
 					if (command.containsKey("id")) {
-						id = command.get("id").toString();
-						System.out.println("the id is: " + id);
-						printSubList(subscribeList);
-						subflag = subscribeList.containsKey(id);
+						if (command.get("command").equals("SUBSCRIBE")) {
+							id = command.get("id").toString();
+							cclient = new connectedClient(id);
+							subflag = subscribeList.containsKey(id);
+						} else if (command.get("command").equals("UNSUBSCRIBE")) {
+							subflag = subscribeList.containsKey(id);
+						}
 					}
+					
 					if (subflag) {
 						endWhileLoopFlag = !endWhileLoopFlag;
 					}
@@ -221,7 +230,6 @@ public class ServerClass {
 				}
 			}
 			clientSocket.close();
-			System.out.println(id + " has been closed");
 		} catch (IOException | ParseException e) {
 			System.out.println(e.toString());
 			e.printStackTrace();
@@ -230,7 +238,7 @@ public class ServerClass {
 
 	private JSONObject handleSubscribe(JSONObject jsonObject, DataOutputStream output) {
 		JSONObject results = new JSONObject();
-		if(jsonObject.get("id") != null && !jsonObject.get("id").equals("")){
+		if (jsonObject.get("id") != null && !jsonObject.get("id").equals("")) {
 			String id = jsonObject.get("id").toString();
 			// TODO: to judge the valid of the jsonObject
 			try {
@@ -248,7 +256,7 @@ public class ServerClass {
 				results.put("response", "error");
 				results.put("errorMessage", e.toString());
 			}
-		}else{
+		} else {
 			results.put("response", "error");
 			results.put("errorMessage", "missing id");
 		}
@@ -262,9 +270,9 @@ public class ServerClass {
 		subscribeList.remove(id);
 		int size = getSubListSize(subscribeList);
 		System.out.println("the current size =" + size);
-		//TODO: get resultsize
+		// TODO: get resultsize
 		int resultSize = 0;
-		if(size==0){
+		if (size == 0) {
 			results.put("resultSize", resultSize);
 		}
 		return results;
@@ -592,10 +600,12 @@ public class ServerClass {
 		if (Servers != null && Servers.size() > 1) {
 			Random ran = new Random();
 			int index = ran.nextInt(Servers.size());
+			System.out.println(index);
 			String selectedServer = "";
-			for (int i = 0; i < index + 1; i++) {
+			for (int i = 0; i < index; i++) {
 				if (Servers.iterator().hasNext()) {
 					selectedServer = Servers.iterator().next();
+					System.out.println(selectedServer);
 				}
 			}
 			System.out.println("The selected server is:" + selectedServer);
@@ -704,21 +714,21 @@ public class ServerClass {
 		timer.schedule(task, 1000 * 5, intervalTime * 1000);
 	}
 
-	private static void printSubList(HashMap<String, IResourceTemplate> subscribeList){
+	private static void printSubList(HashMap<String, IResourceTemplate> subscribeList) {
 		Map<String, IResourceTemplate> map = subscribeList;
 		Iterator<Map.Entry<String, IResourceTemplate>> entries = map.entrySet().iterator();
-		while (entries.hasNext()){
+		while (entries.hasNext()) {
 			Map.Entry<String, IResourceTemplate> entry = entries.next();
 			System.out.println("id: " + entry.getKey());
 			System.out.println("ResourceTemplate's uri: " + entry.getValue().getURI().toString());
 		}
 	}
-	
-	private static int getSubListSize(HashMap<String, IResourceTemplate> subscribeList){
+
+	private static int getSubListSize(HashMap<String, IResourceTemplate> subscribeList) {
 		Map<String, IResourceTemplate> map = subscribeList;
 		return map.size();
 	}
-	
+
 	private static String getCurrentTime() {
 		Date date = new Date();
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");

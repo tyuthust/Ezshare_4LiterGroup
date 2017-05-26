@@ -103,7 +103,8 @@ public class ClientClass {
 
 							// find the end of the connection
 							if (command.containsKey("response")) {
-								if (command.get("response").toString().equals("success") && !this.cmds.fetch
+								if (command.get("response").toString().equals("success") 
+										&& !this.cmds.fetch
 										&& !this.cmds.query) {
 									endWhileLoopFlag = !endWhileLoopFlag;
 								} else if (command.get("response").toString().equals("error")) {
