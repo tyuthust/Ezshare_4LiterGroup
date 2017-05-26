@@ -54,20 +54,25 @@ import com.unimelb.comp90015.fourLiterGroup.ezshare.serverOps.ServerOperationHan
 public class ServerClass {
 	class connectedClient {
 		String id = null;
-		ArrayList<Resource> resources = new ArrayList<Resource>();
-		int resultSize;
+		private ArrayList<Resource> resources = new ArrayList<Resource>();
+		int resultSize=0;
 		
-		public void setId(String id) {
-			this.id = id;
-			resultSize = 0;
+		public connectedClient(int initialSize, String id) {
+			this.resultSize = initialSize;
 		}
+		
 
 		public void addResource(Resource resource) {
 			resources.add(resource);
+			addresultSize();
 		}
 		
-		public void addresultSize(){//TODO: @yuchao to call this to calculate the total result
+		private void addresultSize(){
 			resultSize++;
+		}
+		
+		public ArrayList<Resource> getResources(){
+			return this.resources;
 		}
 
 	}
@@ -147,10 +152,12 @@ public class ServerClass {
 
 	private void serveClient(Socket client) {
 		// A flag to judge the while loop in socket.accept function
-		boolean endWhileLoopFlag = true;
-		boolean subflag = false;
+		boolean unfinishFlag = true;
+//		boolean subflag = false;
 		String id = null;
-		connectedClient cclient = new connectedClient();
+		connectedClient cclient = null;
+		
+		int resouceHitNumber = 0;
 
 		try (Socket clientSocket = client) {
 
@@ -162,7 +169,9 @@ public class ServerClass {
 			DataOutputStream output = new DataOutputStream(clientSocket.getOutputStream());
 
 			// Receive more data..
-			while (endWhileLoopFlag) {
+			while (unfinishFlag) {
+				
+				
 				if (input.available() > 0) {
 					// Attempt to convert read data to JSON
 					JSONObject command = (JSONObject) parser.parse(input.readUTF());
@@ -202,19 +211,42 @@ public class ServerClass {
 						// jump out
 						break;
 					}
-					if (command.get("command").equals("PUBLISH") | command.get("command").equals("REMOVE")
-							| command.get("command").equals("SHARE") | command.get("command").equals("FETCH")
-							| command.get("command").equals("EXCHANGE")
-							| command.get("command").equals("UNSUBSCRIBE")) {
+					if (command.get("command").equals("PUBLISH") 
+							|| command.get("command").equals("REMOVE")
+							|| command.get("command").equals("SHARE") 
+							|| command.get("command").equals("FETCH")
+							|| command.get("command").equals("EXCHANGE")
+							|| command.get("command").equals("UNSUBSCRIBE")) {
 						if (ServerDebugModel) {
 							logger.setLevel(Level.INFO);
 							logger.info("Send MSG:" + ((JSONObject) results).toJSONString());
 						}
 						output.writeUTF(((JSONObject) results).toJSONString());
 						output.flush();
+						unfinishFlag = false;
 					} else if (command.get("command").equals("QUERY") | command.get("command").equals("SUBSCRIBE")) {
 						@SuppressWarnings("unchecked")
 						ArrayList<JSONObject> resultArrayList = (ArrayList<JSONObject>) results;
+						
+						if(command.get("command").equals("QUERY")){
+							//define resource count
+							//if arrayList size <2(only one json msg)
+							//msg must be error
+							//otherwise successful
+							//reduce 1 for response
+							//reduce 1 for size msg
+							resouceHitNumber = resultArrayList.size()<2?0:(resultArrayList.size()-2);
+						}
+						else {	//command.get("command").equals("SUBSCRIBE")
+							//define resource count
+							//if arrayList size <1
+							//error or no hit resources
+							//otherwise have resource
+							//reduce 1 response count
+							resouceHitNumber = resultArrayList.size()<2?0:(resultArrayList.size()-1);
+						}
+
+						
 						for (Iterator<JSONObject> iterator = resultArrayList.iterator(); iterator.hasNext();) {
 							JSONObject jsonMsg = iterator.next();
 							if (ServerDebugModel) {
@@ -223,6 +255,9 @@ public class ServerClass {
 							}
 							output.writeUTF(jsonMsg.toJSONString());
 							output.flush();
+							if(jsonMsg.containsKey("resultSize")){
+								unfinishFlag = false;
+							}
 						}
 
 					}
@@ -231,33 +266,35 @@ public class ServerClass {
 					// the id of the client in this thread
 					// if no, close the clientsocket and close the thread
 
-					if (command.containsKey("id")) {
+					if (command.containsKey("id")&&null!=command.get("id")) {
 						id = command.get("id").toString();
 						if (command.get("command").equals("SUBSCRIBE")) {
-							cclient.setId(id);
-							notifyList.put(id, cclient);
-							subflag = subscribeList.containsKey(id);
-							System.out.println("1");
-						} else if (command.get("command").equals("UNSUBSCRIBE")) {
-							subflag = subscribeList.containsKey(id);
-							System.out.println("2");
-						}
+							if(null == cclient){
+								cclient = new connectedClient(resultSize,id);
+								notifyList.put(id, cclient);
+							}
+							else{
+								if (null!= cclient && cclient.id != null) {
+									if(cclient.resources.size()>0){
+										JSONObject jsonMsg = new JSONObject();
+										for(Resource resouce: cclient.resources){
+											output.writeUTF(resourcePack(resouce).toJSONString());
+											output.flush();										
+										}
+									}
+								}
+							}
+							unfinishFlag = subscribeList.containsKey(id);
+							System.out.println("subscribe routine loop");
+						} 
 					}
-					if (subflag) {
-						endWhileLoopFlag = !endWhileLoopFlag;
-					}
-					endWhileLoopFlag = !endWhileLoopFlag;
-				}
-				if (cclient.id != null) {
-					if(cclient.resources.size()>0){
-						JSONObject jsonMsg = new JSONObject();
-						for(Resource resouce: cclient.resources){
-							//TODO: @yuchao pack resources and give them to the client
-							
-						}
-					}
-				}
-			}
+					
+					
+					
+				}	
+				
+				
+			}//while loop end
 			clientSocket.close();
 			System.out.println(id + " close");
 		} catch (IOException | ParseException e) {
@@ -268,6 +305,8 @@ public class ServerClass {
 
 	private ArrayList<JSONObject> handleSubscribe(JSONObject jsonObject, DataOutputStream output) {
 		ArrayList<JSONObject> results = new ArrayList<>();
+		ArrayList<Resource> resultResources = new ArrayList<>();
+		Boolean relayMode = DEFAULT_RELAY_MODE;
 		if (jsonObject.get("id") != null && !jsonObject.get("id").equals("")) {
 			String id = jsonObject.get("id").toString();
 			// TODO: to judge the valid of the jsonObject
@@ -280,11 +319,51 @@ public class ServerClass {
 					responseMsg.put("errorMessage", "missing resourceTemplate");
 					results.add(responseMsg);
 				} else {
+					if (null != jsonObject.get("relay")) {
+						relayMode =(jsonObject.get("relay").equals("true")) ? true : false;
+						System.out.println("Subscribe: init Relay " + (relayMode ? "On" : "Off"));
+					}
 					// TODO: @yuchao handle query function
+					Resource[] hitResources = this.resourceWarehouse.FindReource(resource);
+					if (null != hitResources) {
+						String serverInfo = ServerHost.getHostAddress() + ":" + this.cmds.port;
+						for (Resource hitresource : hitResources) {
+							// if (!hitresource.getOwner().equals(null) &&
+							// !hitresource.getOwner().equals("")) {
+							hitresource.setOwner("*");
+							hitresource.setEZServer(serverInfo);
+							// }
+							resultResources.add(hitresource);
+						}
+					}
+					if (relayMode) {
+						JSONObject relayjsonObject = (JSONObject) jsonObject.clone();
+						relayjsonObject.replace("relay", "false");
+						if (ServerDebugModel) {
+							logger.setLevel(Level.INFO);
+							logger.info("Start Realy");
+						}
+						ArrayList<Resource> relayResources = queryOtherServers(jsonObject, Servers);
+						if (ServerDebugModel) {
+							logger.setLevel(Level.INFO);
+							logger.info("relayResources Total Number: " + relayResources.size());
+							logger.info("End Relay");
+						}
+						resultResources.addAll(relayResources);
+					}
+
+									
+					
 					JSONObject responseMsg = new JSONObject();
 					responseMsg.put("response", "success");
 					responseMsg.put("id", id);
 					results.add(responseMsg);
+					
+					if (null != resultResources && resultResources.size() > 0) {
+						for (Resource resultResource : resultResources) {
+							results.add(resourcePack(resultResource));
+						}
+					}
 				}
 			} catch (OperationRunningException e) {
 				JSONObject responseMsg = new JSONObject();
@@ -322,8 +401,6 @@ public class ServerClass {
 			Resource resource = ServerOperationHandler.publish(jsonObject);
 			if (resourceWarehouse.AddResource(resource)) {
 				results.put("response", "success");
-
-				resourceWarehouse.printResourceMap();
 			} else {
 				results.put("response", "error");
 				results.put("errorMessage", "invalid resource");
@@ -422,18 +499,16 @@ public class ServerClass {
 					// not query the server self
 					if (!string.equals(ServerHost.getHostAddress() + ":" + cmds.port)) {
 						System.out.println("Query server: " + string);
-						JSONObject queryResult = queryRelay(jsonObject, string);
-						System.out.println(queryResult.toString());
-						JSONArray resourceArray = new JSONArray();
-						if (queryResult.containsKey("resource")) {
-							resourceArray = (JSONArray) queryResult.get("resource");
-							for (int i = 0; i < resourceArray.size(); i++) {
+						ArrayList<JSONObject> queryResults = queryRelay(jsonObject, string);
+						System.out.println("queryRelay size: "+queryResults.size());
+
+							for (int i = 0; i < queryResults.size(); i++) {
 
 								relayQueryResources.add(ServerOperationHandler
-										.convertJSONOBjectResourceToResource((JSONObject) resourceArray.get(i)));
+										.convertJSONOBjectResourceToResource(queryResults.get(i)));
 
 							}
-						}
+
 
 					}
 				}
@@ -698,7 +773,8 @@ public class ServerClass {
 		return jsonObject;
 		
 	}
-	private static JSONObject queryRelay(JSONObject jsonObject, String server) throws ParseException {
+	private static ArrayList<JSONObject> queryRelay(JSONObject jsonObject, String server) throws ParseException {
+		ArrayList<JSONObject> resourceJSONList = new ArrayList<>();
 		String[] IPandPort = server.split(":");
 		String addr = IPandPort[0];
 		int Port = Integer.parseInt(IPandPort[1]);
@@ -729,13 +805,24 @@ public class ServerClass {
 					String result = input.readUTF();
 					System.out.println("Received from server: " + result);
 					command = (JSONObject) parser.parse(result);
-					unfinish = false;
+					if(command.containsKey("response")){
+						if(!command.get("response").equals("success")){
+							unfinish = false;
+						}
+					}
+					else if(command.containsKey("resultSize")){
+						unfinish = false;
+					}
+					else{
+						resourceJSONList.add(command);
+					}
+
 				}
 			}
 		} catch (UnknownHostException e) {
 		} catch (IOException e) {
 		}
-		return command;
+		return resourceJSONList;
 	}
 
 	private static void startTimer() {
@@ -787,8 +874,9 @@ public class ServerClass {
 	}
 
 	private static boolean findResourceMatch(Resource resource, IResourceTemplate resourceTemplate) {
-		// TODO: @yuhcao consider whether the resource and the resourceTemplate Match
-		return true;
+		ResourceWarehouse resourceWarehouse = new ResourceWarehouse();
+		resourceWarehouse.AddResource(resource);
+		return (null!=resourceWarehouse.FindReource(resourceTemplate));
 	}
 
 	private static String getCurrentTime() {
