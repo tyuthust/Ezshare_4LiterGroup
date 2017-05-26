@@ -71,8 +71,10 @@ public class ServerClass {
 			resultSize++;
 		}
 		
-		public ArrayList<Resource> getResources(){
-			return this.resources;
+		public ArrayList<Resource> getandRefreshResources(){
+			ArrayList<Resource> returnresources = (ArrayList<Resource>) this.resources.clone();
+			this.resources = new ArrayList<>();
+			return returnresources;
 		}
 
 	}
@@ -170,11 +172,11 @@ public class ServerClass {
 
 			// Receive more data..
 			while (unfinishFlag) {
-				
+				JSONObject command = null;
 				
 				if (input.available() > 0) {
 					// Attempt to convert read data to JSON
-					JSONObject command = (JSONObject) parser.parse(input.readUTF());
+					command = (JSONObject) parser.parse(input.readUTF());
 					if (cmds.debug) {
 						logger.info("COMMAND RECEIVED: " + command.toJSONString());
 					}
@@ -262,6 +264,13 @@ public class ServerClass {
 
 					}
 
+					
+					
+					
+					
+				}	//if 
+				
+				if(null!=command){
 					// judge whether the subcribeList contains
 					// the id of the client in this thread
 					// if no, close the clientsocket and close the thread
@@ -277,7 +286,8 @@ public class ServerClass {
 								if (null!= cclient && cclient.id != null) {
 									if(cclient.resources.size()>0){
 										JSONObject jsonMsg = new JSONObject();
-										for(Resource resouce: cclient.resources){
+										ArrayList<Resource> resources = cclient.getandRefreshResources();
+										for(Resource resouce: resources){
 											output.writeUTF(resourcePack(resouce).toJSONString());
 											output.flush();										
 										}
@@ -288,12 +298,7 @@ public class ServerClass {
 							System.out.println("subscribe routine loop");
 						} 
 					}
-					
-					
-					
-				}	
-				
-				
+				}			
 			}//while loop end
 			clientSocket.close();
 			System.out.println(id + " close");

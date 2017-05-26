@@ -17,7 +17,8 @@ public class Server {
 		ServerCmds cmds = (ServerCmds) interpretor.interpret(args);
 		ServerClass server = new ServerClass(cmds);
 		//server.run();
-		server.setup();
+		Thread thread = new Thread(() -> {server.setup();});
+		thread.start();
 
 	}
 
