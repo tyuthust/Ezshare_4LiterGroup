@@ -26,7 +26,7 @@ public class ClientClass {
 	private static String DEFAULT_HOST = "127.0.0.1";
 	private static int DEFAULT_PORT = 3000;
 	private boolean endWhileLoopFlag = true;
-	private boolean pressEnterFlag = false;
+	private static boolean pressEnterFlag = false;
 
 	private static Logger logger = Logger.getLogger(ClientClass.class.getName());
 
@@ -73,13 +73,15 @@ public class ClientClass {
 				output.writeUTF(JsonCmdsString);
 				output.flush();
 				JSONParser parser = new JSONParser();
-
+				
+				// if subscribe function, use startListern to listen console input
+				// and if there is any input from console, end while loop
 				if (this.cmds.subscribe) {
 					this.startListen();
-					while (pressEnterFlag) {
+					while (!pressEnterFlag) {
 						if (input.available() > 0) {
 							String result = input.readUTF();
-							System.out.println("Received from server: " + result);
+							System.out.println(result);
 							//JSONObject command = (JSONObject) parser.parse(result);
 						}
 					}
@@ -204,7 +206,7 @@ public class ClientClass {
 			public void run() {
 				Scanner scanner = new Scanner(System.in);
 				scanner.nextLine();
-				pressEnterFlag = false;
+				pressEnterFlag = true;
 				System.out.println("subscribe end in client");
 				scanner.close();
 			}
