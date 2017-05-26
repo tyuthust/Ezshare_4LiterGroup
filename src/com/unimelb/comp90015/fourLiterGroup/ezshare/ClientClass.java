@@ -99,7 +99,7 @@ public class ClientClass {
 						if (input.available() > 0) {
 
 							String result = input.readUTF();
-							System.out.println("Received from server: " + result);
+							System.out.println(result);
 
 							JSONObject command = (JSONObject) parser.parse(result);
 
@@ -207,7 +207,6 @@ public class ClientClass {
 				Scanner scanner = new Scanner(System.in);
 				scanner.nextLine();
 				pressEnterFlag = true;
-				System.out.println("subscribe end in client");
 				scanner.close();
 			}
 		});
