@@ -55,14 +55,21 @@ public class ServerClass {
 	class connectedClient {
 		String id = null;
 		ArrayList<Resource> resources = new ArrayList<Resource>();
-
-		public connectedClient(String id) {
+		int resultSize;
+		
+		public void setId(String id) {
 			this.id = id;
+			resultSize = 0;
 		}
 
 		public void addResource(Resource resource) {
 			resources.add(resource);
 		}
+		
+		public void addresultSize(){//TODO: @yuchao to call this to calculate the total result
+			resultSize++;
+		}
+
 	}
 
 	public static boolean DEFAULT_RELAY_MODE = true;
@@ -73,9 +80,8 @@ public class ServerClass {
 	private static int resultSize = 1;
 
 	// A list to save client subscribed info
-	private HashMap<String, IResourceTemplate> subscribeList = new HashMap<String, IResourceTemplate>();
-	// A list to save a list
-	private HashMap<String, Resource> notifyList = new HashMap<String, Resource>();
+	private static HashMap<String, IResourceTemplate> subscribeList = new HashMap<String, IResourceTemplate>();
+	private static HashMap<String, connectedClient> notifyList = new HashMap<String, connectedClient>();
 
 	public static boolean ServerDebugModel = false;
 
@@ -141,10 +147,11 @@ public class ServerClass {
 
 	private void serveClient(Socket client) {
 		// A flag to judge the while loop in socket.accept function
-		connectedClient cclient;
 		boolean endWhileLoopFlag = true;
 		boolean subflag = false;
 		String id = null;
+		connectedClient cclient = new connectedClient();
+
 		try (Socket clientSocket = client) {
 
 			// The JSON Parser
@@ -195,28 +202,22 @@ public class ServerClass {
 						// jump out
 						break;
 					}
-					if(command.get("command").equals("PUBLISH")|
-							command.get("command").equals("REMOVE")|
-							command.get("command").equals("SHARE")|
-							command.get("command").equals("FETCH")|
-							command.get("command").equals("EXCHANGE")|
-							command.get("command").equals("UNSUBSCRIBE")
-							){
-						if(ServerDebugModel){
+					if (command.get("command").equals("PUBLISH") | command.get("command").equals("REMOVE")
+							| command.get("command").equals("SHARE") | command.get("command").equals("FETCH")
+							| command.get("command").equals("EXCHANGE")
+							| command.get("command").equals("UNSUBSCRIBE")) {
+						if (ServerDebugModel) {
 							logger.setLevel(Level.INFO);
-							logger.info("Send MSG:"+((JSONObject)results).toJSONString());
+							logger.info("Send MSG:" + ((JSONObject) results).toJSONString());
 						}
-						output.writeUTF(((JSONObject)results).toJSONString());
+						output.writeUTF(((JSONObject) results).toJSONString());
 						output.flush();
-					}
-					else if(command.get("command").equals("QUERY")|
-							command.get("command").equals("SUBSCRIBE")
-							){
+					} else if (command.get("command").equals("QUERY") | command.get("command").equals("SUBSCRIBE")) {
 						@SuppressWarnings("unchecked")
 						ArrayList<JSONObject> resultArrayList = (ArrayList<JSONObject>) results;
 						for (Iterator<JSONObject> iterator = resultArrayList.iterator(); iterator.hasNext();) {
 							JSONObject jsonMsg = iterator.next();
-							if(ServerDebugModel){
+							if (ServerDebugModel) {
 								logger.setLevel(Level.INFO);
 								logger.info("Send MSG:" + jsonMsg.toJSONString());
 							}
@@ -231,22 +232,34 @@ public class ServerClass {
 					// if no, close the clientsocket and close the thread
 
 					if (command.containsKey("id")) {
+						id = command.get("id").toString();
 						if (command.get("command").equals("SUBSCRIBE")) {
-							id = command.get("id").toString();
-							cclient = new connectedClient(id);
+							cclient.setId(id);
+							notifyList.put(id, cclient);
 							subflag = subscribeList.containsKey(id);
+							System.out.println("1");
 						} else if (command.get("command").equals("UNSUBSCRIBE")) {
 							subflag = subscribeList.containsKey(id);
+							System.out.println("2");
 						}
 					}
-					
 					if (subflag) {
 						endWhileLoopFlag = !endWhileLoopFlag;
 					}
 					endWhileLoopFlag = !endWhileLoopFlag;
 				}
+				if (cclient.id != null) {
+					if(cclient.resources.size()>0){
+						JSONObject jsonMsg = new JSONObject();
+						for(Resource resouce: cclient.resources){
+							//TODO: @yuchao pack resources and give them to the client
+							
+						}
+					}
+				}
 			}
 			clientSocket.close();
+			System.out.println(id + " close");
 		} catch (IOException | ParseException e) {
 			System.out.println(e.toString());
 			e.printStackTrace();
@@ -255,7 +268,7 @@ public class ServerClass {
 
 	private ArrayList<JSONObject> handleSubscribe(JSONObject jsonObject, DataOutputStream output) {
 		ArrayList<JSONObject> results = new ArrayList<>();
-		if(jsonObject.get("id") != null && !jsonObject.get("id").equals("")){
+		if (jsonObject.get("id") != null && !jsonObject.get("id").equals("")) {
 			String id = jsonObject.get("id").toString();
 			// TODO: to judge the valid of the jsonObject
 			try {
@@ -267,7 +280,7 @@ public class ServerClass {
 					responseMsg.put("errorMessage", "missing resourceTemplate");
 					results.add(responseMsg);
 				} else {
-					// TODO: add id and resource into the subscribeList
+					// TODO: @yuchao handle query function
 					JSONObject responseMsg = new JSONObject();
 					responseMsg.put("response", "success");
 					responseMsg.put("id", id);
@@ -279,13 +292,12 @@ public class ServerClass {
 				responseMsg.put("errorMessage", e.toString());
 				results.add(responseMsg);
 			}
-		}else{
+		} else {
 			JSONObject responseMsg = new JSONObject();
 			responseMsg.put("response", "error");
 			responseMsg.put("errorMessage", "missing id");
 			results.add(responseMsg);
 		}
-		
 		return results;
 	}
 
@@ -295,9 +307,9 @@ public class ServerClass {
 		// remove id and resource into the subscribeList
 		subscribeList.remove(id);
 		int size = getSubListSize(subscribeList);
-		System.out.println("the current size =" + size);
-		// TODO: get resultsize
-		int resultSize = 0;
+		//System.out.println("the current size =" + size);
+		connectedClient cclient = notifyList.get(id);
+		int resultSize = cclient.resultSize;
 		if (size == 0) {
 			results.put("resultSize", resultSize);
 		}
@@ -681,7 +693,11 @@ public class ServerClass {
 			}
 		}
 	}
-
+	private static JSONObject subscribeRelay(JSONObject jsonObject, String server) throws ParseException{
+		//TODO: @risheng achieve the function
+		return jsonObject;
+		
+	}
 	private static JSONObject queryRelay(JSONObject jsonObject, String server) throws ParseException {
 		String[] IPandPort = server.split(":");
 		String addr = IPandPort[0];
@@ -753,6 +769,26 @@ public class ServerClass {
 	private static int getSubListSize(HashMap<String, IResourceTemplate> subscribeList) {
 		Map<String, IResourceTemplate> map = subscribeList;
 		return map.size();
+	}
+
+	private static void notifyALl(Resource resource) {
+		Map<String, IResourceTemplate> map = subscribeList;
+		Iterator<Map.Entry<String, IResourceTemplate>> entries = map.entrySet().iterator();
+		while (entries.hasNext()) {
+			Map.Entry<String, IResourceTemplate> entry = entries.next();
+			if (findResourceMatch(resource, entry.getValue())) {
+				// find the selected connectedClient object, and add resource
+				// into its resoucelist
+				connectedClient cclient = notifyList.get(entry.getKey());
+				cclient.resources.add(resource);
+			}
+			;
+		}
+	}
+
+	private static boolean findResourceMatch(Resource resource, IResourceTemplate resourceTemplate) {
+		// TODO: @yuhcao consider whether the resource and the resourceTemplate Match
+		return true;
 	}
 
 	private static String getCurrentTime() {

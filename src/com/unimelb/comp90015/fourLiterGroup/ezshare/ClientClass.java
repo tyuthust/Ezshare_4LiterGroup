@@ -80,7 +80,7 @@ public class ClientClass {
 						if (input.available() > 0) {
 							String result = input.readUTF();
 							System.out.println("Received from server: " + result);
-							JSONObject command = (JSONObject) parser.parse(result);
+							//JSONObject command = (JSONObject) parser.parse(result);
 						}
 					}
 					/*
