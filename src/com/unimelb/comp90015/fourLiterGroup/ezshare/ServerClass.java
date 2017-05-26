@@ -59,6 +59,7 @@ public class ServerClass {
 		
 		public connectedClient(int initialSize, String id) {
 			this.resultSize = initialSize;
+			this.id = id;
 		}
 		
 
@@ -283,12 +284,16 @@ public class ServerClass {
 						id = command.get("id").toString();
 						if (command.get("command").equals("SUBSCRIBE")) {
 							if(null == cclient){
+//								System.out.println("subscribe class create");
 								cclient = new connectedClient(resultSize,id);
 								notifyList.put(id, cclient);
 							}
 							else{
+//								System.out.println("subscribe class already exist");
 								if (null!= cclient && cclient.id != null) {
+//									System.out.println("subscribe class valid");
 									if(cclient.resources.size()>0){
+										System.out.println("subscribe class recieve new msg");
 										JSONObject jsonMsg = new JSONObject();
 										ArrayList<Resource> resources = cclient.getandRefreshResources();
 										for(Resource resouce: resources){
@@ -296,10 +301,12 @@ public class ServerClass {
 											output.flush();										
 										}
 									}
+//									System.out.println("subscribe routine loop");
 								}
+
 							}
 							unfinishFlag = subscribeList.containsKey(id);
-							System.out.println("subscribe routine loop");
+
 						} 
 					}
 				}			
@@ -410,6 +417,7 @@ public class ServerClass {
 			Resource resource = ServerOperationHandler.publish(jsonObject);
 			if (resourceWarehouse.AddResource(resource)) {
 				results.put("response", "success");
+				notifyAllSubscribe(resource);
 			} else {
 				results.put("response", "error");
 				results.put("errorMessage", "invalid resource");
@@ -561,6 +569,7 @@ public class ServerClass {
 				Resource resource = ServerOperationHandler.share(jsonObject);
 				if (resourceWarehouse.AddResource(resource)) {
 					results.put("response", "success");
+					notifyAllSubscribe(resource);
 				} else {
 					// if same URI same channel different OWner,
 					// error
@@ -867,16 +876,19 @@ public class ServerClass {
 		return map.size();
 	}
 
-	private static void notifyALl(Resource resource) {
+	private static void notifyAllSubscribe(Resource resource) {
 		Map<String, IResourceTemplate> map = subscribeList;
 		Iterator<Map.Entry<String, IResourceTemplate>> entries = map.entrySet().iterator();
 		while (entries.hasNext()) {
 			Map.Entry<String, IResourceTemplate> entry = entries.next();
 			if (findResourceMatch(resource, entry.getValue())) {
+				System.out.println("notify match!");
 				// find the selected connectedClient object, and add resource
 				// into its resoucelist
+				System.out.println("id: " + entry.getKey());
 				connectedClient cclient = notifyList.get(entry.getKey());
-				cclient.resources.add(resource);
+				cclient.addResource(resource);
+				System.out.println(entry.getKey() + "have size of: " +cclient.resources.size());
 			}
 			;
 		}
