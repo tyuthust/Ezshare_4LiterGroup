@@ -195,15 +195,32 @@ public class ServerClass {
 						// jump out
 						break;
 					}
-
-					if (results.getClass().isInstance(JSONObject.class)) {
-						output.writeUTF(((JSONObject) results).toJSONString());
+					if(command.get("command").equals("PUBLISH")|
+							command.get("command").equals("REMOVE")|
+							command.get("command").equals("SHARE")|
+							command.get("command").equals("FETCH")|
+							command.get("command").equals("EXCHANGE")|
+							command.get("command").equals("UNSUBSCRIBE")
+							){
+						if(ServerDebugModel){
+							logger.setLevel(Level.INFO);
+							logger.info("Send MSG:"+((JSONObject)results).toJSONString());
+						}
+						output.writeUTF(((JSONObject)results).toJSONString());
 						output.flush();
-					} else if (results.getClass().isInstance(ArrayList.class)) {
+					}
+					else if(command.get("command").equals("QUERY")|
+							command.get("command").equals("SUBSCRIBE")
+							){
 						@SuppressWarnings("unchecked")
 						ArrayList<JSONObject> resultArrayList = (ArrayList<JSONObject>) results;
 						for (Iterator<JSONObject> iterator = resultArrayList.iterator(); iterator.hasNext();) {
-							output.writeUTF(iterator.next().toJSONString());
+							JSONObject jsonMsg = iterator.next();
+							if(ServerDebugModel){
+								logger.setLevel(Level.INFO);
+								logger.info("Send MSG:" + jsonMsg.toJSONString());
+							}
+							output.writeUTF(jsonMsg.toJSONString());
 							output.flush();
 						}
 
@@ -236,30 +253,39 @@ public class ServerClass {
 		}
 	}
 
-	private JSONObject handleSubscribe(JSONObject jsonObject, DataOutputStream output) {
-		JSONObject results = new JSONObject();
-		if (jsonObject.get("id") != null && !jsonObject.get("id").equals("")) {
+	private ArrayList<JSONObject> handleSubscribe(JSONObject jsonObject, DataOutputStream output) {
+		ArrayList<JSONObject> results = new ArrayList<>();
+		if(jsonObject.get("id") != null && !jsonObject.get("id").equals("")){
 			String id = jsonObject.get("id").toString();
 			// TODO: to judge the valid of the jsonObject
 			try {
 				IResourceTemplate resource = ServerOperationHandler.subscribe(jsonObject);
 				subscribeList.put(id, resource);
 				if (!jsonObject.containsKey("resourceTemplate")) {
-					results.put("response", "error");
-					results.put("errorMessage", "missing resourceTemplate");
+					JSONObject responseMsg = new JSONObject();
+					responseMsg.put("response", "error");
+					responseMsg.put("errorMessage", "missing resourceTemplate");
+					results.add(responseMsg);
 				} else {
 					// TODO: add id and resource into the subscribeList
-					results.put("response", "success");
-					results.put("id", id);
+					JSONObject responseMsg = new JSONObject();
+					responseMsg.put("response", "success");
+					responseMsg.put("id", id);
+					results.add(responseMsg);
 				}
 			} catch (OperationRunningException e) {
-				results.put("response", "error");
-				results.put("errorMessage", e.toString());
+				JSONObject responseMsg = new JSONObject();
+				responseMsg.put("response", "error");
+				responseMsg.put("errorMessage", e.toString());
+				results.add(responseMsg);
 			}
-		} else {
-			results.put("response", "error");
-			results.put("errorMessage", "missing id");
+		}else{
+			JSONObject responseMsg = new JSONObject();
+			responseMsg.put("response", "error");
+			responseMsg.put("errorMessage", "missing id");
+			results.add(responseMsg);
 		}
+		
 		return results;
 	}
 
