@@ -169,10 +169,12 @@ public class ServerClass {
 			DataInputStream input = new DataInputStream(clientSocket.getInputStream());
 			// Output Stream
 			DataOutputStream output = new DataOutputStream(clientSocket.getOutputStream());
-
+			
+			
+			JSONObject command = null;
 			// Receive more data..
 			while (unfinishFlag) {
-				JSONObject command = null;
+				
 				
 				if (input.available() > 0) {
 					// Attempt to convert read data to JSON
@@ -272,12 +274,11 @@ public class ServerClass {
 					
 					
 				}	//if 
-				
+
 				if(null!=command){
 					// judge whether the subcribeList contains
 					// the id of the client in this thread
 					// if no, close the clientsocket and close the thread
-
 					if (command.containsKey("id")&&null!=command.get("id")) {
 						id = command.get("id").toString();
 						if (command.get("command").equals("SUBSCRIBE")) {
