@@ -26,13 +26,12 @@ public class ClientClass {
 	private static String DEFAULT_HOST = "127.0.0.1";
 	private static int DEFAULT_PORT = 3000;
 	private boolean endWhileLoopFlag = true;
-	private boolean subscribeFlag = false;
+	private boolean pressEnterFlag = false;
 	
 	private static Logger logger = Logger.getLogger(ClientClass.class.getName());
 
 	public ClientClass(ClientCmds cmds) {
 		this.cmds = cmds;
-		subscribeFlag = this.cmds.subscribe;
 	}
 
 	public void run() {
@@ -75,9 +74,9 @@ public class ClientClass {
 				output.flush();
 				JSONParser parser = new JSONParser();
 				
-				if (true == subscribeFlag){
+				if (true == this.cmds.subscribe){
 					this.startListen();
-					while (subscribeFlag) {
+					while (pressEnterFlag) {
 						if (input.available() > 0) {
 							String result = input.readUTF();
 							System.out.println("Received from server: " + result);
@@ -113,6 +112,8 @@ public class ClientClass {
 										endWhileLoopFlag = ! endWhileLoopFlag;
 									}
 								}
+							} else if (command.containsKey("resultSize") && this.cmds.unsubscribe) {
+								endWhileLoopFlag = ! endWhileLoopFlag;
 							}
 							
 							// Check the command name
@@ -202,7 +203,7 @@ public class ClientClass {
 			public void run(){
 				Scanner scanner = new Scanner(System.in);
 				scanner.nextLine();
-				subscribeFlag = false;
+				pressEnterFlag = false;
 				scanner.close();
 			}
 		});

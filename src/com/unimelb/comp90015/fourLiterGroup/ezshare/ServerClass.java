@@ -61,10 +61,10 @@ public class ServerClass {
 
 	// A list to save client subscribed info
 	private HashMap<String, IResourceTemplate> subscribeList = new HashMap<String, IResourceTemplate>();
-
+	// A list to save a list
+	private HashMap<String, Resource> notifyList = new HashMap<String, Resource>(); 
+	
 	public static boolean ServerDebugModel = false;
-	// A flag to judge the while loop in socket.accept function
-	private static boolean endWhileLoopFlag = true;
 
 	public static InetAddress ServerHost;
 
@@ -118,7 +118,6 @@ public class ServerClass {
 			// startTimer();
 			// Wait for connections.
 			while (true) {
-				endWhileLoopFlag = true;
 				Socket client = server.accept();
 
 				// Start a new thread for a connection in the thread pool
@@ -133,6 +132,8 @@ public class ServerClass {
 	}
 
 	private void serveClient(Socket client) {
+		// A flag to judge the while loop in socket.accept function
+		boolean endWhileLoopFlag = true;
 		boolean subflag = false;
 		String id = null;
 		try (Socket clientSocket = client) {
@@ -188,6 +189,8 @@ public class ServerClass {
 
 					if (command.containsKey("id")) {
 						id = command.get("id").toString();
+						System.out.println("the id is: " + id);
+						printSubList(subscribeList);
 						subflag = subscribeList.containsKey(id);
 					}
 					if (subflag) {
@@ -212,7 +215,6 @@ public class ServerClass {
 		try {
 			IResourceTemplate resource = ServerOperationHandler.subscribe(jsonObject);
 			subscribeList.put(id, resource);
-			printSubList(subscribeList);
 			if (!jsonObject.containsKey("resourceTemplate")) {
 				results.put("response", "error");
 				results.put("errorMessage", "missing resourceTemplate");
