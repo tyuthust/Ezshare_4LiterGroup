@@ -21,17 +21,17 @@ import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 import java.util.logging.*;
 
-import java.io.BufferedInputStream;  
-import java.io.BufferedOutputStream;  
-import java.io.FileInputStream;  
-import java.io.IOException;  
-import java.io.InputStream;  
-import java.io.OutputStream;  
-import java.security.KeyStore;  
-  
-import javax.net.ssl.KeyManagerFactory;  
-import javax.net.ssl.SSLContext;  
-import javax.net.ssl.SSLSocket;  
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.security.KeyStore;
+
+import javax.net.ssl.KeyManagerFactory;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLSocket;
 import javax.net.ssl.TrustManagerFactory;
 
 public class ClientClass {
@@ -43,20 +43,19 @@ public class ClientClass {
 	private static boolean pressEnterFlag = false;
 
 	private SSLSocket sslSocket;
-	
+
 	private static Logger logger = Logger.getLogger(ClientClass.class.getName());
 	private static String CLIENT_KEY_STORE_PASSWORD = "4litre";
 	private static String CLIENT_TRUST_KEY_STORE_PASSWORD = "4litre";
-	
-	
+
 	public ClientClass(ClientCmds cmds) {
 		this.cmds = cmds;
 	}
 
-	public void sconnect(){
+	public void sconnect() {
 		int port = DEFAULT_SPORT;
-		if (this.cmds.secure){
-			if(-1 != this.cmds.port){
+		if (this.cmds.secure) {
+			if (-1 != this.cmds.port) {
 				port = this.cmds.port;
 			}
 		}
@@ -66,52 +65,60 @@ public class ClientClass {
 		if ("localhost" == this.cmds.host) {
 			this.cmds.host = DEFAULT_HOST;
 		}
-		try {  
-            SSLContext ctx = SSLContext.getInstance("SSL");  
-  
-            KeyManagerFactory kmf = KeyManagerFactory.getInstance("SunX509");  
-            TrustManagerFactory tmf = TrustManagerFactory.getInstance("SunX509");  
-  
-            KeyStore ks = KeyStore.getInstance("JKS");  
-            KeyStore tks = KeyStore.getInstance("JKS");  
-  
-            ks.load(new FileInputStream("clientKeystore/clientkeystore"), CLIENT_KEY_STORE_PASSWORD.toCharArray());  
-            tks.load(new FileInputStream("serverKeystore/serverkeystore"), CLIENT_TRUST_KEY_STORE_PASSWORD.toCharArray());  
-  
-            kmf.init(ks, CLIENT_KEY_STORE_PASSWORD.toCharArray());  
-            tmf.init(tks);  
-  
-            ctx.init(kmf.getKeyManagers(), tmf.getTrustManagers(), null);  
-  
-            sslSocket = (SSLSocket) ctx.getSocketFactory().createSocket(DEFAULT_HOST, port);  
-        } catch (Exception e) {  
-            System.out.println(e);  
-        }  
-		if (sslSocket == null) {  
-            System.out.println("ERROR");  
-            return;  
-        }  
-        try {  
-            InputStream input = sslSocket.getInputStream();  
-            OutputStream output = sslSocket.getOutputStream();  
-  
-            BufferedInputStream bis = new BufferedInputStream(input);  
-            BufferedOutputStream bos = new BufferedOutputStream(output);  
-            //ADD JSON PACK
-            
-            bos.write("Client Message".getBytes());  
-            bos.flush();  
-  
-            byte[] buffer = new byte[20];  
-            bis.read(buffer);  
-            System.out.println(new String(buffer));  
-  
-            sslSocket.close();  
-        } catch (IOException e) {  
-            System.out.println(e);  
-        }  
+		try {
+			SSLContext ctx = SSLContext.getInstance("SSL");
+
+			KeyManagerFactory kmf = KeyManagerFactory.getInstance("SunX509");
+			TrustManagerFactory tmf = TrustManagerFactory.getInstance("SunX509");
+
+			KeyStore ks = KeyStore.getInstance("JKS");
+			KeyStore tks = KeyStore.getInstance("JKS");
+
+			ks.load(new FileInputStream("clientKeystore/clientkeystore"), CLIENT_KEY_STORE_PASSWORD.toCharArray());
+			tks.load(new FileInputStream("serverKeystore/serverkeystore"),
+					CLIENT_TRUST_KEY_STORE_PASSWORD.toCharArray());
+
+			kmf.init(ks, CLIENT_KEY_STORE_PASSWORD.toCharArray());
+			tmf.init(tks);
+
+			ctx.init(kmf.getKeyManagers(), tmf.getTrustManagers(), null);
+
+			sslSocket = (SSLSocket) ctx.getSocketFactory().createSocket(DEFAULT_HOST, port);
+		} catch (Exception e) {
+			System.out.println(e);
+		}
+		if (sslSocket == null) {
+			System.out.println("ERROR");
+			return;
+		}
+		boolean unfinishFlag = true;
+		while (unfinishFlag) {
+			try {
+				InputStream input = sslSocket.getInputStream();
+				OutputStream output = sslSocket.getOutputStream();
+
+				BufferedInputStream bis = new BufferedInputStream(input);
+				BufferedOutputStream bos = new BufferedOutputStream(output);
+				// TODO: ADD JSON PACK
+				JSONPack jsonPack = new ClientPack();
+				String JsonCmdsString = jsonPack.Pack(this.cmds).toJSONString();
+				bos.write(JsonCmdsString.getBytes());
+				bos.flush();
+
+				byte[] buffer = new byte[2000];
+				bis.read(buffer);
+				System.out.println(new String(buffer));
+
+				sslSocket.close();
+			} catch (IOException e) {
+				System.out.println(e);
+			} catch (CommandInvalidException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
 	}
-    
+
 	public void connect() throws IOException, CommandInvalidException {
 		String id = this.cmds.id;
 
@@ -145,8 +152,9 @@ public class ClientClass {
 				output.writeUTF(JsonCmdsString);
 				output.flush();
 				JSONParser parser = new JSONParser();
-				
-				// if subscribe function, use startListern to listen console input
+
+				// if subscribe function, use startListern to listen console
+				// input
 				// and if there is any input from console, end while loop
 				if (this.cmds.subscribe) {
 					this.startListen();
@@ -154,7 +162,8 @@ public class ClientClass {
 						if (input.available() > 0) {
 							String result = input.readUTF();
 							System.out.println(result);
-							//JSONObject command = (JSONObject) parser.parse(result);
+							// JSONObject command = (JSONObject)
+							// parser.parse(result);
 						}
 					}
 					/*
@@ -177,8 +186,7 @@ public class ClientClass {
 
 							// find the end of the connection
 							if (command.containsKey("response")) {
-								if (command.get("response").toString().equals("success") 
-										&& !this.cmds.fetch
+								if (command.get("response").toString().equals("success") && !this.cmds.fetch
 										&& !this.cmds.query) {
 									endWhileLoopFlag = !endWhileLoopFlag;
 								} else if (command.get("response").toString().equals("error")) {
@@ -186,7 +194,8 @@ public class ClientClass {
 										endWhileLoopFlag = !endWhileLoopFlag;
 									}
 								}
-							} else if (command.containsKey("resultSize") && (this.cmds.unsubscribe || this.cmds.query)) {
+							} else if (command.containsKey("resultSize")
+									&& (this.cmds.unsubscribe || this.cmds.query)) {
 								endWhileLoopFlag = !endWhileLoopFlag;
 							}
 
