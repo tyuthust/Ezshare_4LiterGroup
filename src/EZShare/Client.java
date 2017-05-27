@@ -18,7 +18,6 @@ public class Client {
 			interpretor = new ClientOptionInterpretor();
 			ClientCmds cmds = (ClientCmds) interpretor.interpret(args);
 			ClientClass client = new ClientClass(cmds);
-			System.out.println(cmds.secure);
 			if(!cmds.secure){
 				client.connect();
 			}else{

@@ -161,12 +161,12 @@ public class ServerClass {
 
 			ctx.init(kmf.getKeyManagers(), tmf.getTrustManagers(), null);
 
-			serverSocket = (SSLServerSocket) ctx.getServerSocketFactory().createServerSocket(DEFAULT_SPORT);
+			serverSocket = (SSLServerSocket) ctx.getServerSocketFactory().createServerSocket(ssport);
 			serverSocket.setNeedClientAuth(true);
 			
 			if (cmds.debug) {
 				logger.info("setting server debug on. ");
-				logger.info("The IP:" + cmds.advertisedhostname + "\n" + "The port:" + DEFAULT_SPORT);
+				logger.info("The IP:" + cmds.advertisedhostname + "\n" + "The port:" + ssport);
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
