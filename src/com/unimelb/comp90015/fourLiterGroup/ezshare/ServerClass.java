@@ -114,6 +114,7 @@ public class ServerClass {
 	private ResourceWarehouse resourceWarehouse;
 	// Server List
 	private static Set<String> Servers;
+	private static Set<String> SecureServers;
 	private static int intervalTime = 600;
 
 	public ServerClass(ServerCmds cmds) throws UnknownHostException {
@@ -219,7 +220,7 @@ public class ServerClass {
 						} else if (command.get("command").equals("EXCHANGE")) {
 							results = new JSONObject();
 							// TODO: add hanlde secure exchange function
-							results = handleExchange(command);
+							results = handleExchange(command,true);
 						} else if (command.get("command").equals("SUBSCRIBE")) {
 							results = new JSONObject();
 							results = handleSecureSubscribe(command);
@@ -849,13 +850,24 @@ public class ServerClass {
 		return results;
 	}
 
-	private JSONObject handleExchange(JSONObject jsonObject) {
+	private JSONObject handleExchange(JSONObject jsonObject){
+		return handleExchange(jsonObject, false);
+	}
+	
+	private JSONObject handleExchange(JSONObject jsonObject ,boolean isSecure) {
 		JSONObject results = new JSONObject();
 		int i = 0;
+		boolean secureExchange = isSecure;
 		try {
 			String[] serverlist = ServerOperationHandler.exchange(jsonObject);
 			for (String string : serverlist) {
-				Servers.add(string);
+				if(secureExchange){
+					SecureServers.add(string);
+				}
+				else{
+					Servers.add(string);
+				}
+
 			}
 			if (cmds.debug) {
 				for (String string : Servers) {
