@@ -54,6 +54,12 @@ public class ClientClass {
 	}
 
 	public void sconnect(){
+		int port = DEFAULT_SPORT;
+		if (this.cmds.secure){
+			if(-1 != this.cmds.port){
+				port = this.cmds.port;
+			}
+		}
 		try {  
             SSLContext ctx = SSLContext.getInstance("SSL");  
   
@@ -71,7 +77,7 @@ public class ClientClass {
   
             ctx.init(kmf.getKeyManagers(), tmf.getTrustManagers(), null);  
   
-            sslSocket = (SSLSocket) ctx.getSocketFactory().createSocket(DEFAULT_HOST, DEFAULT_SPORT);  
+            sslSocket = (SSLSocket) ctx.getSocketFactory().createSocket(DEFAULT_HOST, port);  
         } catch (Exception e) {  
             System.out.println(e);  
         }  
