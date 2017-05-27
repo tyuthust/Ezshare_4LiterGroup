@@ -177,8 +177,7 @@ public class ServerClass {
 			System.out.println("ERROR");
 			return;
 		}
-		boolean unfinishFlag = true;
-		while (unfinishFlag) {
+		while (true) {
 			try {
 				Socket s = serverSocket.accept();
 				InputStream input = s.getInputStream();
@@ -188,83 +187,89 @@ public class ServerClass {
 				JSONParser parser = new JSONParser();
 				BufferedInputStream bis = new BufferedInputStream(input);
 				BufferedOutputStream bos = new BufferedOutputStream(output);
-
-				byte[] buffer = new byte[2000];
-				bis.read(buffer);
-				String jsonString = new String(buffer);
-				if (cmds.debug) {
-					logger.info("COMMAND RECEIVED: " + jsonString);
-				}
-				command = (JSONObject) parser.parse(jsonString.trim());
-
-				// TODO: ahcieve specific funciton
-				Object results = null;// return json pack
-
-				if (command.get("command").equals("PUBLISH")) {
-					results = new JSONObject();
-					results = handlePublish(command);
-				} else if (command.get("command").equals("QUERY")) {
-					results = new ArrayList<JSONObject>();
-					results = handleQuery(command);
-				} else if (command.get("command").equals("REMOVE")) {
-					results = new JSONObject();
-					results = handleRemove(command);
-				} else if (command.get("command").equals("SHARE")) {
-					results = new JSONObject();
-					results = handleShare(command);
-				} else if (command.get("command").equals("FETCH")) {
-					//results = new JSONObject();
-					//results = handleFetch(command);
-				} else if (command.get("command").equals("EXCHANGE")) {
-					results = new JSONObject();
-					// TODO: add hanlde secure exchange function
-					results = handleExchange(command);
-				} else if (command.get("command").equals("SUBSCRIBE")) {
-					results = new JSONObject();
-					results = handleSubscribe(command);
-				} else if (command.get("command").equals("UNSUBSCRIBE")) {
-					results = new JSONObject();
-					results = handleUnsubscribe(command);
-				} else {
-					// Unrecognized command
-					// jump out
-					break;
-				}
-				if (command.get("command").equals("PUBLISH") || command.get("command").equals("REMOVE")
-						|| command.get("command").equals("SHARE") || command.get("command").equals("FETCH")
-						|| command.get("command").equals("EXCHANGE") || command.get("command").equals("UNSUBSCRIBE")) {
-					if (ServerDebugModel) {
-						logger.setLevel(Level.INFO);
-						logger.info("Send MSG:" + ((JSONObject) results).toJSONString());
-					}
-					bos.write(((JSONObject) results).toJSONString().getBytes());
-					bos.flush();
-					unfinishFlag = false;
-				} else if (command.get("command").equals("QUERY")) {
-					ArrayList<JSONObject> resultArrayList = (ArrayList<JSONObject>) results;
-					if (ServerDebugModel) {
-						logger.setLevel(Level.INFO);
-						logger.info("MSG count:" + resultArrayList.size());
-					}
-
-					for (Iterator<JSONObject> iterator = resultArrayList.iterator(); iterator.hasNext();) {
-						JSONObject jsonMsg = iterator.next();
-						if (ServerDebugModel) {
-							logger.setLevel(Level.INFO);
-							logger.info("Send MSG:" + jsonMsg.toJSONString());
+				boolean unfinishFlag = true;
+				while (unfinishFlag) {
+					if (true) {
+						byte[] buffer = new byte[2048];
+						bis.read(buffer);
+						String jsonString = new String(buffer).trim();
+						if (cmds.debug) {
+							logger.info("COMMAND RECEIVED: " + jsonString);
 						}
-						bos.write(jsonMsg.toJSONString().getBytes());
-						bos.flush();
+						command = (JSONObject) parser.parse(jsonString);
 
-						// if no msg need write,
-						// end loop
-						if (!iterator.hasNext()) {
-							System.out.println("End by size read");
+						// TODO: ahcieve specific funciton
+						Object results = null;// return json pack
+
+						if (command.get("command").equals("PUBLISH")) {
+							results = new JSONObject();
+							results = handlePublish(command);
+						} else if (command.get("command").equals("QUERY")) {
+							results = new ArrayList<JSONObject>();
+							results = handleQuery(command);
+						} else if (command.get("command").equals("REMOVE")) {
+							results = new JSONObject();
+							results = handleRemove(command);
+						} else if (command.get("command").equals("SHARE")) {
+							results = new JSONObject();
+							results = handleShare(command);
+						} else if (command.get("command").equals("FETCH")) {
+							// results = new JSONObject();
+							// results = handleFetch(command);
+						} else if (command.get("command").equals("EXCHANGE")) {
+							results = new JSONObject();
+							// TODO: add hanlde secure exchange function
+							results = handleExchange(command);
+						} else if (command.get("command").equals("SUBSCRIBE")) {
+							results = new JSONObject();
+							results = handleSubscribe(command);
+						} else if (command.get("command").equals("UNSUBSCRIBE")) {
+							results = new JSONObject();
+							results = handleUnsubscribe(command);
+						} else {
+							// Unrecognized command
+							// jump out
+							break;
+						}
+						if (command.get("command").equals("PUBLISH") || command.get("command").equals("REMOVE")
+								|| command.get("command").equals("SHARE") || command.get("command").equals("FETCH")
+								|| command.get("command").equals("EXCHANGE")
+								|| command.get("command").equals("UNSUBSCRIBE")) {
+							if (ServerDebugModel) {
+								logger.setLevel(Level.INFO);
+								logger.info("Send MSG:" + ((JSONObject) results).toJSONString());
+							}
+							bos.write(((JSONObject) results).toJSONString().getBytes());
+							bos.flush();
 							unfinishFlag = false;
+						} else if (command.get("command").equals("QUERY")) {
+							ArrayList<JSONObject> resultArrayList = (ArrayList<JSONObject>) results;
+							if (ServerDebugModel) {
+								logger.setLevel(Level.INFO);
+								logger.info("MSG count:" + resultArrayList.size());
+							}
+
+							for (Iterator<JSONObject> iterator = resultArrayList.iterator(); iterator.hasNext();) {
+								JSONObject jsonMsg = iterator.next();
+								if (ServerDebugModel) {
+									logger.setLevel(Level.INFO);
+									logger.info("Send MSG:" + jsonMsg.toJSONString());
+								}
+								bos.write(jsonMsg.toJSONString().getBytes());
+								bos.flush();
+
+								// if no msg need write,
+								// end loop
+								if (!iterator.hasNext()) {
+									System.out.println("End by size read");
+									unfinishFlag = false;
+								}
+							}
 						}
 					}
-					s.close();
+
 				}
+				s.close();
 			} catch (Exception e) {
 				System.out.println(e);
 			}
@@ -343,7 +348,7 @@ public class ServerClass {
 						results = handleShare(command);
 					} else if (command.get("command").equals("FETCH")) {
 						results = new JSONObject();
-						results = handleFetch(command,output);
+						results = handleFetch(command, output);
 					} else if (command.get("command").equals("EXCHANGE")) {
 						results = new JSONObject();
 						results = handleExchange(command);
@@ -710,7 +715,7 @@ public class ServerClass {
 
 	}
 
-	private JSONObject handleFetch(JSONObject jsonObject,DataOutputStream output) {
+	private JSONObject handleFetch(JSONObject jsonObject, DataOutputStream output) {
 		JSONObject results = new JSONObject();
 
 		try {

@@ -91,78 +91,76 @@ public class ClientClass {
 			System.out.println("ERROR");
 			return;
 		}
-		boolean unfinishFlag = true;
-		while (unfinishFlag) {
-			try {
-				InputStream input = sslSocket.getInputStream();
-				OutputStream output = sslSocket.getOutputStream();
+		try {
+			InputStream input = sslSocket.getInputStream();
+			OutputStream output = sslSocket.getOutputStream();
 
-				BufferedInputStream bis = new BufferedInputStream(input);
-				BufferedOutputStream bos = new BufferedOutputStream(output);
-				// TODO: ADD JSON PACK
-				JSONPack jsonPack = new ClientPack();
-				String JsonCmdsString = jsonPack.Pack(this.cmds).toJSONString();
-				bos.write(JsonCmdsString.getBytes());
-				bos.flush();
+			BufferedInputStream bis = new BufferedInputStream(input);
+			BufferedOutputStream bos = new BufferedOutputStream(output);
+			// TODO: ADD JSON PACK
+			JSONPack jsonPack = new ClientPack();
+			String JsonCmdsString = jsonPack.Pack(this.cmds).toJSONString();
+			byte[] jsonB = JsonCmdsString.getBytes();
+			//bos.write(jsonB);
+			//bos.flush();
+			output.write(jsonB);
+			output.flush();
+			
+			JSONObject command = new JSONObject();
+			JSONParser parser = new JSONParser();
+			/*
+			 * byte[] buffer = new byte[2000]; bis.read(buffer);
+			 * System.out.println(new String(buffer));
+			 */
 
-				/*
-				byte[] buffer = new byte[2000];
-				bis.read(buffer);
-				System.out.println(new String(buffer));
-				*/
-				
-				// get info form server
-				if(this.cmds.subscribe){
-					this.startListen();
-					while(!pressEnterFlag){
-						JSONObject command = new JSONObject();
-						JSONParser parser = new JSONParser();
-						
-						byte[] buffer = new byte[2000];
+			// get info form server
+			if (this.cmds.subscribe) {
+				this.startListen();
+				while (!pressEnterFlag) {
+					if(bis.read()!= -1){
+						byte[] buffer = new byte[bis.available()];
 						bis.read(buffer);
 						String jsonString = new String(buffer);
 						command = (JSONObject) parser.parse(jsonString.trim());
 						if (command.containsKey("errorMessage")) {
 							pressEnterFlag = true;
 						}
-						System.out.println(buffer.toString());
+						System.out.println(jsonString);
 					}
-				}else{
-					boolean unfinish = true;
-					while(unfinish){
-						JSONObject command = new JSONObject();
-						JSONParser parser = new JSONParser();
-						
-						byte[] buffer = new byte[2000];
-						bis.read(buffer);
-						String jsonString = new String(buffer);
-						command = (JSONObject) parser.parse(jsonString.trim());
-						// find the end of the connection
-						if (command.containsKey("response")) {
-							if (command.get("response").toString().equals("success") && !this.cmds.fetch
-									&& !this.cmds.query) {
+				}
+			} else {
+				boolean unfinish = true;
+				while (unfinish) {
+					byte[] buffer = new byte[2048];
+					bis.read(buffer);
+					String jsonString = new String(buffer);
+					command = (JSONObject) parser.parse(jsonString.trim());
+					System.out.println(jsonString);
+
+					// find the end of the connection
+					if (command.containsKey("response")) {
+						if (command.get("response").toString().equals("success") && !this.cmds.fetch
+								&& !this.cmds.query) {
+							unfinish = false;
+						} else if (command.get("response").toString().equals("error")) {
+							if (command.containsKey("errorMessage")) {
 								unfinish = false;
-							} else if (command.get("response").toString().equals("error")) {
-								if (command.containsKey("errorMessage")) {
-									unfinish = false;
-								}
 							}
-						} else if (command.containsKey("resultSize")
-								&& (this.cmds.unsubscribe || this.cmds.query)) {
-							endWhileLoopFlag = !endWhileLoopFlag;
 						}
+					} else if (command.containsKey("resultSize") && (this.cmds.unsubscribe || this.cmds.query)) {
+						unfinish = false;
 					}
 				}
 				sslSocket.close();
-			} catch (IOException e) {
-				System.out.println(e);
-			} catch (CommandInvalidException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (ParseException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
 			}
+		} catch (IOException e) {
+			System.out.println(e);
+		} catch (CommandInvalidException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (ParseException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
 	}
 
@@ -209,7 +207,7 @@ public class ClientClass {
 						if (input.available() > 0) {
 							String result = input.readUTF();
 							System.out.println(result);
-							JSONObject command = (JSONObject)parser.parse(result);
+							JSONObject command = (JSONObject) parser.parse(result);
 							if (command.containsKey("errorMessage")) {
 								pressEnterFlag = true;
 							}
