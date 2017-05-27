@@ -34,7 +34,18 @@ import java.util.concurrent.FutureTask;
 import java.util.concurrent.RunnableFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
+import java.io.FileInputStream;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.net.Socket;
+import java.security.KeyStore;
 
+import javax.net.ssl.KeyManagerFactory;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLServerSocket;
+import javax.net.ssl.TrustManagerFactory;
 import javax.net.ServerSocketFactory;
 
 import org.json.simple.JSONArray;
@@ -82,6 +93,11 @@ public class ServerClass {
 	public static int DEFAULT_PORT = 3000;
 	public static int DEFAULT_QUERY_TIMEOUT = 6000;
 
+	private static final int DEFAULT_SPORT = 3781;
+
+	private static final String SERVER_KEY_STORE_PASSWORD = "4litre";
+	private static final String SERVER_TRUST_KEY_STORE_PASSWORD = "4litre";
+
 	private ServerCmds cmds;
 	private static int resultSize = 1;
 
@@ -119,6 +135,63 @@ public class ServerClass {
 				add(cmds.advertisedhostname + ":" + Integer.toString(cmds.port));
 			}
 		};
+	}
+
+	// set up a secrue port
+	public void ssetup() {
+		SSLServerSocket serverSocket = null;
+		try {
+			SSLContext ctx = SSLContext.getInstance("SSL");
+
+			KeyManagerFactory kmf = KeyManagerFactory.getInstance("SunX509");
+			TrustManagerFactory tmf = TrustManagerFactory.getInstance("SunX509");
+
+			KeyStore ks = KeyStore.getInstance("JKS");
+			KeyStore tks = KeyStore.getInstance("JKS");
+
+			ks.load(new FileInputStream("serverKeystore/serverkeystore"), SERVER_KEY_STORE_PASSWORD.toCharArray());
+			tks.load(new FileInputStream("clientKeystore/clientkeystore"), SERVER_TRUST_KEY_STORE_PASSWORD.toCharArray());
+
+			kmf.init(ks, SERVER_KEY_STORE_PASSWORD.toCharArray());
+			tmf.init(tks);
+
+			ctx.init(kmf.getKeyManagers(), tmf.getTrustManagers(), null);
+
+			serverSocket = (SSLServerSocket) ctx.getServerSocketFactory().createServerSocket(DEFAULT_SPORT);
+			serverSocket.setNeedClientAuth(true);
+			
+			if (cmds.debug) {
+				logger.info("setting server debug on. ");
+				logger.info("The IP:" + cmds.advertisedhostname + "\n" + "The port:" + DEFAULT_SPORT);
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		} 
+		if (serverSocket == null) {
+			System.out.println("ERROR");
+			return;
+		}
+		while (true) {
+			try {
+				Socket s = serverSocket.accept();
+				InputStream input = s.getInputStream();
+				OutputStream output = s.getOutputStream();
+
+				BufferedInputStream bis = new BufferedInputStream(input);
+				BufferedOutputStream bos = new BufferedOutputStream(output);
+
+				byte[] buffer = new byte[20];
+				bis.read(buffer);
+				System.out.println(new String(buffer));
+
+				bos.write("Server Echo".getBytes());
+				bos.flush();
+
+				s.close();
+			} catch (Exception e) {
+				System.out.println(e);
+			}
+		} 
 	}
 
 	public void setup() {
@@ -302,7 +375,7 @@ public class ServerClass {
 				}
 			} // while loop end
 			clientSocket.close();
-			if(id != null){
+			if (id != null) {
 				System.out.println(id + " close");
 			}
 		} catch (IOException | ParseException e) {
@@ -315,7 +388,7 @@ public class ServerClass {
 		ArrayList<JSONObject> results = new ArrayList<>();
 		ArrayList<Resource> resultResources = new ArrayList<>();
 		Boolean relayMode = DEFAULT_RELAY_MODE;
-		String id =null;
+		String id = null;
 		if (jsonObject.get("id") != null && !jsonObject.get("id").equals("")) {
 			id = jsonObject.get("id").toString();
 			// TODO: to judge the valid of the jsonObject
@@ -345,7 +418,8 @@ public class ServerClass {
 							resultResources.add(hitresource);
 						}
 					}
-					//TODO: @yuhcao when running relyaMode, add relay resources into the inter class' resources
+					// TODO: @yuhcao when running relyaMode, add relay resources
+					// into the inter class' resources
 					if (relayMode) {
 						JSONObject relayjsonObject = (JSONObject) jsonObject.clone();
 						relayjsonObject.replace("relay", "false");
@@ -353,21 +427,23 @@ public class ServerClass {
 							logger.setLevel(Level.INFO);
 							logger.info("Start Realy");
 						}
-						//TODO: fix NullPointerException bug because the relayResources is empty
+						// TODO: fix NullPointerException bug because the
+						// relayResources is empty
 						ArrayList<Resource> relayResources = queryOtherServers(jsonObject, Servers);
 						if (ServerDebugModel) {
 							logger.setLevel(Level.INFO);
 							logger.info("relayResources Total Number: " + relayResources.size());
 							logger.info("End Relay");
 						}
-						if(id != null){
-							if(notifyList.containsKey(id)){
+						if (id != null) {
+							if (notifyList.containsKey(id)) {
 								connectedClient cclient = notifyList.get(id);
-								// add all relay resources into cclient.resources
+								// add all relay resources into
+								// cclient.resources
 								cclient.resources.addAll(relayResources);
 							}
 						}
-						//resultResources.addAll(relayResources);
+						// resultResources.addAll(relayResources);
 					}
 
 					JSONObject responseMsg = new JSONObject();
@@ -864,7 +940,7 @@ public class ServerClass {
 			// Print out results received from server..
 			JSONParser parser = new JSONParser();
 			// Never end the while loop until the thread closed
-			//TODO: fix the bug and find how to end this loop
+			// TODO: fix the bug and find how to end this loop
 			boolean unfinish = true;
 			while (unfinish) {
 				if (input.available() > 0) {
@@ -877,7 +953,7 @@ public class ServerClass {
 					}
 				}
 				unfinish = false;
-			}	
+			}
 		} catch (
 
 		UnknownHostException e) {

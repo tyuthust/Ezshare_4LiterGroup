@@ -14,9 +14,10 @@ public class ServerOptionInterpretor implements OptionInterpretor {
 		options.addOption("advertisedhostname", true, "advertised hostname");
 		options.addOption("connectionintervallimit", true, "connection interval limit in seconds");
 		options.addOption("exchangeinterval", true, "exchange interval in seconds");
-		options.addOption("port", true, "server port, an integers");
+		options.addOption("port", true, "server port, an integer");
 		options.addOption("secret", true, "secret");
 		options.addOption("debug", false, "print debug information");
+		options.addOption("sport",true,"secure sever port, an interger");
 		
 		CommandLineParser parser = new DefaultParser();
         CommandLine cmd = null;
@@ -43,7 +44,9 @@ public class ServerOptionInterpretor implements OptionInterpretor {
         	serverCmds.secret = cmd.getOptionValue("secret");
         if(cmd.hasOption("debug"))
         	serverCmds.debug = true;
-		
+		if(cmd.hasOption("sport")){
+			serverCmds.sport = Integer.parseInt(cmd.getOptionValue("sport"));
+		}
 		
 		return serverCmds;
 	}

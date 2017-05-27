@@ -43,4 +43,5 @@ public class ClientCmds extends Cmds {
 	public String id;
 	public boolean subscribe = false;
 	public boolean unsubscribe = false;
+	public boolean secure = false;
 }
