@@ -60,6 +60,12 @@ public class ClientClass {
 				port = this.cmds.port;
 			}
 		}
+		if (null == this.cmds.host || this.cmds.host.isEmpty()) {
+			this.cmds.host = DEFAULT_HOST;
+		}
+		if ("localhost" == this.cmds.host) {
+			this.cmds.host = DEFAULT_HOST;
+		}
 		try {  
             SSLContext ctx = SSLContext.getInstance("SSL");  
   
@@ -91,7 +97,8 @@ public class ClientClass {
   
             BufferedInputStream bis = new BufferedInputStream(input);  
             BufferedOutputStream bos = new BufferedOutputStream(output);  
-  
+            //ADD JSON PACK
+            
             bos.write("Client Message".getBytes());  
             bos.flush();  
   
