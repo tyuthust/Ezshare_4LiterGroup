@@ -155,8 +155,17 @@ public class ServerClass {
 			KeyStore ks = KeyStore.getInstance("JKS");
 			KeyStore tks = KeyStore.getInstance("JKS");
 
-			ks.load(new FileInputStream("serverKeystore/serverkeystore"), SERVER_KEY_STORE_PASSWORD.toCharArray());
-			tks.load(new FileInputStream("clientKeystore/clientkeystore"),
+//			InputStream serverkeystoreInput = Thread.currentThread().getContextClassLoader().getResourceAsStream("serverKeystore/serverkeystore.jks");
+//			InputStream clientKeystoreInput = Thread.currentThread().getContextClassLoader().getResourceAsStream("clientKeystore/clientkeystore.jks");
+//			System.out.println(null!=serverkeystoreInput? "serverkeystoreInput is not null":"serverkeystoreInput is null");
+//			System.out.println(null!=clientKeystoreInput? "clientKeystoreInput is not null":"clientKeystoreInput is null");
+//			ks.load(serverkeystoreInput, SERVER_KEY_STORE_PASSWORD.toCharArray());
+//			tks.load(clientKeystoreInput,
+//					SERVER_TRUST_KEY_STORE_PASSWORD.toCharArray());
+			
+			
+			ks.load(new FileInputStream("serverKeystore/serverkeystore.jks"), SERVER_KEY_STORE_PASSWORD.toCharArray());
+			tks.load(new FileInputStream("clientKeystore/clientkeystore.jks"),
 					SERVER_TRUST_KEY_STORE_PASSWORD.toCharArray());
 
 			kmf.init(ks, SERVER_KEY_STORE_PASSWORD.toCharArray());
