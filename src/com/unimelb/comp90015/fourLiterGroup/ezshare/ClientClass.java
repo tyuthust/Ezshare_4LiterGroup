@@ -69,6 +69,11 @@ public class ClientClass {
 		if ("localhost" == this.cmds.host){
 			this.cmds.host = DEFAULT_HOST;
 		}
+		if(this.cmds.secure){
+			if (-1 == this.cmds.port) {
+				this.cmds.port = DEFAULT_SPORT;
+			}
+		}
 		if (-1 == this.cmds.port) {
 			this.cmds.port = DEFAULT_PORT;
 		}
@@ -89,14 +94,14 @@ public class ClientClass {
             tmf.init(tks);
   
             ctx.init(kmf.getKeyManagers(), tmf.getTrustManagers(), null);
-		try (SSLSocket sslClientSocket = (SSLSocket) ctx.getSocketFactory().createSocket(DEFAULT_HOST, DEFAULT_SPORT);  
+		try (SSLSocket sslClientSocket = (SSLSocket) ctx.getSocketFactory().createSocket(this.cmds.host, this.cmds.port);  
 				/*SSLSocket sslClientSocket = (SSLSocket) new Socket(this.cmds.host, this.cmds.sport);*/) {
 			// Output and Input Stream
 			//sslClientSocket.startHandshake();
 			System.out.println("ddddd");
 			DataInputStream input = new DataInputStream(sslClientSocket.getInputStream());
 			DataOutputStream output = new DataOutputStream(sslClientSocket.getOutputStream());
-
+			
 			JSONPack jsonPack = new ClientPack();
 
 			rMItoServer(sslClientSocket, input, output, jsonPack);
