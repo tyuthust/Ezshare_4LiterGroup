@@ -89,6 +89,7 @@ public class ClientPack implements JSONPack {
 
 		} else if (clientcmds.exchange) {// pack exchange command in json
 			// List<JSONObject> jsonobjectList = new ArrayList<JSONObject>();
+			//TODO: add secure
 			JSONArray jsonMap = new JSONArray();
 			jsonObject.put("command", "EXCHANGE");
 			if (clientcmds.servers != null) {

@@ -13,5 +13,6 @@
 	<classpathentry kind="lib" path="lib/junit-4.11.jar"/>
 	<classpathentry kind="lib" path="lib/log4j-api-2.1.jar"/>
 	<classpathentry kind="lib" path="lib/log4j-core-2.1.jar"/>
+	<classpathentry kind="lib" path="keystore"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

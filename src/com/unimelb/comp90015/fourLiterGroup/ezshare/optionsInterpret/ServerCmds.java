@@ -7,7 +7,7 @@ import com.unimelb.comp90015.fourLiterGroup.ezshare.utils.utils;
 public class ServerCmds extends Cmds {
 	public static int DEFAULT_CONNECTION_INTERVAL_LIMIT_SECONDS = 0;
 	public static int DEFAULT_EXCHANGE_INTERVAL_SECONDS = 0;
-
+	public int sport = -1;
 //	The server must work exactly with the following command line options:
 //		-advertisedhostname <arg> advertised hostname
 //		-connectionintervallimit <arg> connection interval limit in seconds

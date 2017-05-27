@@ -3,6 +3,8 @@ package com.unimelb.comp90015.fourLiterGroup.ezshare;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.net.DatagramPacket;
@@ -12,6 +14,12 @@ import java.net.MulticastSocket;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.UnknownHostException;
+import java.security.KeyManagementException;
+import java.security.KeyStore;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
+import java.security.UnrecoverableKeyException;
+import java.security.cert.CertificateException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -34,6 +42,11 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
 import javax.net.ServerSocketFactory;
+import javax.net.ssl.KeyManagerFactory;  
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLServerSocket;
+import javax.net.ssl.SSLSocket;  
+import javax.net.ssl.TrustManagerFactory;
 
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
@@ -52,9 +65,13 @@ public class ServerClass {
 
 	public static boolean DEFAULT_RELAY_MODE = true;
 	public static int DEFAULT_PORT = 3000;
-	public static int DEFAULT_QUERY_TIMEOUT = 6000;
-
-	private ServerCmds cmds;
+	
+	public static int DEFAULT_SPORT = 3781;//TODO:	
+	private static final String SERVER_KEY_STORE_PASSWORD       = "4litre";  
+    private static final String SERVER_TRUST_KEY_STORE_PASSWORD = "4litre";  
+    //private SSLServerSocket sslserverSocket;  
+    public static int DEFAULT_QUERY_TIMEOUT = 6000;
+    private ServerCmds cmds;
 	private static int resultSize = 1;
 
 	// A list to save client subscribed info
@@ -81,6 +98,9 @@ public class ServerClass {
 		if (-1 == this.cmds.port) {
 			this.cmds.port = DEFAULT_PORT;
 		}
+		if (-1 == this.cmds.sport) {
+			this.cmds.sport = DEFAULT_SPORT;
+		}
 		if (null == this.cmds.secret) {
 			this.cmds.generateSecret();
 		}
@@ -98,7 +118,7 @@ public class ServerClass {
 		System.out.println(cmds.port);
 	}
 
-	public void setup() {
+	public void setup(){
 		logger.setLevel(Level.INFO);
 		ServerSocketFactory factory = ServerSocketFactory.getDefault();
 
@@ -129,7 +149,55 @@ public class ServerClass {
 			e.printStackTrace();
 		}
 	}
+	public void SSLsetup() throws CertificateException, NoSuchAlgorithmException, KeyStoreException, FileNotFoundException, IOException, UnrecoverableKeyException, KeyManagementException {
+		logger.setLevel(Level.INFO);
+		ServerSocketFactory factory = ServerSocketFactory.getDefault();
 
+		// start a Thread Pool. Threads that have not been used for more than
+		// sixty seconds are terminated and removed from the cache.
+		ExecutorService SSLThreadPool = Executors.newCachedThreadPool();
+		SSLContext context = SSLContext.getInstance("SSL");
+
+		KeyManagerFactory keymngfactory = KeyManagerFactory.getInstance("SunX509");
+		TrustManagerFactory trustmngfactory = TrustManagerFactory.getInstance("SunX509");
+
+		KeyStore keystore = KeyStore.getInstance("JKS");
+		KeyStore trustkeystore = KeyStore.getInstance("JKS");
+
+		keystore.load(new FileInputStream("lib/keystore/serverkeystore"), SERVER_KEY_STORE_PASSWORD.toCharArray());
+		trustkeystore.load(new FileInputStream("lib/keystore/clientkeystore"),
+				SERVER_TRUST_KEY_STORE_PASSWORD.toCharArray());
+
+		keymngfactory.init(keystore, SERVER_KEY_STORE_PASSWORD.toCharArray());
+		trustmngfactory.init(trustkeystore);
+
+		context.init(keymngfactory.getKeyManagers(), trustmngfactory.getTrustManagers(), null);
+		
+		try (SSLServerSocket sslserverSocket = (SSLServerSocket) context.getServerSocketFactory().createServerSocket(this.cmds.sport)
+				/*SSLServerSocket sslserverSocket = (SSLServerSocket) factory.createServerSocket(this.cmds.sport)*/) {
+			if (cmds.debug) {
+				logger.info("setting server debug on (secure). ");
+				logger.info("The IP:" + cmds.advertisedhostname + "\n" + "The port:" + cmds.sport);
+			}
+			sslserverSocket.setNeedClientAuth(true);
+
+			while (true) {
+				flag = true;
+				SSLSocket sslclient = (SSLSocket) sslserverSocket.accept();
+
+				// Start a new thread for a connection in the thread pool
+				Thread t = new Thread(() -> serveClient(sslclient));
+				SSLThreadPool.execute(t);
+			}
+
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+
+	}
+//    public void init() {
+//        
+//    }  
 	private void serveClient(Socket client) {
 		boolean subflag = false;
 		String id = null;

@@ -1,6 +1,11 @@
 package EZShare;
 
 import java.io.IOException;
+import java.security.KeyManagementException;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
+import java.security.UnrecoverableKeyException;
+import java.security.cert.CertificateException;
 
 import org.apache.commons.cli.ParseException;
 
@@ -19,7 +24,13 @@ public class Client {
 			ClientCmds cmds = (ClientCmds) interpretor.interpret(args);
 			ClientClass client = new ClientClass(cmds);
 			//client.run();
-			client.connect();	
+			try {
+				client.connect();
+			} catch (UnrecoverableKeyException | KeyManagementException | NoSuchAlgorithmException | KeyStoreException
+					| CertificateException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}	
 	}
 
 }

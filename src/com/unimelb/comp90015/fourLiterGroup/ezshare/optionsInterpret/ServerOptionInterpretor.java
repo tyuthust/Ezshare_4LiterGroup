@@ -17,7 +17,7 @@ public class ServerOptionInterpretor implements OptionInterpretor {
 		options.addOption("port", true, "server port, an integers");
 		options.addOption("secret", true, "secret");
 		options.addOption("debug", false, "print debug information");
-		
+		options.addOption("sport", true, "server sucure port, an integers");
 		CommandLineParser parser = new DefaultParser();
         CommandLine cmd = null;
         

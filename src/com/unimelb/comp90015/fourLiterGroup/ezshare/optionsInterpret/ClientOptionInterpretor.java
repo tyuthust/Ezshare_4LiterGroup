@@ -36,6 +36,7 @@ public class ClientOptionInterpretor implements OptionInterpretor {
 		options.addOption("share",false,"share resource on server");
 		options.addOption("tags", true, "resource tags, tag1,tag2,tag3,...");
 		options.addOption("uri", true, "resource URI");
+		options.addOption("secure", false, "is secure");
 		
         CommandLineParser parser = new DefaultParser();
         CommandLine cmd = null;
@@ -54,7 +55,9 @@ public class ClientOptionInterpretor implements OptionInterpretor {
         if(cmd.hasOption("id")){
         	clientCmds.id = cmd.getOptionValue("id");
         }
-        
+        if(cmd.hasOption("secure")){
+        	clientCmds.secure = true;
+        }
         //Project1
         if(cmd.hasOption("channel"))
         	clientCmds.channel = cmd.getOptionValue("channel");
