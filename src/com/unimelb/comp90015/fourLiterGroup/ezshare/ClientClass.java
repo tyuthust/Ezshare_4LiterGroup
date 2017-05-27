@@ -21,6 +21,19 @@ import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 import java.util.logging.*;
 
+import java.io.BufferedInputStream;  
+import java.io.BufferedOutputStream;  
+import java.io.FileInputStream;  
+import java.io.IOException;  
+import java.io.InputStream;  
+import java.io.OutputStream;  
+import java.security.KeyStore;  
+  
+import javax.net.ssl.KeyManagerFactory;  
+import javax.net.ssl.SSLContext;  
+import javax.net.ssl.SSLSocket;  
+import javax.net.ssl.TrustManagerFactory; 
+
 public class ClientClass {
 	private ClientCmds cmds;
 	private static String DEFAULT_HOST = "127.0.0.1";
@@ -28,6 +41,8 @@ public class ClientClass {
 	private boolean endWhileLoopFlag = true;
 	private static boolean pressEnterFlag = false;
 
+	private SSLSocket sslSocket;
+	
 	private static Logger logger = Logger.getLogger(ClientClass.class.getName());
 
 	public ClientClass(ClientCmds cmds) {
