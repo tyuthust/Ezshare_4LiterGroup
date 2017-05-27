@@ -22,7 +22,7 @@ public class ServerCmds extends Cmds {
 //	public int port;		//Base class
 //	public String secret;	//Base class
 //	public boolean debug;	//Base class
-	public int sport;
+	public int sport = -1;
 	
 	public void generateSecret(){
 		if(null != this.secret){

@@ -140,6 +140,10 @@ public class ServerClass {
 	// set up a secrue port
 	public void ssetup() {
 		SSLServerSocket serverSocket = null;
+		int ssport = DEFAULT_SPORT;
+		if(-1 != this.cmds.sport){
+			ssport = this.cmds.sport;
+		}
 		try {
 			SSLContext ctx = SSLContext.getInstance("SSL");
 
