@@ -222,7 +222,7 @@ public class ServerClass {
 							results = handleExchange(command);
 						} else if (command.get("command").equals("SUBSCRIBE")) {
 							results = new JSONObject();
-							results = handleSubscribe(command);
+							results = handleSecureSubscribe(command);
 						} else if (command.get("command").equals("UNSUBSCRIBE")) {
 							results = new JSONObject();
 							results = handleUnsubscribe(command);
@@ -495,6 +495,51 @@ public class ServerClass {
 		return results;
 	}
 
+	private JSONObject handleSecureSubscribe(JSONObject jsonObject) {
+		JSONObject results = new JSONObject();
+		Boolean relayMode = DEFAULT_RELAY_MODE;
+		String id = null;
+		if (jsonObject.get("id") != null && !jsonObject.get("id").equals("")) {
+			id = jsonObject.get("id").toString();
+			// TODO: to judge the valid of the jsonObject
+			try {
+				IResourceTemplate resource = ServerOperationHandler.subscribe(jsonObject);
+				subscribeList.put(id, resource);
+				if (!jsonObject.containsKey("resourceTemplate")) {
+					results.put("response", "error");
+					results.put("errorMessage", "missing resourceTemplate");
+				} else {
+					if (null != jsonObject.get("relay")) {
+						relayMode = (jsonObject.get("relay").equals("true")) ? true : false;
+						System.out.println("Subscribe: init Relay " + (relayMode ? "On" : "Off"));
+					}
+					// TODO: @yuhcao when running relyaMode, relay subscribe
+					if (relayMode) {
+						JSONObject relayjsonObject = (JSONObject) jsonObject.clone();
+						relayjsonObject.replace("relay", "false");
+						if (ServerDebugModel) {
+							logger.setLevel(Level.INFO);
+							logger.info("Start Realy");
+						}
+						securesubscirbeOtherServers(relayjsonObject, Servers);
+
+					}
+
+					results.put("response", "success");
+					results.put("id", id);
+
+				}
+			} catch (OperationRunningException e) {
+				results.put("response", "error");
+				results.put("errorMessage", e.toString());
+			}
+		} else {
+			results.put("response", "error");
+			results.put("errorMessage", "missing id");
+		}
+		return results;
+	}
+	
 	private JSONObject handleUnsubscribe(JSONObject jsonObject) {
 		JSONObject results = new JSONObject();
 		String id = jsonObject.get("id").toString();
@@ -681,6 +726,29 @@ public class ServerClass {
 
 	}
 
+	private void securesubscirbeOtherServers(JSONObject jsonObject, Set<String> serverList) {
+		if (null != jsonObject && jsonObject.containsKey("relay")) {
+			jsonObject.replace("relay", "false");
+			for (String string : serverList) {
+				// subscribe without the server itself
+				if (!string.equals(ServerHost.getHostAddress() + ":" + cmds.port)) {
+					System.out.println("Subscribe server: " + string);
+
+					Thread thread = new Thread(() -> {
+						try {
+							securesubscribeRelay(jsonObject, string);
+						} catch (Exception e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
+					});
+					thread.start();
+				}
+			}
+		}
+
+	}
+	
 	private JSONObject handleShare(JSONObject jsonObject) {
 		JSONObject results = new JSONObject();
 		// if secret is incorrect
@@ -991,6 +1059,85 @@ public class ServerClass {
 
 	}
 
+	private void securesubscribeRelay(JSONObject jsonObject, String server) throws ParseException {
+		//TODO: change to a ssl
+		String[] IPandPort = server.split(":");
+		String addr = IPandPort[0];
+		int Port = Integer.parseInt(IPandPort[1]);
+		JSONObject command = new JSONObject();
+		String relaySourceID = null;
+
+		try (Socket socket = new Socket(addr, Port)) {
+			// Output and Input Stream
+
+			DataInputStream input = new DataInputStream(socket.getInputStream());
+			DataOutputStream output = new DataOutputStream(socket.getOutputStream());
+
+			System.out.println("subcribe relay function!");
+
+			if (jsonObject.containsKey("relay")) {
+				jsonObject.replace("relay", "false");
+			}
+			if (jsonObject.containsKey("id") && null != jsonObject.get("id")) {
+				relaySourceID = jsonObject.get("id").toString();
+			}
+			// add to logger
+			System.out.println("Subscribe Relay JSONPack:" + jsonObject.toJSONString());
+
+			// Send RMI to Server
+			output.writeUTF(jsonObject.toJSONString());
+			output.flush();
+
+			// Print out results received from server..
+			JSONParser parser = new JSONParser();
+			// Never end the while loop until the thread closed
+			// TODO: fix the bug and find how to end this loop
+			boolean unfinish = true;
+			while (unfinish) {
+				if (input.available() > 0) {
+					String result = input.readUTF();
+					// TODO: remove this output
+					System.out.println("Received from server: " + result);
+					command = (JSONObject) parser.parse(result);
+					if (command.containsKey("response")) {
+						if (!command.get("response").equals("success")) {
+							// if response wrong
+							// exit
+							unfinish = false;
+						}
+					} else {
+						try {
+							notifyAllSubscribe(ServerOperationHandler.convertJSONOBjectResourceToResource(command));
+						} catch (OperationRunningException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
+					}
+				}
+				// maintain id
+				// if id not exist
+				// unsubscribe from server
+				// exit
+				if (null == relaySourceID || !subscribeList.containsKey(relaySourceID)) {
+					if (null != relaySourceID) {
+						JSONObject unscribeJSON = new JSONObject();
+						unscribeJSON.put("id", relaySourceID);
+						unscribeJSON.put("command", "UNSUBSCRIBE");
+						output.writeUTF(unscribeJSON.toJSONString());
+						output.flush();
+					}
+					unfinish = false;
+				}
+
+			}
+		} catch (
+
+		UnknownHostException e) {
+		} catch (IOException e) {
+		}
+
+	}
+	
 	private static ArrayList<JSONObject> queryRelay(JSONObject jsonObject, String server) throws ParseException {
 		ArrayList<JSONObject> resourceJSONList = new ArrayList<>();
 		String[] IPandPort = server.split(":");
