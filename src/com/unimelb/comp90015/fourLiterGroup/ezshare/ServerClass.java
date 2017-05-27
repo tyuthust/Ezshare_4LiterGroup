@@ -353,7 +353,8 @@ public class ServerClass {
 							logger.setLevel(Level.INFO);
 							logger.info("Start Realy");
 						}
-						ArrayList<Resource> relayResources = subscirbeOtherServers(jsonObject, Servers);
+						//TODO: fix NullPointerException bug because the relayResources is empty
+						ArrayList<Resource> relayResources = queryOtherServers(jsonObject, Servers);
 						if (ServerDebugModel) {
 							logger.setLevel(Level.INFO);
 							logger.info("relayResources Total Number: " + relayResources.size());
@@ -864,7 +865,8 @@ public class ServerClass {
 			JSONParser parser = new JSONParser();
 			// Never end the while loop until the thread closed
 			//TODO: fix the bug and find how to end this loop
-			while (true) {
+			boolean unfinish = true;
+			while (unfinish) {
 				if (input.available() > 0) {
 					String result = input.readUTF();
 					// TODO: remove this output
@@ -874,7 +876,8 @@ public class ServerClass {
 						resourceJSONList.add(command);
 					}
 				}
-			}
+				unfinish = false;
+			}	
 		} catch (
 
 		UnknownHostException e) {
